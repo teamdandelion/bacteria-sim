@@ -1,15 +1,26 @@
-STARTING_HP = 1000
+# Rendering code adopted from Harry Brundage's flocking example,
+# adopted in turn from Daniel Shiffman's flocking example, found 
+# here: http://processingjs.org/learning/topic/flocking/
+
+
+class BlobRules
+  @energyBurnRate =
+
 
 class Blob
   @numBlobs
-  constructor: (@genes, @energy, @environment) -> 
+  constructor: (@position, @genes, @energy, @environment) -> 
     @id = Blob.numBlobs++
-    @hp = STARTING_HP
     @photo  = @genes.photo
     @attack = @genes.attack
     @speed  = @genes.speed
     @efficency  = @genes.efficiency
-    @bodyEnergy = @
+    @energyPerSecond = calcEnergyPerSecond()
+    
 
 
-  @
+  calcEnergyPerSecond: () ->
+    speedBurn  = -@speed
+    attackBurn = -Math.pow(@attack, 2)
+    efficiencyFactor = 1 - @efficiency / 100
+    @photo + (speedBurn + attackBurn) * efficiencyFactor    

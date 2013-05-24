@@ -1,21 +1,21 @@
 # Vector class modified from work by Daniel Shiffman
 # http://processingjs.org/learning/topic/flocking/
 
-class Vector
+class Vector2D
     # Class methods for nondestructively operating
     for name in ['add', 'subtract', 'multiply', 'divide']
       do (name) ->
-        Vector[name] = (a,b) ->
+        Vector2D[name] = (a,b) ->
           a.copy()[name](b)
 
-    constructor: (x=0,y=0,z=0) ->
-      [@x,@y,@z] = [x,y,z]
+    constructor: (x=0,y=0) ->
+      [@x,@y] = [x,y]
 
     copy: ->
-      new Vector(@x,@y,@z)
+      new Vector2D(@x,@y)
 
     magnitude: ->
-      Math.sqrt(@x*@x + @y*@y + @z*@z)
+      Math.sqrt(@x*@x + @y*@y)
     
     normalize: ->
       m = this.magnitude()
@@ -35,43 +35,38 @@ class Vector
     eucl_distance: (other) ->
       dx = @x-other.x
       dy = @y-other.y
-      dz = @z-other.z
-      Math.sqrt(dx*dx + dy*dy + dz*dz)
+      Math.sqrt(dx*dx + dy*dy)
 
     distance: (other, dimensions = false) ->
       dx = Math.abs(@x-other.x)
       dy = Math.abs(@y-other.y)
-      dz = Math.abs(@z-other.z)
-
       # Wrap
       if dimensions
         dx = if dx < dimensions.width/2 then dx else dimensions.width - dx
         dy = if dy < dimensions.height/2 then dy else dimensions.height - dy
 
-      Math.sqrt(dx*dx + dy*dy + dz*dz)
+      Math.sqrt(dx*dx + dy*dy)
 
     subtract: (other) ->
       @x -= other.x
       @y -= other.y
-      @z -= other.z
       this
  
     add: (other) ->
       @x += other.x
       @y += other.y
-      @z += other.z
       this
 
     divide: (n) ->
-      [@x,@y,@z] = [@x/n,@y/n,@z/n]
+      [@x,@y] = [@x/n,@y/n]
       this
 
     multiply: (n) ->
-      [@x,@y,@z] = [@x*n,@y*n,@z*n]
+      [@x,@y] = [@x*n,@y*n]
       this
     
     dot: (other) ->
-      @x*other.x + @y*other.y + @z*other.z
+      @x*other.x + @y*other.y
     
     # Not the strict projection, the other isn't converted to a unit vector first.
     projectOnto: (other) ->
@@ -100,4 +95,4 @@ class Vector
       v
 
     invalid: () ->
-      return (@x == Infinity) || isNaN(@x) || @y == Infinity || isNaN(@y) || @z == Infinity || isNaN(@z)
+      return (@x == Infinity) || isNaN(@x) || @y == Infinity || isNaN(@y)
