@@ -8,6 +8,10 @@ class Vector2D
         Vector2D[name] = (a,b) ->
           a.copy()[name](b)
 
+    Vector2D.randomUnitVector = () ->
+      v = new Vector2D(Math.random(), Math.random())
+      v.normalize()
+
     constructor: (x=0,y=0) ->
       [@x,@y] = [x,y]
 
