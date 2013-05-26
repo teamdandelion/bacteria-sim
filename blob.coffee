@@ -3,7 +3,7 @@
 # here: http://processingjs.org/learning/topic/flocking/
 
 class Blob
-  @numBlobs
+  @numBlobs = 0
   constructor: (@position, @genes, @energy, @environment) -> 
     @id = Blob.numBlobs++
     @age = 0
@@ -33,17 +33,20 @@ class Blob
       @energy += Math.min(@attackPower, a.energy)
       a.energy -= @attackPower
 
-    if @energy < 0
-      @die()
-      return
     action = @chooseAction(observables)
-    @calculateHeading(action)
-    if action.actionType is "reproduction"
+    if action.actionType is "repr"
       @reproduce(action)
+    
+    @calculateHeading(action)
+    if @currentHeading?
+      @move()
+
+    if @energy < 0
+      @environment.removeBlob(this)
 
   calculateHeading: (action) ->
     if action.actionType is "pursuit"
-      if "pursuitTarget" of action
+      if action.argument?
         # Let's set heading as the vector pointing towards target 
         target = action.pursuitTarget
         @currentHeading = Vector2D.subtract(target.position, @position)
@@ -56,36 +59,46 @@ class Blob
         # keep in the same direction
         @currentHeading ?= Vector2D.randomUnitVector()
 
-    else if action.actionType is "flight" and "flightTarget" of action
-        @currentHeading = Vector2D.subtract(@position, target.position)
-        @currentHeading.normalize()
-        # Current implementation only flees 1 target w/ highest fear
+    else if action.actionType is "flight" and action.argument?
+      target = action.argument
+      @currentHeading = Vector2D.subtract(@position, target.position)
+      @currentHeading.normalize()
+      # Current implementation only flees 1 target w/ highest fear
 
     else # No action -> stay put
-      currentHeading = null
+      @currentHeading = null
 
   chooseAction: (observables) ->
     pursuitPairs = ([@calcPursuit o, o] for o in observables)
     flightPairs  = ([@calcFlight  o, o] for o in observables)
 
-    maxPursuit = myMaximumFn pursuitPairs...
-    maxFlight  = myMaximumFn flightPairs...
+    maxPursuit = maxByIndex pursuitPairs, 0 ? [0, null]
+    maxFlight  = maxByIndex flightPairs,  0 ? [0, null]
 
     pursuitThreshold = @genes.calcPursuitThreshold energy
     flightThreshold  = @genes.calcFlightThreshold  energy
     
-    pursuitSignal = [maxPursuit[0] - pursuitThreshold, 'P']
-    flightSignal  = [maxFlight[0]  - flightThreshold , 'F']
-    reproductionSignal = [@genes.calcReproductionSignal energy
+    pursuitSignal = [maxPursuit[0] - pursuitThreshold, 'pursuit', maxPursuit[1]]
+    flightSignal  = [maxFlight[0]  - flightThreshold,  'flight' , maxFlight[1] ]
+    reprSignal = [@genes.reprSignal energy, 'repr', @genes.childEnergy energy]
 
-    signals = [pursuitSignal, 'P']
+    signals = [pursuitSignal, flightSignal, reprSignal]
+    maxSignal = maxByIndex 0, signals
+
+    action = {"type": null}
+    if maxSignal[0] > 0
+      action.type = maxSignal[1]
+      action.argument = maxSignal[2]
 
   reproduce: (action) ->
     childEnergy = action.childEnergy
-    if @energy >= childEnergy + REPRODUCTION_BASE_COST
-      @energy -= childEnergy + REPRODUCTION_BASE_COST
+    if @energy >= childEnergy + REPR_BASE_COST
+      @energy  -= childEnergy + REPR_BASE_COST
       @environment.addChildBlob(this, childEnergy)
 
-  flee: (targets) ->
-
+  move: (heading) ->
+    if @energy > @speed * @efficiencyFactor
+      @energy -= @speed * @efficiencyFactor
+      movement = Vector2D.multiply(heading, @speed)
+      @position.add(movement)
 
