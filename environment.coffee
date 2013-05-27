@@ -9,6 +9,10 @@ class Environment
 		# placeholder
 
 	addChildBlob: (blob, childEnergy) ->
-		# placeholder
-
+		oldGeneCode = blob.geneCode
+		newGeneCode = GeneCode.copy(oldGeneCode)
 		
+
+
+	addNewBlob: (geneCode = null)
+

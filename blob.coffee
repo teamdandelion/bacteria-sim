@@ -4,7 +4,7 @@
 
 class Blob
   @numBlobs = 0
-  constructor: (@position, @genes, @energy, @environment) -> 
+  constructor: (@position, @geneCode, @energy, @environment) -> 
     @id  = Blob.numBlobs++
     @age = 0
     @pho = @genes.pho
@@ -23,23 +23,25 @@ class Blob
 
   step: (observables, attackables) ->
     """One full step of simulation for this blob.
-    Observables: Everything within seeing distance.
+    Observables: Everything within seeing distance. Represented as
+    list of [blob, distance] pairs.
     Attackables: Everything which is adjacent and close enough to 
     auto-attack. These are passed by the environment"""
     @energy += @energyPerSecond
     @age++
 
     for a in attackables
+      # Note: Order in which blobs are considered can change outcome
       @energy += Math.min(@attackPower, a.energy)
       a.energy -= @attackPower
 
     action = @chooseAction(observables)
     if action.actionType is "repr"
-      @reproduce(action)
+      @reproduce(action.argument)
     
     @calculateHeading(action)
     if @currentHeading?
-      @move()
+      @move(@currentHeading)
 
     if @energy < 0
       @environment.removeBlob(this)
@@ -69,10 +71,10 @@ class Blob
       @currentHeading = null
 
   chooseAction: (observables) ->
+    @geneCode.calculateAction(@energy, observables)
     
 
-  reproduce: (action) ->
-    childEnergy = action.childEnergy
+  reproduce: (childEnergy) ->
     if @energy >= childEnergy + REPR_BASE_COST
       @energy  -= childEnergy + REPR_BASE_COST
       @environment.addChildBlob(this, childEnergy)
