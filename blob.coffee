@@ -5,12 +5,12 @@
 class Blob
   @numBlobs = 0
   constructor: (@position, @genes, @energy, @environment) -> 
-    @id = Blob.numBlobs++
+    @id  = Blob.numBlobs++
     @age = 0
-    @photo  = @genes.photo
-    @attack = @genes.attack
-    @speed  = @genes.speed
-    @efficency  = @genes.efficiency
+    @pho = @genes.pho
+    @atk = @genes.atk
+    @spd = @genes.spd
+    @eff = @genes.eff
     @calcEnergyPerSecond()
     @attackPower = Math.pow(attack, 2)
     @currentHeading = null
@@ -69,26 +69,7 @@ class Blob
       @currentHeading = null
 
   chooseAction: (observables) ->
-    pursuitPairs = ([@calcPursuit o, o] for o in observables)
-    flightPairs  = ([@calcFlight  o, o] for o in observables)
-
-    maxPursuit = maxByIndex pursuitPairs, 0 ? [0, null]
-    maxFlight  = maxByIndex flightPairs,  0 ? [0, null]
-
-    pursuitThreshold = @genes.calcPursuitThreshold energy
-    flightThreshold  = @genes.calcFlightThreshold  energy
     
-    pursuitSignal = [maxPursuit[0] - pursuitThreshold, 'pursuit', maxPursuit[1]]
-    flightSignal  = [maxFlight[0]  - flightThreshold,  'flight' , maxFlight[1] ]
-    reprSignal = [@genes.reprSignal energy, 'repr', @genes.childEnergy energy]
-
-    signals = [pursuitSignal, flightSignal, reprSignal]
-    maxSignal = maxByIndex 0, signals
-
-    action = {"type": null}
-    if maxSignal[0] > 0
-      action.type = maxSignal[1]
-      action.argument = maxSignal[2]
 
   reproduce: (action) ->
     childEnergy = action.childEnergy

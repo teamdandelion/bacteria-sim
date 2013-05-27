@@ -21,35 +21,37 @@ class GeneCode
       phoGene: new Gene(null, 0, 100, 1)
       effGene: new Gene(null, 0, 100, 1)
       # decision threhsolds are calculated as base + modifier * energy
-      huntBase: new Gene()
-      fleeBase: new Gene()
-      reprBase: new Gene()
-      huntMod:  new Gene()
-      fleeMod:  new Gene()
-      reprMod:  new Gene()
+      huntBase: new Gene(-100)
+      fleeBase: new Gene(-100)
+      reprBase: new Gene(-400)
+      huntMod:  new Gene(-10)
+      fleeMod:  new Gene(5)
+      reprMod:  new Gene(10)
       
       # mapping from other blob's stats to this blob's hunt response
-      nrgHunt: new Gene()
-      atkHunt: new Gene()
-      spdHunt: new Gene()
-      phoHunt: new Gene()
-      effHunt: new Gene()
-      dstHunt: new Gene()
+      nrgHunt: new Gene(3)
+      atkHunt: new Gene(-5)
+      spdHunt: new Gene(-5)
+      phoHunt: new Gene(5)
+      effHunt: new Gene(5)
+      dstHunt: new Gene(-3)
 
       # mapping from other blob's stats to this blob's flee response
-      nrgFlee: new Gene()
-      atkFlee: new Gene()
-      spdFlee: new Gene()
-      phoFlee: new Gene()
-      effFlee: new Gene()
-      dstFlee: new Gene()
+      nrgFlee: new Gene(0)
+      atkFlee: new Gene(10)
+      spdFlee: new Gene(6)
+      phoFlee: new Gene(-10)
+      effFlee: new Gene(-5)
+      dstFlee: new Gene(-5)
 
-      childEnergy: new Gene(100, 0, 10000, 20)
+      childEnergy: new Gene(100)
 
   calculateAction: (energy, observables) ->
     # an observable is a [blob, distance] pair
     huntPairs = ([@calcHuntImpulse(o), o[0]] for o in observables)
+    console.log huntPairs
     fleePairs = ([@calcFleeImpulse(o), o[0]] for o in observables)
+    console.log fleePairs
 
     maxHunt = maxByIndex(huntPairs, 0) ? [0, null]
     maxFlee = maxByIndex(fleePairs, 0) ? [0, null]
@@ -75,21 +77,21 @@ class GeneCode
       action.argument = maxAction[2]
     action
 
-  calculateHuntImpulse: ([o, dist]) -> 
-    i =  @genes.nrgHunt * o.nrg
-    i += @genes.atkHunt * o.atk
-    i += @genes.spdHunt * o.spd
-    i += @genes.phoHunt * o.pho
-    i += @genes.effHunt * o.eff
-    i += @genes.dstHunt * dist
+  calcHuntImpulse: ([b, dist]) -> 
+    i =  @genes.nrgHunt.val * b.energy
+    i += @genes.atkHunt.val * b.atk
+    i += @genes.spdHunt.val * b.spd
+    i += @genes.phoHunt.val * b.pho
+    i += @genes.effHunt.val * b.eff
+    i += @genes.dstHunt.val * dist
   
-  calculateFleeImpulse: ([o, dist]) -> 
-    i =  @genes.nrgFlee * o.nrg
-    i += @genes.atkFlee * o.atk
-    i += @genes.spdFlee * o.spd
-    i += @genes.phoFlee * o.pho
-    i += @genes.effFlee * o.eff
-    i += @genes.dstFlee * dist
+  calcFleeImpulse: ([b, dist]) -> 
+    i =  @genes.nrgFlee.val * b.energy
+    i += @genes.atkFlee.val * b.atk
+    i += @genes.spdFlee.val * b.spd
+    i += @genes.phoFlee.val * b.pho
+    i += @genes.effFlee.val * b.eff
+    i += @genes.dstFlee.val * dist
 
 class Gene
   """Represent a single gene in the GeneCode. Has method for mutation.
@@ -132,8 +134,4 @@ maxByIndex = (arrayOfArrays, index) ->
       maxArray = arr
   unless maxIndex? then throw new Error("maxByIndex: Index out of bounds for entire array")
   maxArray
-
-gc = new GeneCode()
-gc.calculateAction(0, [])
-
 
