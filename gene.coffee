@@ -16,10 +16,10 @@ class GeneCode
 	constructor: (@genes) ->
 		@genes ?= 
 			# determines the stats
-			atkGene: new Gene(0,100,1)
-			spdGene: new Gene(0,100,1)
-			phoGene: new Gene(0,100,1)
-			effGene: new Gene(0,100,1)
+			atkGene: new Gene(null, 0, 100, 1)
+			spdGene: new Gene(null, 0, 100, 1)
+			phoGene: new Gene(null, 0, 100, 1)
+			effGene: new Gene(null, 0, 100, 1)
 			# decision threhsolds are calculated as base + modifier * energy
 			huntBase: new Gene()
 			fleeBase: new Gene()
@@ -42,7 +42,53 @@ class GeneCode
 			spdFlee: new Gene()
 			phoFlee: new Gene()
 			effFlee: new Gene()
-			dstHunt: new Gene()
+			dstFlee: new Gene()
+
+			childEnergy: new Gene(100, 0, 10000, 20)
+
+	calculateAction: (energy, observables) ->
+		# an observable is a [blob, distance] pair
+		huntPairs = ([@calcHuntImpulse(o), o[0]] for o in observables)
+    fleePairs = ([@calcFleeImpulse(o), o[0]] for o in observables)
+
+    maxHunt = maxByIndex(huntPairs, 0) ? [0, null]
+    maxFlee = maxByIndex(fleePairs, 0) ? [0, null]
+
+    huntThreshold = @genes.huntBase.val + @genes.huntMod.val * energy
+    fleeThreshold = @genes.fleeBase.val + @genes.fleeMod.val * energy
+    reprThreshold = @genes.reprBase.val + @genes.reprMod.val * energy
+    
+    huntSignal = maxHunt[0] - huntThreshold
+    fleeSignal = maxFlee[0] - fleeThreshold
+    reprSignal = @genes.reprMod.val * energy - reprThreshold   
+    fleeAction = [fleeSignal, 'flee', maxFlee[1]]
+    huntAction = [huntSignal, 'hunt', maxHunt[1]]
+    reprAction = [reprSignal, 'repr', @genes.childEnergy.val]
+
+    signals = [huntSignal, fleeSignal, reprSignal]
+    maxSignal = maxByIndex 0, signals
+
+    action = {"type": null}
+    if maxSignal[0] > 0
+      action.type     = maxSignal[1]
+      action.argument = maxSignal[2]
+    action
+
+	calculateHuntImpulse: ([o, dist]) -> 
+		i =  @genes.nrgHunt * o.nrg
+		i += @genes.atkHunt * o.atk
+		i += @genes.spdHunt * o.spd
+		i += @genes.phoHunt * o.pho
+		i += @genes.effHunt * o.eff
+		i += @genes.dstHunt * dist
+	
+	calculateFleeImpulse: ([o, dist]) -> 
+		i =  @genes.nrgFlee * o.nrg
+		i += @genes.atkFlee * o.atk
+		i += @genes.spdFlee * o.spd
+		i += @genes.phoFlee * o.pho
+		i += @genes.effFlee * o.eff
+		i += @genes.dstFlee * dist
 
 class Gene
 	"""Represent a single gene in the GeneCode. Has method for mutation.
@@ -71,3 +117,19 @@ randomSign = () ->
     1
   else
     -1
+
+maxByIndex = (arrayOfArrays, index) ->
+  """Get the maximum Array in an Array of Arrays according to 
+  ordering by one of the indexes
+  e.g. maxByElem [["hello", 1], ["goodbye", 2]], 1 -> ["goodbye", 2]"""
+  unless arrayOfArrays.length then return null
+  maxIndex = arrayOfArrays[0][index]
+  maxArray = arrayOfArrays[0]
+  for arr in arrayOfArrays
+    if arr[index] > maxIndex
+      maxIndex = arr[index]
+      maxArray = arr
+  unless maxIndex? then throw new Error("maxByIndex: Index out of bounds for entire array")
+  maxArray
+
+
