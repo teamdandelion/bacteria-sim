@@ -16,35 +16,41 @@ class GeneCode
   constructor: (@genes) ->
     @genes ?= 
       # determines the stats
-      atkGene: new Gene(null, 0, 100, 1)
-      spdGene: new Gene(null, 0, 100, 1)
-      phoGene: new Gene(null, 0, 100, 1)
-      effGene: new Gene(null, 0, 100, 1)
+      atk: new Gene(null, 0, 100, 1)
+      spd: new Gene(null, 0, 100, 1)
+      pho: new Gene(null, 0, 100, 1)
+      eff: new Gene(null, 0, 100, 1)
       # decision threhsolds are calculated as base + modifier * energy
-      huntBase: new Gene(-100)
-      fleeBase: new Gene(-100)
-      reprBase: new Gene(-400)
-      huntMod:  new Gene(-10)
-      fleeMod:  new Gene(5)
-      reprMod:  new Gene(10)
+      huntBase: new Gene()
+      fleeBase: new Gene()
+      reprBase: new Gene()
+      huntMod:  new Gene()
+      fleeMod:  new Gene()
+      reprMod:  new Gene()
       
       # mapping from other blob's stats to this blob's hunt response
-      nrgHunt: new Gene(3)
-      atkHunt: new Gene(-5)
-      spdHunt: new Gene(-5)
-      phoHunt: new Gene(5)
-      effHunt: new Gene(5)
-      dstHunt: new Gene(-3)
+      nrgHunt: new Gene()
+      atkHunt: new Gene()
+      spdHunt: new Gene()
+      phoHunt: new Gene()
+      effHunt: new Gene()
+      dstHunt: new Gene()
 
       # mapping from other blob's stats to this blob's flee response
-      nrgFlee: new Gene(0)
-      atkFlee: new Gene(10)
-      spdFlee: new Gene(6)
-      phoFlee: new Gene(-10)
-      effFlee: new Gene(-5)
-      dstFlee: new Gene(-5)
+      nrgFlee: new Gene()
+      atkFlee: new Gene()
+      spdFlee: new Gene()
+      phoFlee: new Gene()
+      effFlee: new Gene()
+      dstFlee: new Gene()
 
-      childEnergy: new Gene(100)
+      childEnergy: new Gene(null, 0, 1000, 1)
+
+    total_Stats = @genes.atk.val + @genes.spd.val + @genes.pho.val + @genes.eff.val
+    @atk = @genes.atk.val / total_Stats * 100
+    @spd = @genes.spd.val / total_Stats * 100
+    @pho = @genes.pho.val / total_Stats * 100
+    @eff = @genes.eff.val / total_Stats * 100
 
   calculateAction: (energy, observables) ->
     # an observable is a [blob, distance] pair
@@ -135,3 +141,33 @@ maxByIndex = (arrayOfArrays, index) ->
   unless maxIndex? then throw new Error("maxByIndex: Index out of bounds for entire array")
   maxArray
 
+
+stdGenes =
+  # determines the stats
+  atk: new Gene(null, 0, 100, 1)
+  spd: new Gene(null, 0, 100, 1)
+  pho: new Gene(null, 0, 100, 1)
+  eff: new Gene(null, 0, 100, 1)
+  # decision threhsolds are calculated as base + modifier * energy
+  huntBase: new Gene(-100)
+  fleeBase: new Gene(-100)
+  reprBase: new Gene(-400)
+  huntMod:  new Gene(-10)
+  fleeMod:  new Gene(5)
+  reprMod:  new Gene(10)
+  # mapping from other blob's stats to this blob's hunt response
+  nrgHunt: new Gene(3)
+  atkHunt: new Gene(-5)
+  spdHunt: new Gene(-5)
+  phoHunt: new Gene(5)
+  effHunt: new Gene(5)
+  dstHunt: new Gene(-3)
+  # mapping from other blob's stats to this blob's flee response
+  nrgFlee: new Gene(0)
+  atkFlee: new Gene(10)
+  spdFlee: new Gene(6)
+  phoFlee: new Gene(-10)
+  effFlee: new Gene(-5)
+  dstFlee: new Gene(-5)
+  childEnergy: new Gene(100)
+stdGeneCode = new GeneCode(stdGenes)
