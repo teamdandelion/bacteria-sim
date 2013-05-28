@@ -12,6 +12,9 @@ class Vector2D
       v = new Vector2D(Math.random(), Math.random())
       v.normalize()
 
+    Vector2D.randomVector = (xMax, yMax) ->
+      new Vector2D(Math.random() * xMax, Math.random() * yMax)
+
     constructor: (x=0,y=0) ->
       [@x,@y] = [x,y]
 
