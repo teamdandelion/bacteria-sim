@@ -1,12 +1,15 @@
 class Environment
-  @NEIGHBOR_DISTANCE = 500
-  @ATTACK_DISTANCE   = 50
+  @NEIGHBOR_DISTANCE = 100
+  @ATTACK_DISTANCE   = 10
+  @X_BOUND = 1000
+  @Y_BOUND = 1000
+
 
   constructor: (nBlobs) ->
     @blobs = {}
     for i in [0...nBlobs]
-      genes = 
-      @blobs[i] = 
+      position  = Vector2D.randomVector(Environment.X_BOUND, Environment.Y_BOUND)
+      @blobs[i] = new Blob(@, position, 100)
 
   step: () ->
     # placeholder
