@@ -4,23 +4,19 @@
 
 class Blob
   @numBlobs = 0
-  constructor: (@position, @geneCode, @energy, @environment) -> 
+  constructor: (@environment, @position, @energy=0, @geneCode) -> 
     @id  = Blob.numBlobs++
     @age = 0
-    @pho = @genes.pho
-    @atk = @genes.atk
-    @spd = @genes.spd
-    @eff = @genes.eff
-    @calcEnergyPerSecond()
-    @attackPower = Math.pow(attack, 2)
+    @geneCode ?= new GeneCode()
+    @pho = @geneCode.pho
+    @atk = @geneCode.atk
+    @spd = @geneCode.spd
+    @eff = @geneCode.eff
+    @efficiencyFactor = 1 - @eff / 100
+    @energyPerSecond = @pho / 20 - (@spd + @atk) * @efficiencyFactor
+    @attackPower = Math.pow(@atk, 2)
     @currentHeading = null
     
-  calcEnergyPerSecond: () ->
-    speedBurn  = -@speed
-    attackBurn = -@attack
-    @efficiencyFactor = 1 - @efficiency / 100
-    @energyPerSecond = @photo + (speedBurn + attackBurn) * @efficiencyFactor
-
   step: (observables, attackables) ->
     """One full step of simulation for this blob.
     Observables: Everything within seeing distance. Represented as
@@ -84,4 +80,7 @@ class Blob
       @energy -= @speed * @efficiencyFactor
       movement = Vector2D.multiply(heading, @speed)
       @position.add(movement)
+
+  getDistance: (otherBlob) ->
+    @position.eucl_distance(otherBlob.position)
 
