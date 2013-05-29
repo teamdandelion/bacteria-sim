@@ -1,4 +1,1 @@
-cat vector.coffee      >  combined.coffee
-cat gene.coffee        >> combined.coffee
-cat blob.coffee        >> combined.coffee
-cat environment.coffee >> combined.coffee
+cat cons.coffee vector.coffee gene.coffee blob.coffee environment.coffee > combined.coffee

@@ -73,7 +73,11 @@ class Blob
   reproduce: (childEnergy) ->
     if @energy >= childEnergy + REPR_BASE_COST
       @energy  -= childEnergy + REPR_BASE_COST
-      @environment.addChildBlob(this, childEnergy)
+      childGenes = GeneCode.copy(@geneCode)
+      childOffset = Vector2D.randomUnitVector().multiply(Cons.child_distance)
+      childPosition = childOffset.add(@position)
+      childBlob = new Blob(@environment, childPosition, childEnergy, childGenes)
+      @environment.addBlob(childBlob)
 
   move: (heading) ->
     if @energy > @speed * @efficiencyFactor
@@ -81,6 +85,6 @@ class Blob
       movement = Vector2D.multiply(heading, @speed)
       @position.add(movement)
 
-  getDistance: (otherBlob) ->
+  calcDistance: (otherBlob) ->
     @position.eucl_distance(otherBlob.position)
 

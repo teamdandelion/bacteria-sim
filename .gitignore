@@ -2,3 +2,7 @@
 test.coffee
 
 combined.coffee
+
+testBlob.coffee
+
+*.js
