@@ -1,1 +1,1 @@
-cat cons.coffee vector.coffee gene.coffee blob.coffee environment.coffee > combined.coffee
+cat cons.coffee vector.coffee gene.coffee blob.coffee environment.coffee runProcessingSimulation.coffee > combined.coffee

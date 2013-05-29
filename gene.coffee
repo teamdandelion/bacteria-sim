@@ -1,3 +1,4 @@
+ALWAYS_REPRODUCE = on
 
 class GeneCode
   """The genes for a particular blob. This determines the stats and
@@ -54,6 +55,9 @@ class GeneCode
 
   calculateAction: (energy, observables) ->
     # an observable is a [blob, distance] pair
+
+    if ALWAYS_REPRODUCE
+      return {"type": "repr", "argument": 0}
     huntPairs = ([@calcHuntImpulse(o), o[0]] for o in observables)
     fleePairs = ([@calcFleeImpulse(o), o[0]] for o in observables)
 

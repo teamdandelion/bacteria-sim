@@ -4,6 +4,7 @@
 
 class Blob
   @numBlobs = 0
+  # TODO: Change so that the environment sets the id
   constructor: (@environment, @position, @energy=0, @geneCode) -> 
     @id  = Blob.numBlobs++
     @age = 0
@@ -13,7 +14,7 @@ class Blob
     @spd = @geneCode.spd
     @eff = @geneCode.eff
     @efficiencyFactor = 1 - @eff / 100
-    @energyPerSecond = @pho / 20 - (@spd + @atk) * @efficiencyFactor
+    @energyPerSecond = @pho /5  - (@spd + @atk) * @efficiencyFactor
     @attackPower = Math.pow(@atk, 2)
     @currentHeading = null
     
@@ -28,14 +29,14 @@ class Blob
 
     neighbors = @environment.calculateNeighbors(@)
 
-    for neighborBlob, distance in neighbors
+    for [neighborBlob, distance] in neighbors
       # Note: Order in which blobs are considered can change outcome
       if distance < Cons.ATTACK_DISTANCE
         @energy += Math.min(@attackPower, neighborBlob.energy)
         neighborBlob.energy -= @attackPower
 
     action = @chooseAction(neighbors)
-    if action.actionType is "repr"
+    if action.type is "repr"
       @reproduce(action.argument)
     
     @calculateHeading(action)
@@ -45,14 +46,15 @@ class Blob
     if @energy < 0
       @environment.removeBlob(this)
 
-    if @environment.processing?
-      renderSelf()
 
   draw: (processing) ->
+    processing.stroke(@atk*2.55,@pho*2.55,@spd*2.55)
+    processing.strokeWeight(10)
+    processing.point(@position.x, @position.y)
 
 
   calculateHeading: (action) ->
-    if action.actionType is "pursuit"
+    if action.type is "pursuit"
       if action.argument?
         # Let's set heading as the vector pointing towards target 
         target = action.pursuitTarget
@@ -66,7 +68,7 @@ class Blob
         # keep in the same direction
         @currentHeading ?= Vector2D.randomUnitVector()
 
-    else if action.actionType is "flight" and action.argument?
+    else if action.type is "flight" and action.argument?
       target = action.argument
       @currentHeading = Vector2D.subtract(@position, target.position)
       @currentHeading.normalize()
@@ -80,8 +82,8 @@ class Blob
     
 
   reproduce: (childEnergy) ->
-    if @energy >= childEnergy + REPR_BASE_COST
-      @energy  -= childEnergy + REPR_BASE_COST
+    if @energy >= childEnergy + 50
+      @energy  -= childEnergy + 50
       childGenes = GeneCode.copy(@geneCode)
       childOffset = Vector2D.randomUnitVector().multiply(Cons.CHILD_DISTANCE)
       childPosition = childOffset.add(@position)

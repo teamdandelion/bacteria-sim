@@ -9,7 +9,7 @@ class Vector2D
           a.copy()[name](b)
 
     Vector2D.randomUnitVector = () ->
-      v = new Vector2D(Math.random(), Math.random())
+      v = new Vector2D(Math.random()-.5, Math.random()-.5)
       v.normalize()
 
     Vector2D.randomVector = (xMax, yMax) ->

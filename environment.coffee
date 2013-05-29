@@ -10,7 +10,6 @@ class Environment
   step: () ->
     for id, blob of @blobs
       blob.step()
-    console.log @nBlobs
     if @processing?
       for id, blob of @blobs
         blob.draw(@processing)
@@ -20,8 +19,10 @@ class Environment
     # for every other blob less than Cons.NEIGHBOR_DISTANCE away
     neighbors = []
     for other_id, other_blob of @blobs
-      unless other_id is blob.id
+      unless other_blob.id is blob.id
         d = blob.calcDistance(other_blob)
+        if d is 0
+          console.log "Something probably went wrong"
         if d < Cons.NEIGHBOR_DISTANCE
           neighbors.push([other_blob, d])
     return neighbors
@@ -36,6 +37,3 @@ class Environment
     delete @blobs[blob.id]
     @nBlobs--
 
-e = new Environment(1000)
-for i in [0..1000]
-  e.step()
