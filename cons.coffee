@@ -1,7 +1,7 @@
 class Cons
-	@x_bound
-	@y_bound
+	@X_BOUND = 1000
+	@Y_BOUND = 1000
 
-	@child_distance = 30
-	@neighbor_distance = 100
-	@attack_distance = 10
+	@CHILD_DISTANCE = 30
+	@NEIGHBOR_DISTANCE = 100
+	@ATTACK_DISTANCE = 10

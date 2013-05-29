@@ -17,7 +17,7 @@ class Blob
     @attackPower = Math.pow(@atk, 2)
     @currentHeading = null
     
-  step: (observables, attackables) ->
+  step: () ->
     """One full step of simulation for this blob.
     Observables: Everything within seeing distance. Represented as
     list of [blob, distance] pairs.
@@ -26,12 +26,15 @@ class Blob
     @energy += @energyPerSecond
     @age++
 
-    for a in attackables
-      # Note: Order in which blobs are considered can change outcome
-      @energy += Math.min(@attackPower, a.energy)
-      a.energy -= @attackPower
+    neighbors = @environment.calculateNeighbors(@)
 
-    action = @chooseAction(observables)
+    for neighborBlob, distance in neighbors
+      # Note: Order in which blobs are considered can change outcome
+      if distance < Cons.ATTACK_DISTANCE
+        @energy += Math.min(@attackPower, neighborBlob.energy)
+        neighborBlob.energy -= @attackPower
+
+    action = @chooseAction(neighbors)
     if action.actionType is "repr"
       @reproduce(action.argument)
     
@@ -41,6 +44,12 @@ class Blob
 
     if @energy < 0
       @environment.removeBlob(this)
+
+    if @environment.processing?
+      renderSelf()
+
+  draw: (processing) ->
+
 
   calculateHeading: (action) ->
     if action.actionType is "pursuit"
@@ -74,7 +83,7 @@ class Blob
     if @energy >= childEnergy + REPR_BASE_COST
       @energy  -= childEnergy + REPR_BASE_COST
       childGenes = GeneCode.copy(@geneCode)
-      childOffset = Vector2D.randomUnitVector().multiply(Cons.child_distance)
+      childOffset = Vector2D.randomUnitVector().multiply(Cons.CHILD_DISTANCE)
       childPosition = childOffset.add(@position)
       childBlob = new Blob(@environment, childPosition, childEnergy, childGenes)
       @environment.addBlob(childBlob)

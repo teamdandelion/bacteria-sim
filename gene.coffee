@@ -55,9 +55,7 @@ class GeneCode
   calculateAction: (energy, observables) ->
     # an observable is a [blob, distance] pair
     huntPairs = ([@calcHuntImpulse(o), o[0]] for o in observables)
-    console.log huntPairs
     fleePairs = ([@calcFleeImpulse(o), o[0]] for o in observables)
-    console.log fleePairs
 
     maxHunt = maxByIndex(huntPairs, 0) ? [0, null]
     maxFlee = maxByIndex(fleePairs, 0) ? [0, null]
