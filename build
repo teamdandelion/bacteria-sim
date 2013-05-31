@@ -1,1 +1,13 @@
-cat cons.coffee vector.coffee gene.coffee blob.coffee environment.coffee runProcessingSimulation.coffee > combined.coffee
+#!/usr/local/bin/fish
+switch $argv[1]
+	case web
+		cat cons.coffee vector.coffee gene.coffee blob.coffee environment.coffee runProcessingSimulation.coffee | coffee -c > web/combined.js
+		open web/simulation.html
+
+	case quadtree_test
+		cat cons.coffee vector.coffee quadtree.coffee test/quadtree.test > combined.coffee
+		coffee combined.coffee
+		
+	case '*'
+	    echo I need a command
+end

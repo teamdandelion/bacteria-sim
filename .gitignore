@@ -6,3 +6,4 @@ combined.coffee
 testBlob.coffee
 
 *.js
+*.DS_Store
