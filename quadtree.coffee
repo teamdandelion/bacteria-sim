@@ -64,7 +64,8 @@ class QTNode
 
   removePoint: (id, p) ->
     if @leaf
-      unless p of @points then throw new Error("Tried to remove id not in QTNode")
+      unless id of @points
+        throw new Error("Tried to remove id not in QTNode")
       delete @points[id]
       --@nPoints
     else
