@@ -1,9 +1,18 @@
 xBound = 1000
 yBound = 1000
 
-q = new QuadTree(xBound,yBound,10)
+assertEq = (expected, actual) -> 
+	if expected != actual
+		throw new Error("expected: " + expected + "actual: " + actual)
+assertTrue = (bool, message = "") -> 
+	if not bool
+		throw new Error("assertTrue failed: " + message)
+assertLength = (expected, arr) -> 
+	if arr.length isnt expected
+		throw new Error("Expected array: " + arr + " to have length: " + expected)
 
 testAddRemove = () ->
+	q = new QuadTree(xBound,yBound,10)
 	points = {} 
 	for id in [0...100]
 		p = Vector2D.randomVector(xBound, yBound)
@@ -14,3 +23,35 @@ testAddRemove = () ->
 	console.log "No issues detected, nPoints: ", q.numPoints
 
 testAddRemove()
+
+buildGridQT = () -> 
+	q = new QuadTree(100, 100, 10)
+	points = {}
+	for x in [0..10]
+		for y in [0..10]
+			id = x + "," + y
+			p = new Vector2D(x,y)
+			points[id] = p
+			q.addObject(id, p)
+	q
+
+qgrid = buildGridQT()
+v0 = new Vector2D(0,0)
+testCircleQuery = () -> 
+	center = new Vector2D(5, 5)
+	query1 = qgrid.circleQuery(center, 10)
+	assertLength(121, query1)
+
+	query2 = qgrid.circleQuery(center, 0)
+	assertLength(1, query2)
+
+	v0 = new Vector2D(0,0)
+	query3 = qgrid.circleQuery(v0, 10)
+	assertLength(90, query3)
+	
+testCircleQuery()
+
+
+
+	
+

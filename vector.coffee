@@ -44,6 +44,11 @@ class Vector2D
       dy = @y-other.y
       Math.sqrt(dx*dx + dy*dy)
 
+    distSq: (other) -> 
+      dx = @x - other.x
+      dy = @y - other.y
+      dx*dx + dy*dy
+
     distance: (other, dimensions = false) ->
       dx = Math.abs(@x-other.x)
       dy = Math.abs(@y-other.y)

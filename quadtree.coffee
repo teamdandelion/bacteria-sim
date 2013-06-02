@@ -12,7 +12,7 @@ class QuadTree
 
   addObject: (id, point) ->
     if id of @id2point
-      throw Error("Object ID collision, tried to add id already in map")
+      throw Error("Object ID collision on id: " + id)
     @id2point[id] = point
     @tree.addPoint(id, point)
     ++@numPoints
@@ -35,12 +35,19 @@ class QuadTree
     p2 = @id2point[id2]
     p1.eucl_distance(p2)
 
+  circleQuery: (centerPoint, radius) -> 
+    @tree.circleQuery centerPoint, radius, radius*radius
 
 class QTNode
   constructor: (@x, @y, @xEdge, @yEdge, @bucketSize) ->
     @leaf = true
     @points = {}
     @nPoints = 0
+    MM = new Vector2D(@x - @xEdge, @y - @yEdge)
+    MP = new Vector2D(@x - @xEdge, @y + @yEdge)
+    PM = new Vector2D(@x + @xEdge, @y - @yEdge)
+    PP = new Vector2D(@x + @xEdge, @y + @yEdge)
+    @corners = [MM, MP, PM, PP]
 
   addPoint: (id, p) ->
     @nPoints++ # Edge case - can nPoints go wrong if colliding IDs are added to QT? 
@@ -48,19 +55,25 @@ class QTNode
       @points[id] = p
       if @nPoints > @bucketSize
         @leaf = false
-        newXEdge = @xEdge / 2
-        newYEdge = @yEdge / 2
-        MM = new QTNode(@x - newXEdge, @y - newYEdge, newXEdge, newYEdge, @bucketSize)
-        MP = new QTNode(@x - newXEdge, @y + newYEdge, newXEdge, newYEdge, @bucketSize)
-        PM = new QTNode(@x + newXEdge, @y - newYEdge, newXEdge, newYEdge, @bucketSize)
-        PP = new QTNode(@x + newXEdge, @y + newYEdge, newXEdge, newYEdge, @bucketSize)
-        @children = [MM, MP, PM, PP]
+        @createChildren()
         @addPoint(id_, p_) for id_, p_ of @points
         delete @points
     else
       # 0 -> MM, 1 -> MP, 2 -> PM, 3 -> PP
       idx = 2 * (p.x > @x) + (p.y > @y)
       @children[idx].addPoint(id, p)
+
+  createChildren: () -> 
+    if @children?
+      throw new Error("Non-leaf node tried to make children")
+    newXEdge = @xEdge / 2
+    newYEdge = @yEdge / 2
+    MM = new QTNode(@x - newXEdge, @y - newYEdge, newXEdge, newYEdge, @bucketSize)
+    MP = new QTNode(@x - newXEdge, @y + newYEdge, newXEdge, newYEdge, @bucketSize)
+    PM = new QTNode(@x + newXEdge, @y - newYEdge, newXEdge, newYEdge, @bucketSize)
+    PP = new QTNode(@x + newXEdge, @y + newYEdge, newXEdge, newYEdge, @bucketSize)
+    @children = [MM, MP, PM, PP]
+      
 
   removePoint: (id, p) ->
     if @leaf
@@ -72,3 +85,23 @@ class QTNode
       idx = 2 * (p.x > @x) + (p.y > @y)
       @children[idx].removePoint(id, p)
 
+  circleQuery: (centerPoint, radius, radiusSq) ->
+    # returns a list of QTNodes which intersect this circle
+    # radiusSq = radius^2 so we can avoid sqrt calculations
+
+    intersect = false
+    xDist = Math.abs(centerPoint.x-@x)
+    yDist = Math.abs(centerPoint.y-@y)
+    intersect ||= xDist <= @xEdge and yDist <= @yEdge + radius # intersects top or bottom of rect
+    intersect ||= yDist <= @yEdge and xDist <= @xEdge + radius # intersects left or right of rect
+    minDist2Corner = Math.min (centerPoint.distSq c for c in @corners)...
+    intersect ||= minDist2Corner <= radiusSq
+    if intersect
+      if @leaf 
+        (id for id, pt of @points when centerPoint.distSq(pt) <= radiusSq)
+      else 
+        [].concat (c.circleQuery(centerPoint, radius, radiusSq) for c in @children)...
+    else
+      []
+
+    
