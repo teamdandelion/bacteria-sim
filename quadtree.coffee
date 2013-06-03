@@ -36,6 +36,7 @@ class QuadTree
     p1.eucl_distance(p2)
 
   circleQuery: (centerPoint, radius) -> 
+    """Returns a list of all object IDs that fall within the circle"""
     @tree.circleQuery centerPoint, radius, radius*radius
 
 class QTNode

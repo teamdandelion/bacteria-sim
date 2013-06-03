@@ -27,7 +27,7 @@ class Blob
     @energy += @energyPerSecond
     @age++
 
-    neighbors = @environment.calculateNeighbors(@) 
+    neighbors = @environment.getNeighbors(@) 
     # Return list of [Blob, Distance]
 
     action = @genecode.chooseAction(@energy, neighbors)
@@ -37,8 +37,8 @@ class Blob
     @handleMovement(action)
 
     for attackableBlob in @environment.getAttackables(@)
-      @energy += Math.min(@attackPower, neighborBlob.energy)
-      neighborBlob.energy -= @attackPower
+      @energy += Math.min(@attackPower, attackableBlob.energy)
+      attackableBlob.energy -= @attackPower
     
     if @energy < 0
       @environment.removeBlob(this)

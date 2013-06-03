@@ -1,4 +1,8 @@
 QTREE_BUCKET_SIZE = 10
+NEIGHBOR_DISTANCE = 100
+CHILD_DISTANCE    = 30
+ATTACK_DISTANCE   = 10
+
 class Environment
   constructor: (starting_blobs, @processing) ->
     @blobs = {}
@@ -18,19 +22,25 @@ class Environment
       for id, blob of @blobs
         blob.draw(@processing)
 
-  calculateNeighbors: (blob) ->
+  getNeighbors: (blobID) ->
     # Returns a list of [otherBlob, distance, heading] tuples
     # for every other blob less than Cons.NEIGHBOR_DISTANCE away
     neighbors = []
-    for other_id, other_blob of @blobs
+    blobPosition = @qtree.id2point(blobID)
+    for otherID of @qtree.circleQuery(blobPosition, NEIGHBOR_DISTANCE)
       unless other_blob.id is blob.id
         d = blob.calcDistance(other_blob)
-        if d is 0
-          console.log "Something probably went wrong"
-        if d < Cons.NEIGHBOR_DISTANCE
-          neighbors.push([other_blob, d])
+        neighbors.push([other_blob, d])
     return neighbors
-    # O(n) performance - work on this later...
+  
+  getAttackables: (blobID) -> 
+    attackables = []
+    blobPosition = @qtree.id2point(blobID)
+    for otherID of @qtree.circleQuery(blobPosition, ATTACKABLE_DISTANCE)
+      unless other_blob.id is blob.id
+        neighbors.push(other_blob)
+    return neighbors
+
 
   getHeading: (sourceID, targetID) ->
     sourcePos = @qtree.id2point(sourceID)
