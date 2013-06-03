@@ -41,7 +41,6 @@ class Environment
         neighbors.push(other_blob)
     return neighbors
 
-
   getHeading: (sourceID, targetID) ->
     sourcePos = @qtree.id2point(sourceID)
     targetPos = @qtree.id2point(targetID)

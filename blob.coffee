@@ -86,7 +86,7 @@ class Blob
     moveAmt = Math.min(moveAmt, @speed, @energy * MOVEMENT_PER_ENERGY / @efficiencyFactor)
     moveAmt = Math.max(moveAmt, 0) # in case @energy is negative due to recieved attacks
     @energy -= moveAmt * efficiencyFactor / MOVEMENT_PER_ENERGY
-    @environment.moveBlob(@, heading, moveAmt)
+    @environment.moveBlob(@id, heading, moveAmt)
 
   reproduce: (childEnergy) ->
     if @energy >= childEnergy + REPR_ENERGY_COST * @efficiencyFactor
