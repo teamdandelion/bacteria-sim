@@ -32,6 +32,11 @@ class Environment
     return neighbors
     # O(n) performance - work on this later...
 
+  getHeading: (sourceID, targetID) ->
+    sourcePos = @qtree.id2point(sourceID)
+    targetPos = @qtree.id2point(targetID)
+    Vector2D.subtract(targetPos, sourcePos).heading()
+
   addBlob: (energy, geneCode, position) ->
     b = new Blob(@, @nextBlobId, energy, geneCode)
     @blobs[@nextBlobId] = b

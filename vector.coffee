@@ -1,5 +1,6 @@
 # Vector class modified from work by Daniel Shiffman
 # http://processingjs.org/learning/topic/flocking/
+Math.PI2 = 2 * Math.PI
 
 class Vector2D
     # Class methods for nondestructively operating
@@ -14,6 +15,12 @@ class Vector2D
 
     Vector2D.randomVector = (xMax, yMax) ->
       new Vector2D(Math.random() * xMax, Math.random() * yMax)
+
+    Vector2D.randomHeading = () -> 
+      Math.random() * Math.PI2
+
+    Vector2D.negateHeading = (h) -> 
+      (h + Math.PI) % Math.PI2
 
     constructor: (x=0,y=0) ->
       [@x,@y] = [x,y]
@@ -37,7 +44,7 @@ class Vector2D
         return this
   
     heading: ->
-      -1 * Math.atan2(-1 * @y,@x)
+      (Math.atan2(@y,@x) + Math.PI2) % Math.PI2
 
     eucl_distance: (other) ->
       dx = @x-other.x

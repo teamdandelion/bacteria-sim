@@ -28,7 +28,7 @@ class Blob
     @age++
 
     neighbors = @environment.calculateNeighbors(@) 
-    # Return list of [Blob, Distance, Heading] tuples
+    # Return list of [Blob, Distance]
 
     action = @genecode.chooseAction(@energy, neighbors)
     if action.type is "repr"
@@ -54,7 +54,8 @@ class Blob
     if action.type is "pursuit"
       if action.argument?
         # Let's set heading as the vector pointing towards target 
-        [targetBlob, distance, heading] = action.argument 
+        [targetBlob, distance] = action.argument 
+        heading = @environment.getHeading(@id, targetBlob.id)
         moveAmt = distance - 3 #will be further constrained by avail. energy and speed
         @wandering = null
       else
@@ -68,7 +69,8 @@ class Blob
         moveAmt = @speed
 
     else if action.type is "flight" and action.argument?
-      [targetBlob, distance, heading] = action.argument 
+      [targetBlob, distance] = action.argument 
+      heading = @environment.getHeading(@id, targetBlob.id)
       heading = Vector2D.negateHeading(heading)
       moveAmt = @speed
       @wandering = null
