@@ -2,11 +2,11 @@
 # adopted in turn from Daniel Shiffman's flocking example, found 
 # here: http://processingjs.org/learning/topic/flocking/
 
+MOVEMENT_PER_ENERGY = 1
+REPR_ENERGY_COST    = 100
+
 class Blob
-  @numBlobs = 0
-  # TODO: Change so that the environment sets the id
-  constructor: (@environment, @position, @energy=0, @geneCode) -> 
-    @id  = Blob.numBlobs++
+  constructor: (@environment, @id, @energy=0, @geneCode) -> 
     @age = 0
     @geneCode ?= new GeneCode()
     @pho = @geneCode.pho
@@ -27,75 +27,67 @@ class Blob
     @energy += @energyPerSecond
     @age++
 
-    neighbors = @environment.calculateNeighbors(@)
+    neighbors = @environment.calculateNeighbors(@) 
+    # Return list of [Blob, Distance, Heading] tuples
 
-    for [neighborBlob, distance] in neighbors
-      # Note: Order in which blobs are considered can change outcome
-      if distance < Cons.ATTACK_DISTANCE
-        @energy += Math.min(@attackPower, neighborBlob.energy)
-        neighborBlob.energy -= @attackPower
-
-    action = @chooseAction(neighbors)
+    action = @genecode.chooseAction(@energy, neighbors)
     if action.type is "repr"
       @reproduce(action.argument)
     
-    @calculateHeading(action)
-    if @currentHeading?
-      @move(@currentHeading)
+    @handleMovement(action)
 
+    for attackableBlob in @environment.getAttackables(@)
+      @energy += Math.min(@attackPower, neighborBlob.energy)
+      neighborBlob.energy -= @attackPower
+    
     if @energy < 0
       @environment.removeBlob(this)
 
 
   draw: (processing) ->
     processing.stroke(@atk*2.55,@pho*2.55,@spd*2.55)
-    processing.strokeWeight(10)
+    processing.strokeWeight(5)
     processing.point(@position.x, @position.y)
 
 
-  calculateHeading: (action) ->
+  handleMovement: (action) ->
     if action.type is "pursuit"
       if action.argument?
         # Let's set heading as the vector pointing towards target 
-        target = action.pursuitTarget
-        @currentHeading = Vector2D.subtract(target.position, @position)
-        @currentHeading.normalize()
+        [targetBlob, distance, heading] = action.argument 
+        moveAmt = distance - 3 #will be further constrained by avail. energy and speed
+        @wandering = null
       else
         # If we don't have a current heading, set it randomly
         # This way hunters move randomly but with determination when 
         # looking for prey
         # Conversely if they just lost sight of their prey they will
         # keep in the same direction
-        @currentHeading ?= Vector2D.randomUnitVector()
+        @wandering ?= Vector2D.randomHeading()
+        heading = @wandering
+        moveAmt = @speed
 
     else if action.type is "flight" and action.argument?
-      target = action.argument
-      @currentHeading = Vector2D.subtract(@position, target.position)
-      @currentHeading.normalize()
+      [targetBlob, distance, heading] = action.argument 
+      heading = Vector2D.negateHeading(heading)
+      moveAmt = @speed
+      @wandering = null
       # Current implementation only flees 1 target w/ highest fear
 
     else # No action -> stay put
-      @currentHeading = null
+      @wandering = null
 
-  chooseAction: (observables) ->
-    @geneCode.calculateAction(@energy, observables)
-    
+    if heading? and moveAmt?
+      @move(heading, moveAmt)
+
+  move: (heading, moveAmt) ->
+    moveAmt = Math.min(moveAmt, @speed, @energy * MOVEMENT_PER_ENERGY / @efficiencyFactor)
+    moveAmt = Math.max(moveAmt, 0) # in case @energy is negative due to recieved attacks
+    @energy -= moveAmt * efficiencyFactor / MOVEMENT_PER_ENERGY
+    @environment.moveBlob(@, heading, moveAmt)
 
   reproduce: (childEnergy) ->
-    if @energy >= childEnergy + 50
-      @energy  -= childEnergy + 50
+    if @energy >= childEnergy + REPR_ENERGY_COST * @efficiencyFactor
+      @energy  -= childEnergy + REPR_ENERGY_COST * @efficiencyFactor
       childGenes = GeneCode.copy(@geneCode)
-      childOffset = Vector2D.randomUnitVector().multiply(Cons.CHILD_DISTANCE)
-      childPosition = childOffset.add(@position)
-      childBlob = new Blob(@environment, childPosition, childEnergy, childGenes)
-      @environment.addBlob(childBlob)
-
-  move: (heading) ->
-    if @energy > @speed * @efficiencyFactor
-      @energy -= @speed * @efficiencyFactor
-      movement = Vector2D.multiply(heading, @speed)
-      @position.add(movement)
-
-  calcDistance: (otherBlob) ->
-    @position.eucl_distance(otherBlob.position)
-
+      @environment.addChildBlob(@id, childEnergy, childGenes)

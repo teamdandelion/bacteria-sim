@@ -1,7 +1,11 @@
+QTREE_BUCKET_SIZE = 10
 class Environment
-  constructor: (@nBlobs=0, @processing) ->
+  constructor: (starting_blobs, @processing) ->
     @blobs = {}
-    for i in [0...nBlobs]
+    @qtree = new QuadTree(X_BOUND, Y_BOUND, QTREE_BUCKET_SIZE)
+    @nBlobs = 0
+    @nextBlobId = 0
+    for i in [0...starting_blobs]
       position  = Vector2D.randomVector(Cons.X_BOUND, Cons.Y_BOUND)
       newBlob = new Blob(@, position, 100)
       @blobs[newBlob.id] = newBlob
@@ -15,7 +19,7 @@ class Environment
         blob.draw(@processing)
 
   calculateNeighbors: (blob) ->
-    # Returns a list of [otherBlob, distance] tuples
+    # Returns a list of [otherBlob, distance, heading] tuples
     # for every other blob less than Cons.NEIGHBOR_DISTANCE away
     neighbors = []
     for other_id, other_blob of @blobs
@@ -28,12 +32,22 @@ class Environment
     return neighbors
     # O(n) performance - work on this later...
 
-  addBlob: (newBlob) ->
-    @blobs[newBlob.id] = newBlob
+  addBlob: (energy, geneCode, position) ->
+    b = new Blob(@, @nextBlobId, energy, geneCode)
+    @blobs[@nextBlobId] = b
+    @qtree.addObject(@nextBlobId, position)
+    @nextBlobId++
     @nBlobs++
+
+  addChildBlob: (parentID, childEnergy, childGenes) -> 
+    parentPosition = @qtree.id2point[parentID]
+    childOffset = Vector2D.randomUnitVector().multiply(Cons.CHILD_DISTANCE)
+    childPosition = childOffset.add(parentPosition)
+    @addBlob(childEnergy, childGenes, childPosition)
 
 
   removeBlob: (blob) ->
     delete @blobs[blob.id]
+    @qtree.removeObject(blob.id)
     @nBlobs--
 
