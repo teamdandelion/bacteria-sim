@@ -4,7 +4,9 @@ class QuadTree
   Maps from IDs to Vector2D points, and back. 
   Points do not uniquely identify an Id,Point combo because
   multiple IDs may share the same location. IDs
-  must be unique."""
+  must be unique.
+  NOTE: QuadTree may break if >bucketSize points have exact same coordinate
+  Suggest fixing by adding tiny random disturbance to avoid this situation"""
   constructor: (@xBound, @yBound, @bucketSize) ->
     @id2point  = {}
     @numPoints = 0
@@ -51,13 +53,14 @@ class QTNode
     @corners = [MM, MP, PM, PP]
 
   addPoint: (id, p) ->
-    @nPoints++ # Edge case - can nPoints go wrong if colliding IDs are added to QT? 
     if @leaf
+      @nPoints++ # Edge case - can nPoints go wrong if colliding IDs are added to QT? 
       @points[id] = p
       if @nPoints > @bucketSize
         @leaf = false
         @createChildren()
         @addPoint(id_, p_) for id_, p_ of @points
+        @nPoints = undefined 
         delete @points
     else
       # 0 -> MM, 1 -> MP, 2 -> PM, 3 -> PP
