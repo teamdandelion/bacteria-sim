@@ -14,13 +14,15 @@ assertLength = (expected, arr) ->
 testAddRemove = () ->
 	q = new QuadTree(xBound,yBound,10)
 	points = {} 
-	for id in [0...100]
+	for id in [0...10000]
 		p = Vector2D.randomVector(xBound, yBound)
 		points[id] = p 
 		q.addObject(id, p)
 	for id in [0...50]
 		q.removeObject(id)
-	console.log "No issues detected, nPoints: ", q.numPoints
+	for id in [5000...6000]
+		pt = q.id2point[id]
+		console.log q.quickQuery(pt, 100).length + "::" + q.circleQuery(pt, 100).length
 
 testAddRemove()
 
