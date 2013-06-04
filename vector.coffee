@@ -22,6 +22,9 @@ class Vector2D
     Vector2D.negateHeading = (h) -> 
       (h + Math.PI) % Math.PI2
 
+    Vector2D.headingVector = (h) -> 
+      new Vector2D(Math.cos(h), Math.sin(h))
+
     constructor: (x=0,y=0) ->
       [@x,@y] = [x,y]
 

@@ -46,6 +46,13 @@ class Environment
     targetPos = @qtree.id2point(targetID)
     Vector2D.subtract(targetPos, sourcePos).heading()
 
+  moveBlob: (blobID, heading, moveAmt) -> 
+    sourcePos = @qtree.id2point[blobID]
+    moveVector = Vector2D.headingVector(heading).multiply(moveAmt)
+    newPos = moveVector.add(sourcePos)
+    @qtree.moveObject(blobID, newPos)
+    
+
   addBlob: (energy, geneCode, position) ->
     b = new Blob(@, @nextBlobId, energy, geneCode)
     @blobs[@nextBlobId] = b
