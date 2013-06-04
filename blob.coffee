@@ -1,22 +1,18 @@
-# Rendering code adopted from Harry Brundage's flocking example,
-# adopted in turn from Daniel Shiffman's flocking example, found 
-# here: http://processingjs.org/learning/topic/flocking/
-
-MOVEMENT_PER_ENERGY = 100
-REPR_ENERGY_COST    = 100
-
 class Blob
   constructor: (@environment, @id, @energy=0, @geneCode) -> 
     @age = 0
     @geneCode ?= new GeneCode()
     @pho = @geneCode.pho
     @atk = @geneCode.atk
-    @spd = @geneCode.spd / 10
+    @spd = @geneCode.spd
     @eff = @geneCode.eff
     @efficiencyFactor = 1 - @eff / 100
-    @energyPerSecond = @pho /5 - (@spd + @atk) * @efficiencyFactor *.1
+    @energyPerSecond  = @pho * C.PHO_EPS
+    @energyPerSecond += @atk * C.ATK_EPS * @efficiencyFactor
+    @energyPerSecond += @spd * C.SPD_EPS * @efficiencyFactor
     @attackPower = Math.pow(@atk, 2)
     @currentHeading = null
+    @maxMovement = @spd * C.MOVEMENT_SPEED_FACTOR
     
   step: () ->
     """One full step of simulation for this blob.
@@ -26,7 +22,7 @@ class Blob
     auto-attack. These are passed by the environment"""
     @energy += @energyPerSecond
     @age++
-    @energyPerSecond -= .001
+    @energyPerSecond -= C.AGE_ENERGY_DECAY
 
     neighbors = @environment.getNeighbors(@id) 
     # Return list of [Blob, Distance]
@@ -61,13 +57,13 @@ class Blob
         # keep in the same direction
         @wandering ?= Vector2D.randomHeading()
         heading = @wandering
-        moveAmt = @speed
+        moveAmt = @maxMovement
 
     else if action.type is "flight" and action.argument?
       [targetBlob, distance] = action.argument 
       heading = @environment.getHeading(@id, targetBlob.id)
       heading = Vector2D.negateHeading(heading)
-      moveAmt = @speed
+      moveAmt = @maxMovement
       @wandering = null
       # Current implementation only flees 1 target w/ highest fear
 
@@ -78,13 +74,13 @@ class Blob
       @move(heading, moveAmt)
 
   move: (heading, moveAmt) ->
-    moveAmt = Math.min(moveAmt, @speed, @energy * MOVEMENT_PER_ENERGY / @efficiencyFactor)
+    moveAmt = Math.min(moveAmt, @maxMovement, @energy * C.MOVEMENT_PER_ENERGY / @efficiencyFactor)
     moveAmt = Math.max(moveAmt, 0) # in case @energy is negative due to recieved attacks
-    @energy -= moveAmt * efficiencyFactor / MOVEMENT_PER_ENERGY
+    @energy -= moveAmt * efficiencyFactor / C.MOVEMENT_PER_ENERGY
     @environment.moveBlob(@id, heading, moveAmt)
 
   reproduce: (childEnergy) ->
-    if @energy >= childEnergy + REPR_ENERGY_COST * @efficiencyFactor
-      @energy  -= childEnergy + REPR_ENERGY_COST * @efficiencyFactor
+    if @energy >= childEnergy + C.REPR_ENERGY_COST * @efficiencyFactor
+      @energy  -= childEnergy + C.REPR_ENERGY_COST * @efficiencyFactor
       childGenes = GeneCode.copy(@geneCode)
       @environment.addChildBlob(@id, childEnergy, childGenes)

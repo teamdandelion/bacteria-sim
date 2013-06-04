@@ -1,20 +1,12 @@
-X_BOUND = 1000
-Y_BOUND = 500
-QTREE_BUCKET_SIZE = 100
-NEIGHBOR_DISTANCE = 100
-CHILD_DISTANCE    = 80
-ATTACK_DISTANCE   = 20
-STARTING_ENERGY   = 500
-
 class Environment
   constructor: (starting_blobs, @processing) ->
     @blobs = {}
-    @qtree = new QuadTree(X_BOUND, Y_BOUND, QTREE_BUCKET_SIZE)
+    @qtree = new QuadTree(C.X_BOUND, C.Y_BOUND, C.QTREE_BUCKET_SIZE)
     @nBlobs = 0
     @nextBlobId = 0
     for i in [0...starting_blobs]
-      position  = Vector2D.randomVector(X_BOUND, Y_BOUND)
-      @addBlob(position, STARTING_ENERGY)
+      position  = Vector2D.randomVector(C.X_BOUND, C.Y_BOUND)
+      @addBlob(position, C.STARTING_ENERGY)
 
   step: () ->
     for id, blob of @blobs
@@ -32,10 +24,10 @@ class Environment
     @processing.point(position.x, position.y)
 
   getNeighbors: (blobID) ->
-    @getAdjacent(blobID, NEIGHBOR_DISTANCE)
+    @getAdjacent(blobID, C.NEIGHBOR_DISTANCE)
   
   getAttackables: (blobID) -> 
-    @getAdjacent(blobID, ATTACK_DISTANCE)
+    @getAdjacent(blobID, C.ATTACK_DISTANCE)
 
   getAdjacent: (blobID, distance) ->
     # Returns [adjcentBlob, distance] tuples
@@ -57,7 +49,7 @@ class Environment
     sourcePos = @qtree.id2point[blobID]
     moveVector = Vector2D.headingVector(heading).multiply(moveAmt)
     newPos = moveVector.add(sourcePos)
-    newPos.wrapToBound(X_BOUND, Y_BOUND)
+    newPos.wrapToBound(C.X_BOUND, C.Y_BOUND)
     @qtree.moveObject(blobID, newPos)
     
 
@@ -70,9 +62,9 @@ class Environment
 
   addChildBlob: (parentID, childEnergy, childGenes) -> 
     parentPosition = @qtree.id2point[parentID]
-    childOffset = Vector2D.randomUnitVector().multiply(CHILD_DISTANCE)
+    childOffset = Vector2D.randomUnitVector().multiply(C.CHILD_DISTANCE)
     childPosition = childOffset.add(parentPosition)
-    childPosition.wrapToBound(X_BOUND, Y_BOUND)
+    childPosition.wrapToBound(C.X_BOUND, C.Y_BOUND)
     @addBlob(childPosition, childEnergy, childGenes)
 
   removeBlob: (blobID) ->

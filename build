@@ -1,5 +1,5 @@
 #!/usr/local/bin/fish
-set BACKEND_FILES cons.coffee vector.coffee quadtree.coffee
+set BACKEND_FILES constants.coffee vector.coffee quadtree.coffee
 set BLOB_FILES gene.coffee blob.coffee environment.coffee
 set MAIN_FILES $BACKEND_FILES $BLOB_FILES
 switch $argv[1]
