@@ -1,8 +1,8 @@
-X_BOUND = 500
+X_BOUND = 1000
 Y_BOUND = 500
 QTREE_BUCKET_SIZE = 100
 NEIGHBOR_DISTANCE = 100
-CHILD_DISTANCE    = 100
+CHILD_DISTANCE    = 80
 ATTACK_DISTANCE   = 20
 STARTING_ENERGY   = 500
 
@@ -27,7 +27,7 @@ class Environment
 
   draw: (blobID, blob) ->
     @processing.stroke(blob.atk*2.55,blob.pho*2.55,blob.spd*2.55)
-    @processing.strokeWeight(5)
+    @processing.strokeWeight(Math.sqrt(blob.energy))
     position = @qtree.id2point[blobID]
     @processing.point(position.x, position.y)
 
@@ -41,7 +41,7 @@ class Environment
     # Returns [adjcentBlob, distance] tuples
     adj = []
     blobPosition = @qtree.id2point[blobID]
-    queryResult = @qtree.quickQuery(blobPosition, distance)
+    queryResult = @qtree.circleQuery(blobPosition, distance)
     for otherID in queryResult
       unless otherID is blobID
         d = @getDistance(blobID, otherID)
@@ -57,6 +57,7 @@ class Environment
     sourcePos = @qtree.id2point[blobID]
     moveVector = Vector2D.headingVector(heading).multiply(moveAmt)
     newPos = moveVector.add(sourcePos)
+    newPos.wrapToBound(X_BOUND, Y_BOUND)
     @qtree.moveObject(blobID, newPos)
     
 
@@ -71,8 +72,8 @@ class Environment
     parentPosition = @qtree.id2point[parentID]
     childOffset = Vector2D.randomUnitVector().multiply(CHILD_DISTANCE)
     childPosition = childOffset.add(parentPosition)
-    if 0<childPosition.x<X_BOUND and 0<childPosition.y<Y_BOUND
-      @addBlob(childPosition, childEnergy, childGenes)
+    childPosition.wrapToBound(X_BOUND, Y_BOUND)
+    @addBlob(childPosition, childEnergy, childGenes)
 
   removeBlob: (blobID) ->
     delete @blobs[blobID]

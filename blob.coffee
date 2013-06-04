@@ -2,7 +2,7 @@
 # adopted in turn from Daniel Shiffman's flocking example, found 
 # here: http://processingjs.org/learning/topic/flocking/
 
-MOVEMENT_PER_ENERGY = 1
+MOVEMENT_PER_ENERGY = 100
 REPR_ENERGY_COST    = 100
 
 class Blob
@@ -11,10 +11,10 @@ class Blob
     @geneCode ?= new GeneCode()
     @pho = @geneCode.pho
     @atk = @geneCode.atk
-    @spd = @geneCode.spd
+    @spd = @geneCode.spd / 10
     @eff = @geneCode.eff
     @efficiencyFactor = 1 - @eff / 100
-    @energyPerSecond = @pho /5  - (@spd + @atk) * @efficiencyFactor
+    @energyPerSecond = @pho /5 - (@spd + @atk) * @efficiencyFactor *.1
     @attackPower = Math.pow(@atk, 2)
     @currentHeading = null
     
@@ -26,7 +26,7 @@ class Blob
     auto-attack. These are passed by the environment"""
     @energy += @energyPerSecond
     @age++
-    # @energyPerSecond -= .001
+    @energyPerSecond -= .001
 
     neighbors = @environment.getNeighbors(@id) 
     # Return list of [Blob, Distance]

@@ -94,6 +94,10 @@ class Vector2D
     projectOnto: (other) ->
       other.copy().multiply(this.dot(other))
     
+    wrapToBound: (xBound, yBound) -> 
+      @x = (@x+xBound) % xBound
+      @y = (@y+yBound) % yBound
+
     # Called on a vector acting as a position vector to return the wrapped representation closest
     # to another location
     wrapRelativeTo: (location, dimensions) ->

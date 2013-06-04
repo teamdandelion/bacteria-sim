@@ -1,4 +1,4 @@
-ALWAYS_REPRODUCE = on
+ALWAYS_REPRODUCE = off
 
 class GeneCode
   """The genes for a particular blob. This determines the stats and

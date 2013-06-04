@@ -3,7 +3,7 @@ simulator_draw = (p) ->
   env = new Environment(200, p)
   p.setup = () ->
     p.frameRate(10)
-    p.size(500, 500)
+    p.size(1000, 500)
     p.background(0)
 
   # env = Environment(500, p)
