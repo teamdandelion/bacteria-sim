@@ -17,10 +17,10 @@ class GeneCode
   constructor: (@genes) ->
     @genes ?= 
       # determines the stats
-      atk: new Gene(null, 0, 100, 1)
-      spd: new Gene(null, 0, 100, 1)
-      pho: new Gene(null, 0, 100, 1)
-      eff: new Gene(null, 0, 100, 1)
+      atk: new Gene(null, 0, 100)
+      spd: new Gene(null, 0, 100)
+      pho: new Gene(null, 0, 100)
+      eff: new Gene(null, 0, 100)
       # decision threhsolds are calculated as base + modifier * energy
       huntBase: new Gene()
       fleeBase: new Gene()
@@ -110,7 +110,7 @@ class Gene
     newGene = new Gene(old.val, old.min, old.max, old.mutationSize)
     newGene.mutate()
 
-  constructor: (@val, @min=-100, @max=100, @mutationSize=1) ->
+  constructor: (@val, @min=-100, @max=100, @mutationSize=5) ->
     @val ?= Math.random() * (@max-@min) + @min
     @mutationProbability = .3
 

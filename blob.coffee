@@ -10,7 +10,7 @@ class Blob
     @energyPerSecond  = @pho * C.PHO_EPS
     @energyPerSecond += @atk * C.ATK_EPS * @efficiencyFactor
     @energyPerSecond += @spd * C.SPD_EPS * @efficiencyFactor
-    @attackPower = Math.pow(@atk, 2)
+    @attackPower = @atk*3
     @currentHeading = null
     @maxMovement = @spd * C.MOVEMENT_SPEED_FACTOR
     
@@ -20,9 +20,12 @@ class Blob
     list of [blob, distance] pairs.
     Attackables: Everything which is adjacent and close enough to 
     auto-attack. These are passed by the environment"""
+    @attackedThisTurn = {}
     @energy += @energyPerSecond
     @age++
     @energyPerSecond -= C.AGE_ENERGY_DECAY
+    @energy *= (1-C.ENERGY_DECAY)
+    @rad = Math.sqrt(@energy) * C.RADIUS_FACTOR + 5 # Radius of the blob
 
     neighbors = @environment.getNeighbors(@id) 
     # Return list of [Blob, Distance]
@@ -33,9 +36,18 @@ class Blob
     
     @handleMovement(action)
 
-    for [attackableBlob, _] in @environment.getAttackables(@id)
-      @energy += Math.min(@attackPower, attackableBlob.energy)
-      attackableBlob.energy -= @attackPower
+    for [aBlob, dist] in @environment.getAttackables(@)
+      if dist < @.rad + aBlob.rad and aBlob.id not of @attackedThisTurn
+        @attackedThisTurn[aBlob.id] = on
+        attackDelta = @attackPower - aBlob.attackPower
+        if attackDelta > 0
+          # I attack them
+          @energy += Math.min(attackDelta, aBlob.energy)
+          aBlob.energy -= attackDelta + 5
+        else
+          # They attack me!
+          @energy -= attackDelta + 5
+          aBlob.energy += Math.min(attackDelta, @energy)
     
     if @energy < 0
       @environment.removeBlob(@id)

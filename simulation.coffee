@@ -1,6 +1,6 @@
 simulator_draw = (p) -> 
   i = 0
-  env = new Environment(200, p)
+  env = new Environment(20, p)
   p.setup = () ->
     p.frameRate(10)
     p.size(1000, 500)

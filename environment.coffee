@@ -18,16 +18,18 @@ class Environment
     @qtree.rebuild()
 
   draw: (blobID, blob) ->
-    @processing.stroke(blob.atk*2.55,blob.pho*2.55,blob.spd*2.55)
-    @processing.strokeWeight(Math.sqrt(blob.energy))
-    position = @qtree.id2point[blobID]
-    @processing.point(position.x, position.y)
+    @processing.fill(blob.atk*2.55,blob.pho*2.55,blob.spd*2.55)
+    # @processing.strokeWeight(Math.sqrt(blob.energy))
+    pos = @qtree.id2point[blobID]
+    @processing.ellipse(pos.x, pos.y, 2*blob.rad, 2*blob.rad)
+    # @processing.point(position.x, position.y)
 
   getNeighbors: (blobID) ->
     @getAdjacent(blobID, C.NEIGHBOR_DISTANCE)
   
-  getAttackables: (blobID) -> 
-    @getAdjacent(blobID, C.ATTACK_DISTANCE)
+  getAttackables: (blob) ->
+    rad = blob.rad
+    @getAdjacent(blob.id, C.ATTACK_MARGIN + rad)
 
   getAdjacent: (blobID, distance) ->
     # Returns [adjcentBlob, distance] tuples
@@ -62,7 +64,9 @@ class Environment
 
   addChildBlob: (parentID, childEnergy, childGenes) -> 
     parentPosition = @qtree.id2point[parentID]
-    childOffset = Vector2D.randomUnitVector().multiply(C.CHILD_DISTANCE)
+    parentRadius = @blobs[parentID].rad
+    childOffset = Vector2D.randomUnitVector()
+    childOffset.multiply(C.CHILD_DISTANCE + parentRadius)
     childPosition = childOffset.add(parentPosition)
     childPosition.wrapToBound(C.X_BOUND, C.Y_BOUND)
     @addBlob(childPosition, childEnergy, childGenes)

@@ -1,7 +1,10 @@
 Backend:
  ☐ Implement wrap-around
+     ☐ Current: Implemented on movement but not adjacency
  ☐ Maintain pursuit targets
  ☐ Serialize blobs
+ ☐ Quadtree max recursion depth
+ ☐ Handle huge blob interactions
 
  Frontend:
  ☐ Single blob display / info

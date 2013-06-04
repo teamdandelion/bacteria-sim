@@ -87,8 +87,6 @@ class QTNode
       throw new Error("Non-leaf node tried to make children")
     newXEdge = @xEdge / 2
     newYEdge = @yEdge / 2
-    console.log "at depth: " + @depth
-    console.log @x, @y, @xEdge, @yEdge
     if @depth > 4000
       console.log @points
     MM = new QTNode(@x - newXEdge, @y - newYEdge, newXEdge, newYEdge, @bucketSize, @depth+1)

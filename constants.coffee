@@ -3,18 +3,21 @@ class C
   @X_BOUND = 1000
   @Y_BOUND = 500
   @NEIGHBOR_DISTANCE = 100
-  @CHILD_DISTANCE    = 80
-  @ATTACK_DISTANCE   = 20
+  @CHILD_DISTANCE    = 100
+  @ATTACK_MARGIN     = 100
   @STARTING_ENERGY   = 400
+  @HUGE_SIZE      = 400
   
   # Blob variables
   @MOVEMENT_PER_ENERGY = 100
-  @REPR_ENERGY_COST    = 800
+  @REPR_ENERGY_COST    = 600
   @MOVEMENT_SPEED_FACTOR = .01
-  @PHO_EPS =  1
-  @ATK_EPS = -0.3
-  @SPD_EPS = -0.3
-  @AGE_ENERGY_DECAY = .001
+  @PHO_EPS =  .1
+  @ATK_EPS = -.015
+  @SPD_EPS = -0.01
+  @AGE_ENERGY_DECAY = .0001
+  @RADIUS_FACTOR = .3
+  @ENERGY_DECAY = .001
 
 
   # Backend variables
