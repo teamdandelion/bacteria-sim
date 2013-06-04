@@ -1,6 +1,6 @@
 X_BOUND = 500
 Y_BOUND = 500
-QTREE_BUCKET_SIZE = 10
+QTREE_BUCKET_SIZE = 100
 NEIGHBOR_DISTANCE = 100
 CHILD_DISTANCE    = 30
 ATTACK_DISTANCE   = 10
@@ -20,10 +20,16 @@ class Environment
   step: () ->
     for id, blob of @blobs
       blob.step()
-      
+
     if @processing?
       for id, blob of @blobs
-        blob.draw(@processing)
+        @draw(id, blob)
+
+  draw: (blobID, blob) ->
+    @processing.stroke(blob.atk*2.55,blob.pho*2.55,blob.spd*2.55)
+    @processing.strokeWeight(5)
+    position = @qtree.id2point[blobID]
+    @processing.point(position.x, position.y)
 
   getNeighbors: (blobID) ->
     @getAdjacent(blobID, NEIGHBOR_DISTANCE)

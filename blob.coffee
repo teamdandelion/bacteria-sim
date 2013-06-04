@@ -46,12 +46,6 @@ class Blob
       @environment.removeBlob(@id)
 
 
-  draw: (processing) ->
-    processing.stroke(@atk*2.55,@pho*2.55,@spd*2.55)
-    processing.strokeWeight(5)
-    processing.point(@position.x, @position.y)
-
-
   handleMovement: (action) ->
     if action.type is "pursuit"
       if action.argument?
