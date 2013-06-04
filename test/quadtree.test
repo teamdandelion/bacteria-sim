@@ -48,6 +48,13 @@ testCircleQuery = () ->
 	v0 = new Vector2D(0,0)
 	query3 = qgrid.circleQuery(v0, 10)
 	assertLength(90, query3)
+
+	for x in [0..10]
+		for y in [0..10]
+			id = x + "," + y
+			qgrid.removeObject(id)
+	query4 = qgrid.circleQuery(v0, 100)
+	assertLength(0, query4)
 	
 testCircleQuery()
 

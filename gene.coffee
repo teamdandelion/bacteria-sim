@@ -53,7 +53,7 @@ class GeneCode
     @pho = @genes.pho.val / total_Stats * 100
     @eff = @genes.eff.val / total_Stats * 100
 
-  calculateAction: (energy, observables) ->
+  chooseAction: (energy, observables) ->
     # an observable is a [blob, distance] pair
 
     if ALWAYS_REPRODUCE

@@ -13,6 +13,7 @@ class QuadTree
     @tree = new QTNode(@xBound/2, @yBound/2, @xBound/2, @yBound/2, @bucketSize)
 
   addObject: (id, point) ->
+    console.log "Adding id: " + id + ", point: (" + point.x + "), (" + point.y + ")"
     if id of @id2point
       throw Error("Object ID collision on id: " + id)
     @id2point[id] = point
@@ -80,6 +81,7 @@ class QTNode
       
 
   removePoint: (id, p) ->
+    console.log "removing " + id
     if @leaf
       unless id of @points
         throw new Error("Tried to remove id not in QTNode")

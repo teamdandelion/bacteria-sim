@@ -7,6 +7,7 @@ REPR_ENERGY_COST    = 100
 
 class Blob
   constructor: (@environment, @id, @energy=0, @geneCode) -> 
+    console.log "Made blob " + @id
     @age = 0
     @geneCode ?= new GeneCode()
     @pho = @geneCode.pho
@@ -30,18 +31,18 @@ class Blob
     neighbors = @environment.getNeighbors(@id) 
     # Return list of [Blob, Distance]
 
-    action = @genecode.chooseAction(@energy, neighbors)
+    action = @geneCode.chooseAction(@energy, neighbors)
     if action.type is "repr"
       @reproduce(action.argument)
     
     @handleMovement(action)
 
-    for attackableBlob in @environment.getAttackables(@id)
+    for [attackableBlob, _] in @environment.getAttackables(@id)
       @energy += Math.min(@attackPower, attackableBlob.energy)
       attackableBlob.energy -= @attackPower
     
     if @energy < 0
-      @environment.removeBlob(this)
+      @environment.removeBlob(@id)
 
 
   draw: (processing) ->
