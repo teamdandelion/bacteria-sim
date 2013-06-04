@@ -25,6 +25,7 @@ class Blob
     list of [blob, distance] pairs.
     Attackables: Everything which is adjacent and close enough to 
     auto-attack. These are passed by the environment"""
+    console.log "Stepping " + @id
     @energy += @energyPerSecond
     @age++
 

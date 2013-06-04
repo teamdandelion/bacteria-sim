@@ -2,7 +2,7 @@ simulator_draw = (p) ->
   i = 0
   env = new Environment(200, p)
   p.setup = () ->
-    p.size(Cons.X_BOUND, Cons.Y_BOUND)
+    p.size(500, 500)
     p.background(0)
 
   # env = Environment(500, p)

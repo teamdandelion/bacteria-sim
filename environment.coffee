@@ -20,6 +20,7 @@ class Environment
   step: () ->
     for id, blob of @blobs
       blob.step()
+      
     if @processing?
       for id, blob of @blobs
         blob.draw(@processing)
@@ -34,10 +35,9 @@ class Environment
     # Returns [adjcentBlob, distance] tuples
     adj = []
     blobPosition = @qtree.id2point[blobID]
-    for otherID of @qtree.circleQuery(blobPosition, distance)
+    queryResult = @qtree.circleQuery(blobPosition, distance)
+    for otherID in queryResult
       unless otherID is blobID
-        unless @blobs[otherID]? and @blobs[blobID]
-          console.log "BLOBID: " + blobID + " OTHERID: " + otherID
         d = @getDistance(blobID, otherID)
         adj.push([@blobs[otherID], d])
     return adj
@@ -75,13 +75,6 @@ class Environment
   getDistance: (ID1, ID2) -> 
     v1 = @qtree.id2point[ID1]
     v2 = @qtree.id2point[ID2]
-    unless v1? and v2?
-      console.log @
-      console.log "==========================="
-      console.log "==========================="
-      console.log "==========================="
-      console.log @qtree
-      throw new Error("ID1:" + ID1 + " ID2:" + ID2 + " undefined vectors..." + v1 + v2)
     v1.distance(v2)
 
 

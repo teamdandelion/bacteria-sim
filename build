@@ -4,7 +4,8 @@ set BLOB_FILES gene.coffee blob.coffee environment.coffee
 set MAIN_FILES $BACKEND_FILES $BLOB_FILES
 switch $argv[1]
 	case web
-		cat $MAIN_FILES simulation.coffee | coffee -c > web/combined.js
+		cat $MAIN_FILES simulation.coffee > web/combined.coffee
+		coffee -c web/combined.coffee
 		open web/simulation.html
 
 	case quadtree_test
