@@ -1,3 +1,5 @@
+X_BOUND = 500
+Y_BOUND = 500
 QTREE_BUCKET_SIZE = 10
 NEIGHBOR_DISTANCE = 100
 CHILD_DISTANCE    = 30
@@ -26,7 +28,9 @@ class Environment
     # Returns a list of [otherBlob, distance, heading] tuples
     # for every other blob less than Cons.NEIGHBOR_DISTANCE away
     neighbors = []
-    blobPosition = @qtree.id2point(blobID)
+    blobPosition = @qtree.id2point[blobID]
+    unless blobPosition?
+      throw new Error("Blob position not defined for blob " + blobID)
     for otherID of @qtree.circleQuery(blobPosition, NEIGHBOR_DISTANCE)
       unless other_blob.id is blob.id
         d = blob.calcDistance(other_blob)

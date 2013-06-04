@@ -1,11 +1,18 @@
 #!/usr/local/bin/fish
+set BACKEND_FILES cons.coffee vector.coffee quadtree.coffee
+set BLOB_FILES gene.coffee blob.coffee environment.coffee
+set MAIN_FILES $BACKEND_FILES $BLOB_FILES
 switch $argv[1]
 	case web
-		cat cons.coffee vector.coffee gene.coffee blob.coffee environment.coffee runProcessingSimulation.coffee | coffee -c > web/combined.js
+		cat $MAIN_FILES simulation.coffee | coffee -c > web/combined.js
 		open web/simulation.html
 
 	case quadtree_test
-		cat cons.coffee vector.coffee quadtree.coffee test/quadtree.test > combined.coffee
+		cat $BACKEND_FILES test/quadtree.test > combined.coffee
+		coffee combined.coffee
+
+	case debug
+		cat $MAIN_FILES test/debugSimulation.coffee > combined.coffee
 		coffee combined.coffee
 		
 	case '*'
