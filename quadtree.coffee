@@ -13,7 +13,7 @@ class QuadTree
     @tree = new QTNode(@xBound/2, @yBound/2, @xBound/2, @yBound/2, @bucketSize)
 
   addObject: (id, point) ->
-    if id of @id2point
+    if id of @id2point and not @rebuilding
       throw Error("Object ID collision on id: " + id)
     @id2point[id] = point
     @tree.addPoint(id, point)
@@ -44,6 +44,14 @@ class QuadTree
   quickQuery: (centerPoint, radius) -> 
     """NOT provably correct, this is a hack..."""
     @tree.nearbyPoints(centerPoint, radius)
+    
+
+  rebuild: () ->
+    @rebuilding = on
+    @tree = new QTNode(@xBound/2, @yBound/2, @xBound/2, @yBound/2, @bucketSize)
+    for id, pt of @id2point
+      @addObject id, pt
+    @rebuilding = off
 
 class QTNode
   constructor: (@x, @y, @xEdge, @yEdge, @bucketSize, @parent) ->

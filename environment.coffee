@@ -1,9 +1,9 @@
 X_BOUND = 500
 Y_BOUND = 500
-QTREE_BUCKET_SIZE = 30
+QTREE_BUCKET_SIZE = 100
 NEIGHBOR_DISTANCE = 100
 CHILD_DISTANCE    = 100
-ATTACK_DISTANCE   = 10
+ATTACK_DISTANCE   = 40
 STARTING_ENERGY   = 500
 
 class Environment
@@ -24,6 +24,7 @@ class Environment
     if @processing?
       for id, blob of @blobs
         @draw(id, blob)
+    @qtree.rebuild()
 
   draw: (blobID, blob) ->
     @processing.stroke(blob.atk*2.55,blob.pho*2.55,blob.spd*2.55)

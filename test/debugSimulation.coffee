@@ -1,4 +1,4 @@
-env = new Environment(250, null)
+env = new Environment(40, null)
 
 for i in [0...1000]
 	env.step()
