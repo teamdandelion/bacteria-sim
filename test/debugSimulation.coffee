@@ -1,6 +1,6 @@
-env = new Environment(5, null)
+env = new Environment(250, null)
 
-for i in [0...10000]
+for i in [0...1000]
 	env.step()
 	console.log env.nBlobs
 	

@@ -7,7 +7,6 @@ REPR_ENERGY_COST    = 100
 
 class Blob
   constructor: (@environment, @id, @energy=0, @geneCode) -> 
-    console.log "Made blob " + @id
     @age = 0
     @geneCode ?= new GeneCode()
     @pho = @geneCode.pho
@@ -25,9 +24,9 @@ class Blob
     list of [blob, distance] pairs.
     Attackables: Everything which is adjacent and close enough to 
     auto-attack. These are passed by the environment"""
-    console.log "Stepping " + @id
     @energy += @energyPerSecond
     @age++
+    # @energyPerSecond -= .001
 
     neighbors = @environment.getNeighbors(@id) 
     # Return list of [Blob, Distance]

@@ -1,8 +1,8 @@
 X_BOUND = 500
 Y_BOUND = 500
-QTREE_BUCKET_SIZE = 100
+QTREE_BUCKET_SIZE = 30
 NEIGHBOR_DISTANCE = 100
-CHILD_DISTANCE    = 30
+CHILD_DISTANCE    = 100
 ATTACK_DISTANCE   = 10
 STARTING_ENERGY   = 500
 
@@ -41,7 +41,7 @@ class Environment
     # Returns [adjcentBlob, distance] tuples
     adj = []
     blobPosition = @qtree.id2point[blobID]
-    queryResult = @qtree.circleQuery(blobPosition, distance)
+    queryResult = @qtree.quickQuery(blobPosition, distance)
     for otherID in queryResult
       unless otherID is blobID
         d = @getDistance(blobID, otherID)

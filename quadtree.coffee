@@ -13,7 +13,6 @@ class QuadTree
     @tree = new QTNode(@xBound/2, @yBound/2, @xBound/2, @yBound/2, @bucketSize)
 
   addObject: (id, point) ->
-    console.log "Adding id: " + id + ", point: (" + point.x + "), (" + point.y + ")"
     if id of @id2point
       throw Error("Object ID collision on id: " + id)
     @id2point[id] = point
@@ -42,8 +41,12 @@ class QuadTree
     """Returns a list of all object IDs that fall within the circle"""
     @tree.circleQuery centerPoint, radius, radius*radius
 
+  quickQuery: (centerPoint, radius) -> 
+    """NOT provably correct, this is a hack..."""
+    @tree.nearbyPoints(centerPoint, radius)
+
 class QTNode
-  constructor: (@x, @y, @xEdge, @yEdge, @bucketSize) ->
+  constructor: (@x, @y, @xEdge, @yEdge, @bucketSize, @parent) ->
     @leaf = true
     @points = {}
     @nPoints = 0
@@ -54,15 +57,16 @@ class QTNode
     @corners = [MM, MP, PM, PP]
 
   addPoint: (id, p) ->
+    @nPoints++ # Edge case - can nPoints go wrong if colliding IDs are added to QT? 
+    @points[id] = p
     if @leaf
-      @nPoints++ # Edge case - can nPoints go wrong if colliding IDs are added to QT? 
-      @points[id] = p
       if @nPoints > @bucketSize
         @leaf = false
         @createChildren()
-        @addPoint(id_, p_) for id_, p_ of @points
-        @nPoints = undefined 
-        delete @points
+        @nPoints = 0
+        pts = @points
+        @points = {}
+        @addPoint(id_, p_) for id_, p_ of pts
     else
       # 0 -> MM, 1 -> MP, 2 -> PM, 3 -> PP
       idx = 2 * (p.x > @x) + (p.y > @y)
@@ -73,23 +77,33 @@ class QTNode
       throw new Error("Non-leaf node tried to make children")
     newXEdge = @xEdge / 2
     newYEdge = @yEdge / 2
-    MM = new QTNode(@x - newXEdge, @y - newYEdge, newXEdge, newYEdge, @bucketSize)
-    MP = new QTNode(@x - newXEdge, @y + newYEdge, newXEdge, newYEdge, @bucketSize)
-    PM = new QTNode(@x + newXEdge, @y - newYEdge, newXEdge, newYEdge, @bucketSize)
-    PP = new QTNode(@x + newXEdge, @y + newYEdge, newXEdge, newYEdge, @bucketSize)
+    MM = new QTNode(@x - newXEdge, @y - newYEdge, newXEdge, newYEdge, @bucketSize, @)
+    MP = new QTNode(@x - newXEdge, @y + newYEdge, newXEdge, newYEdge, @bucketSize, @)
+    PM = new QTNode(@x + newXEdge, @y - newYEdge, newXEdge, newYEdge, @bucketSize, @)
+    PP = new QTNode(@x + newXEdge, @y + newYEdge, newXEdge, newYEdge, @bucketSize, @)
     @children = [MM, MP, PM, PP]
       
 
   removePoint: (id, p) ->
-    console.log "removing " + id
-    if @leaf
-      unless id of @points
-        throw new Error("Tried to remove id not in QTNode")
-      delete @points[id]
-      --@nPoints
-    else
+    unless id of @points
+      throw new Error("Tried to remove id not in QTNode")
+    delete @points[id]
+    --@nPoints
+    unless @leaf
       idx = 2 * (p.x > @x) + (p.y > @y)
       @children[idx].removePoint(id, p)
+
+  nearbyPoints: (centerPoint, maxDist) -> 
+    if @leaf
+      distSq = maxDist * maxDist
+      parent = @parent ? @
+      grandparent = parent.parent ? parent
+      pts = grandparent.points
+      (id for id, pt of pts when centerPoint.distSq(pt) <= distSq)
+    else
+      idx = 2 * (centerPoint.x > @x) + (centerPoint.y > @y)
+      @children[idx].nearbyPoints(centerPoint, maxDist)
+
 
   circleQuery: (centerPoint, radius, radiusSq) ->
     # returns a list of QTNodes which intersect this circle

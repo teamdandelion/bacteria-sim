@@ -6,7 +6,6 @@ switch $argv[1]
 	case web
 		cat $MAIN_FILES simulation.coffee > web/combined.coffee
 		coffee -c web/combined.coffee
-		open web/simulation.html
 
 	case quadtree_test
 		cat $BACKEND_FILES test/quadtree.test > combined.coffee
