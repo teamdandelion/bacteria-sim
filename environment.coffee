@@ -1,39 +1,86 @@
-class Environment
-  constructor: (@nBlobs=0, @processing) ->
-    @blobs = {}
-    for i in [0...nBlobs]
-      position  = Vector2D.randomVector(Cons.X_BOUND, Cons.Y_BOUND)
-      newBlob = new Blob(@, position, 100)
-      @blobs[newBlob.id] = newBlob
+X_BOUND = 500
+Y_BOUND = 500
+QTREE_BUCKET_SIZE = 100
+NEIGHBOR_DISTANCE = 100
+CHILD_DISTANCE    = 30
+ATTACK_DISTANCE   = 10
+STARTING_ENERGY   = 500
 
+class Environment
+  constructor: (starting_blobs, @processing) ->
+    @blobs = {}
+    @qtree = new QuadTree(X_BOUND, Y_BOUND, QTREE_BUCKET_SIZE)
+    @nBlobs = 0
+    @nextBlobId = 0
+    for i in [0...starting_blobs]
+      position  = Vector2D.randomVector(X_BOUND, Y_BOUND)
+      @addBlob(position, STARTING_ENERGY)
+    null
 
   step: () ->
     for id, blob of @blobs
       blob.step()
+
     if @processing?
       for id, blob of @blobs
-        blob.draw(@processing)
+        @draw(id, blob)
 
-  calculateNeighbors: (blob) ->
-    # Returns a list of [otherBlob, distance] tuples
-    # for every other blob less than Cons.NEIGHBOR_DISTANCE away
-    neighbors = []
-    for other_id, other_blob of @blobs
-      unless other_blob.id is blob.id
-        d = blob.calcDistance(other_blob)
-        if d is 0
-          console.log "Something probably went wrong"
-        if d < Cons.NEIGHBOR_DISTANCE
-          neighbors.push([other_blob, d])
-    return neighbors
-    # O(n) performance - work on this later...
+  draw: (blobID, blob) ->
+    @processing.stroke(blob.atk*2.55,blob.pho*2.55,blob.spd*2.55)
+    @processing.strokeWeight(5)
+    position = @qtree.id2point[blobID]
+    @processing.point(position.x, position.y)
 
-  addBlob: (newBlob) ->
-    @blobs[newBlob.id] = newBlob
+  getNeighbors: (blobID) ->
+    @getAdjacent(blobID, NEIGHBOR_DISTANCE)
+  
+  getAttackables: (blobID) -> 
+    @getAdjacent(blobID, ATTACK_DISTANCE)
+
+  getAdjacent: (blobID, distance) ->
+    # Returns [adjcentBlob, distance] tuples
+    adj = []
+    blobPosition = @qtree.id2point[blobID]
+    queryResult = @qtree.circleQuery(blobPosition, distance)
+    for otherID in queryResult
+      unless otherID is blobID
+        d = @getDistance(blobID, otherID)
+        adj.push([@blobs[otherID], d])
+    return adj
+
+  getHeading: (sourceID, targetID) ->
+    sourcePos = @qtree.id2point(sourceID)
+    targetPos = @qtree.id2point(targetID)
+    Vector2D.subtract(targetPos, sourcePos).heading()
+
+  moveBlob: (blobID, heading, moveAmt) -> 
+    sourcePos = @qtree.id2point[blobID]
+    moveVector = Vector2D.headingVector(heading).multiply(moveAmt)
+    newPos = moveVector.add(sourcePos)
+    @qtree.moveObject(blobID, newPos)
+    
+
+  addBlob: (position, energy, geneCode) ->
+    b = new Blob(@, @nextBlobId, energy, geneCode)
+    @blobs[@nextBlobId] = b
+    @qtree.addObject(@nextBlobId, position)
+    @nextBlobId++
     @nBlobs++
 
+  addChildBlob: (parentID, childEnergy, childGenes) -> 
+    parentPosition = @qtree.id2point[parentID]
+    childOffset = Vector2D.randomUnitVector().multiply(CHILD_DISTANCE)
+    childPosition = childOffset.add(parentPosition)
+    @addBlob(childPosition, childEnergy, childGenes)
 
-  removeBlob: (blob) ->
-    delete @blobs[blob.id]
+  removeBlob: (blobID) ->
+    delete @blobs[blobID]
+    @qtree.removeObject(blobID)
     @nBlobs--
+
+  getDistance: (ID1, ID2) -> 
+    v1 = @qtree.id2point[ID1]
+    v2 = @qtree.id2point[ID2]
+    v1.distance(v2)
+
 
