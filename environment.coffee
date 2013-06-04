@@ -15,7 +15,6 @@ class Environment
     for i in [0...starting_blobs]
       position  = Vector2D.randomVector(X_BOUND, Y_BOUND)
       @addBlob(position, STARTING_ENERGY)
-    null
 
   step: () ->
     for id, blob of @blobs

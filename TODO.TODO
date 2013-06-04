@@ -1,0 +1,7 @@
+Backend:
+ ☐ Implement wrap-around
+ ☐ Maintain pursuit targets
+ ☐ Serialize blobs
+
+ Frontend:
+ ☐ Single blob display / info
