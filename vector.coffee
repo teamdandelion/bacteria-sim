@@ -25,6 +25,10 @@ class Vector2D
     Vector2D.headingVector = (h) -> 
       new Vector2D(Math.cos(h), Math.sin(h))
 
+    Vector2D.randomize = (v) -> 
+      r = Vector2D.randomVector(.000001, .000001)
+      v.add(r)
+
     constructor: (x=0,y=0) ->
       [@x,@y] = [x,y]
 

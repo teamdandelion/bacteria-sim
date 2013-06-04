@@ -14,7 +14,7 @@ assertLength = (expected, arr) ->
 testAddRemove = () ->
 	q = new QuadTree(xBound,yBound,10)
 	points = {} 
-	for id in [0...10000]
+	for id in [0...100000]
 		p = Vector2D.randomVector(xBound, yBound)
 		points[id] = p 
 		q.addObject(id, p)

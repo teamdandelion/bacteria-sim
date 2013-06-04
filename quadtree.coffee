@@ -13,6 +13,8 @@ class QuadTree
     @tree = new QTNode(@xBound/2, @yBound/2, @xBound/2, @yBound/2, @bucketSize)
 
   addObject: (id, point) ->
+    if not (0<point.x<@xBound and 0<point.y<@yBound)
+      throw new Error("Index out of bounds")
     if id of @id2point and not @rebuilding
       throw Error("Object ID collision on id: " + id)
     @id2point[id] = point
@@ -54,7 +56,7 @@ class QuadTree
     @rebuilding = off
 
 class QTNode
-  constructor: (@x, @y, @xEdge, @yEdge, @bucketSize, @parent) ->
+  constructor: (@x, @y, @xEdge, @yEdge, @bucketSize, @depth=0) ->
     @leaf = true
     @points = {}
     @nPoints = 0
@@ -85,10 +87,14 @@ class QTNode
       throw new Error("Non-leaf node tried to make children")
     newXEdge = @xEdge / 2
     newYEdge = @yEdge / 2
-    MM = new QTNode(@x - newXEdge, @y - newYEdge, newXEdge, newYEdge, @bucketSize, @)
-    MP = new QTNode(@x - newXEdge, @y + newYEdge, newXEdge, newYEdge, @bucketSize, @)
-    PM = new QTNode(@x + newXEdge, @y - newYEdge, newXEdge, newYEdge, @bucketSize, @)
-    PP = new QTNode(@x + newXEdge, @y + newYEdge, newXEdge, newYEdge, @bucketSize, @)
+    console.log "at depth: " + @depth
+    console.log @x, @y, @xEdge, @yEdge
+    if @depth > 4000
+      console.log @points
+    MM = new QTNode(@x - newXEdge, @y - newYEdge, newXEdge, newYEdge, @bucketSize, @depth+1)
+    MP = new QTNode(@x - newXEdge, @y + newYEdge, newXEdge, newYEdge, @bucketSize, @depth+1)
+    PM = new QTNode(@x + newXEdge, @y - newYEdge, newXEdge, newYEdge, @bucketSize, @depth+1)
+    PP = new QTNode(@x + newXEdge, @y + newYEdge, newXEdge, newYEdge, @bucketSize, @depth+1)
     @children = [MM, MP, PM, PP]
       
 

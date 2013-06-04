@@ -2,15 +2,17 @@ simulator_draw = (p) ->
   i = 0
   env = new Environment(200, p)
   p.setup = () ->
+    p.frameRate(10)
     p.size(500, 500)
     p.background(0)
 
   # env = Environment(500, p)
   p.draw = () -> 
-    i++
-    p.background(0)
-    env.step()
-    console.log env.nBlobs
+    if i < 6000
+      i++
+      p.background(0)
+      env.step()
+      console.log env.nBlobs
 
 # e = new Environment(1000)
 # for i in [0..1000]

@@ -3,7 +3,7 @@ Y_BOUND = 500
 QTREE_BUCKET_SIZE = 100
 NEIGHBOR_DISTANCE = 100
 CHILD_DISTANCE    = 100
-ATTACK_DISTANCE   = 40
+ATTACK_DISTANCE   = 20
 STARTING_ENERGY   = 500
 
 class Environment
@@ -72,7 +72,8 @@ class Environment
     parentPosition = @qtree.id2point[parentID]
     childOffset = Vector2D.randomUnitVector().multiply(CHILD_DISTANCE)
     childPosition = childOffset.add(parentPosition)
-    @addBlob(childPosition, childEnergy, childGenes)
+    if 0<childPosition.x<X_BOUND and 0<childPosition.y<Y_BOUND
+      @addBlob(childPosition, childEnergy, childGenes)
 
   removeBlob: (blobID) ->
     delete @blobs[blobID]
