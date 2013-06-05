@@ -1,9 +1,9 @@
 class C
   # Environment variables
-  @X_BOUND = 1200
-  @Y_BOUND = 700
   @DISPLAY_X = 1000
   @DISPLAY_Y = 500
+  @X_BOUND = @DISPLAY_X + 200
+  @Y_BOUND = @DISPLAY_Y + 200
   @DISPLAY_BOUND = 100
 
   @SMALL_SIZE  = 10
@@ -13,24 +13,25 @@ class C
   
 
   @NEIGHBOR_DISTANCE = 100
-  @CHILD_DISTANCE    = 100
+  @CHILD_DISTANCE    = 20
   @ATTACK_MARGIN     = 100
   @STARTING_ENERGY   = 200
-  @STARTING_BLOBS    = 50
+  @STARTING_BLOBS    = 60
   
   # Blob variables
   @MOVEMENT_PER_ENERGY = 100
   @REPR_ENERGY_COST    = 600
-  @MOVEMENT_SPEED_FACTOR = .15
-  @PHO_EPS =  1.5
-  @ATK_EPS = -2
-  @SPD_EPS = 0
+  @MOVEMENT_SPEED_FACTOR = .05
+  @PHO_EPS =  .5
+  @ATK_EPS = -1
+  @SPD_EPS = 0.2
   @AGE_ENERGY_DECAY = .0001
-  @RADIUS_FACTOR = .15
-  @RADIUS_CONSTANT = 3 
+  @RADIUS_FACTOR = .2
+  @RADIUS_CONSTANT = 4 
   @ENERGY_DECAY = .001 # not implemented
   @REPR_TIME_REQUIREMENT = 7
 
 
   # Backend variables
   @QTREE_BUCKET_SIZE = 100
+  @FRAME_RATE = 30

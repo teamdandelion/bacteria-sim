@@ -1,36 +1,105 @@
+class Simulation
+  constructor: (@p) -> 
+    # assumption: The bounds of environment are 
+    # greater than the display bounds, so when 
+    # blobs wrap around we don't need to worry about
+    # displaying them at both edges of the field 
+    # at teh same time
+    @env = new Environment(C.STARTING_BLOBS, p)
+    @running = on
+    @infoArea = new InfoArea(@p, @env)
+    @xLower = 100
+    @yLower = 100
+    @xUpper = 100 + C.DISPLAY_X
+    @yUpper = 100 + C.DISPLAY_Y
+
+  step: () -> 
+    if @running
+      @env.step()
+      @drawAll()
+
+  togglePause: () -> 
+    @running = !@running
+
+  mouseClick: (x, y) -> 
+    @env.observeBlob(x+100,y+100)
+    if !@running
+      @drawAll()
+
+  drawAll: () -> 
+    @p.background(0)
+    for blobID, blob of @env.blobs
+      pos = @env.qtree.id2point[blobID]
+      @drawBlob(blob, pos)
+    @infoArea.draw()
+
+
+  drawBlob: (blob, position) -> 
+    r = blob.rad
+    x = position.x
+    y = position.y
+    # These are coordinates relative to the upper-left
+    # hand corner of the viewing area
+    intersectX = x+r > @xLower or x-r < @xUpper
+    intersectY = y+r > @yLower or y-r < @yUpper
+    if intersectX and intersectY
+      x-= @xLower
+      y-= @yLower
+
+      @p.noFill()
+      @p.noStroke()
+      red = blob.atk * 2.55
+      grn = blob.pho * 2.55
+      blu = blob.spd * 2.55
+      @p.fill(red,grn,blu)
+
+      # if blob.rad < C.SMALL_SIZE
+      #   @p.fill(255,0,0)
+      # else if blob.rad < C.MEDIUM_SIZE
+      #   @p.fill(0,255,0)
+      # else if blob.rad < C.LARGE_SIZE
+      #   @p.fill(0,0,255)
+      # else if blob.rad < C.HUGE_SIZE
+      #   @p.fill(255,255,0)
+      # else
+      #   @p.fill(255)
+      if blob.observed?
+        @p.strokeWeight(1)
+        @p.stroke(255)
+      
+      @p.ellipse(x, y, 2*r, 2*r)
+
+      if blob.reproducing?
+        red2 = Math.min red + 9, 255
+        grn2 = Math.min grn + 9, 255
+        blu2 = Math.min blu + 9, 255
+        @p.noFill()
+        @p.stroke(red2,grn2,blu2)
+        weight = 5 * (C.REPR_TIME_REQUIREMENT - blob.maintainCurrentAction) / C.REPR_TIME_REQUIREMENT
+        @p.strokeWeight(weight)
+        @p.ellipse(x, y, 2*r-5, 2*r-5)
+
+
+
+      
+
 simulator_draw = (p) -> 
-  i = 0
-  env = new Environment(C.STARTING_BLOBS, p)
-  running = on
-  info = new InfoArea(p, env)
+  s = new Simulation(p)
   p.mouseClicked = () -> 
-    env.observeBlob(p.mouseX, p.mouseY)
-    if !running
-      p.background(0)
-      env.drawAll()
-
+    s.mouseClick(p.mouseX, p.mouseY)
+   
   p.setup = () ->
-    p.frameRate(10)
+    p.frameRate(C.FRAME_RATE)
     p.size(C.DISPLAY_X, C.DISPLAY_Y + C.DISPLAY_BOUND)
-    p.background(0)
+    p.background(0,20,90)
 
-  # env = Environment(500, p)
-  p.draw = () -> 
-    if running
-      i++
-      p.background(0)
-      env.step()
-    info.draw()
+  p.draw = () ->
+    s.step()
 
   p.keyPressed = () -> 
     console.log p.keyCode
     if p.keyCode == 32
-      running = !running
-
-
-# e = new Environment(1000)
-# for i in [0..1000]
-#   e.step()
+      s.togglePause()
 
 # wait for the DOM to be ready, 
 # create a processing instance...

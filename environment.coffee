@@ -41,69 +41,6 @@ class Environment
     for id, blob of @blobs
       blob.wrapUp()
 
-    @drawAll()
-
-
-  drawAll: () -> 
-    if @p?
-      for id, blob of @blobs
-        @draw(id, blob)
-
-
-
-  draw: (blobID, blob) ->
-    @p.noFill()
-    @p.noStroke()
-    red = blob.atk * 2.55
-    grn = blob.pho * 2.55
-    blu = blob.spd * 2.55
-
-
-    @p.fill(red,grn,blu)
-    # if blob.rad < C.SMALL_SIZE
-    #   @p.fill(255,0,0)
-    # else if blob.rad < C.MEDIUM_SIZE
-    #   @p.fill(0,255,0)
-    # else if blob.rad < C.LARGE_SIZE
-    #   @p.fill(0,0,255)
-    # else if blob.rad < C.HUGE_SIZE
-    #   @p.fill(255,255,0)
-    # else
-    #   @p.fill(255)
-    # @p.strokeWeight(Math.sqrt(blob.energy))
-    pos = @qtree.id2point[blobID]
-    if blob.observed?
-      @p.strokeWeight(1)
-      @p.stroke(255)
-
-    @p.ellipse(pos.x, pos.y, 2*blob.rad, 2*blob.rad)
-
-    if blob.reproducing?
-      red2 = Math.min red + 9, 255
-      grn2 = Math.min grn + 9, 255
-      blu2 = Math.min blu + 9, 255
-      @p.noFill()
-      @p.stroke(red2,grn2,blu2)
-      weight = 5 * (C.REPR_TIME_REQUIREMENT - blob.maintainCurrentAction) / C.REPR_TIME_REQUIREMENT
-      @p.strokeWeight(weight)
-      @p.ellipse(pos.x, pos.y, 2*blob.rad-5, 2*blob.rad-5)
-
-    #make draw wrap-around
-    # if pos.x - blob.rad < 0
-    #   wrap_x = pos.x + C.X_BOUND
-    # if pos.x + blob.rad > C.X_BOUND
-    #   wrap_x = pos.x - C.X_BOUND
-
-    # if pos.y - blob.rad < 0
-    #   wrap_y = pos.y + C.Y_BOUND
-    # if pos.y + blob.rad > C.Y_BOUND
-    #   wrap_y = pos.y - C.Y_BOUND
-
-    # if wrap_x or wrap_y
-    #   wrap_x ?= pos.x
-    #   wrap_y ?= pos.y
-
-    # @p.ellipse(wrap_x, wrap_y, 2*blob.rad, 2*blob.rad)
 
   getNeighbors: (blobID) ->
     pos = @qtree.id2point[blobID]

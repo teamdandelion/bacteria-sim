@@ -14,7 +14,7 @@ class InfoArea
   makeRect: () ->
     @p.strokeWeight(6)
     @p.stroke(0)
-    @p.fill(0) 
+    @p.fill(15) 
     @p.rect(0,0,C.DISPLAY_X,C.DISPLAY_BOUND)
     @p.noStroke()
 
