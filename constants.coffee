@@ -20,14 +20,14 @@ class C
   
   # Blob variables
   @MOVEMENT_PER_ENERGY = 100
-  @REPR_ENERGY_COST    = 600
+  @REPR_ENERGY_COST    = 350
   @MOVEMENT_SPEED_FACTOR = .05
   @PHO_EPS =  .5
-  @ATK_EPS = -1
+  @ATK_EPS = -.75
   @SPD_EPS = 0.2
   @AGE_ENERGY_DECAY = .001
-  @RADIUS_FACTOR = .2
-  @RADIUS_CONSTANT = 4 
+  @RADIUS_FACTOR = .1
+  @RADIUS_CONSTANT = 2 
   @ENERGY_DECAY = .001 # not implemented
   @REPR_TIME_REQUIREMENT = 7
 

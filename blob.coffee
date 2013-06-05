@@ -28,7 +28,7 @@ class Blob
     @energy += @energyPerSecond
     @age++
     @energyPerSecond -= C.AGE_ENERGY_DECAY
-    # @energy *= (1-C.ENERGY_DECAY)
+    @energy *= (1-C.ENERGY_DECAY)
     
 
   chooseAction: () -> 
