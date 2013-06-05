@@ -27,8 +27,8 @@ class C
   @MOVEMENT_SPEED_FACTOR = .05
   @PHO_EPS =  -.05
   @PHO_SQ_EPS = .06
-  @ATK_EPS = -1
-  @ATK_SQ_EPS = -.003
+  @ATK_EPS = -.5
+  @ATK_SQ_EPS = 0
   @SPD_EPS = 0
   @AGE_ENERGY_DECAY = .001
   @RADIUS_FACTOR = .1
