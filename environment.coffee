@@ -77,6 +77,7 @@ class Environment
       unless otherID is blobID
         pos2 = @qtree.id2point[otherID]
         d = position.distance(pos2)
+        console.log otherID, d
         adj.push([@blobs[otherID], d])
     return adj
 

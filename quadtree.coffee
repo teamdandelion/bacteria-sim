@@ -118,7 +118,7 @@ class QTNode
 
 
   circleQuery: (centerPoint, radius, radiusSq) ->
-    # returns a list of QTNodes which intersect this circle
+    # recurse thru list of QTNodes which intersect this circle
     # radiusSq = radius^2 so we can avoid sqrt calculations
 
     intersect = false

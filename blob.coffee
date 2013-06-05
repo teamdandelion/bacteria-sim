@@ -1,6 +1,7 @@
 class Blob
   constructor: (@environment, @id, @energy=0, @geneCode) -> 
     @age = 0
+    @id += '' #coerce to string to avoid equality issues
     @geneCode ?= new GeneCode()
     @pho = @geneCode.pho
     @atk = @geneCode.atk
@@ -72,6 +73,11 @@ class Blob
   handleAttacks: () ->
     for [aBlob, dist] in @environment.getAttackables(@id)
       if dist < @.rad + aBlob.rad + 5 and aBlob.id not of @attackedThisTurn
+        if aBlob.id == @id
+          console.log "DETECTED ERROR ON BLOB " + @id
+          console.log "getAttackables gave this: " + @environment.getAttackables(@id)
+          console.log "MY ID, THEIR ID:" + @id, aBlob.id
+          throw new Error("Attacking self!")
         @attackedThisTurn[aBlob.id] = on
         @numAttacks++
         attackDelta = @attackPower - aBlob.attackPower
@@ -108,8 +114,8 @@ class Blob
     @environment.moveBlob(@id, heading, moveAmt)
 
   reproduce: (childEnergy) ->
-    if childEnergy > @energy/2
-      childEnergy = @energy/2
+    if childEnergy > (@energy-C.REPR_ENERGY_COST)/2
+      childEnergy = (@energy-C.REPR_ENERGY_COST)/2
     if @energy >= childEnergy + C.REPR_ENERGY_COST * @efficiencyFactor
       @energy  -= childEnergy + C.REPR_ENERGY_COST * @efficiencyFactor
       childGenes = GeneCode.copy(@geneCode)
