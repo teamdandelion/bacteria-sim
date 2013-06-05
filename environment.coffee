@@ -21,11 +21,11 @@ class Environment
     nearbyBlobs = @getAdjacent(clickLocation, 30)
     nearbyBlobs = ([b, clickLocation.distSq(@location[b.id])] for b in nearbyBlobs)
     selected = minByIndex(nearbyBlobs, 1)
-    if selected?
+    if selected? and selected[1] < selected[0].rad + 10 and selected[0].id != prevId
       selected = selected[0]
-    if selected? and selected.id != prevId
       @observedBlob = selected
       console.log "Observing blob:" + @observedBlob.id
+      # console.log @observedBlob
       @observedBlob.observed = on
 
   step: () ->

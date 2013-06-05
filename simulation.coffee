@@ -13,6 +13,7 @@ class Simulation
     @xUpper = 100 + C.DISPLAY_X
     @yUpper = 100 + C.DISPLAY_Y
     @showNucleus = off
+    @showShells = off
 
   step: () -> 
     if @running
@@ -24,6 +25,8 @@ class Simulation
       @running = !@running
     if k == 78 # 'n'
       @showNucleus = !@showNucleus
+    if k == 83 # 's'
+      @showShells = !@showShells
 
   mouseClick: (x, y) -> 
     @env.observeBlob(x+100,y+100)
@@ -81,6 +84,17 @@ class Simulation
         @p.fill(nuc_red,nuc_grn,nuc_blu)
         rad = Math.min(3, blob.rad/2)
         @p.ellipse(x,y,2*rad, 2*rad)
+
+      if @showShells
+        nuc_red = blob.red
+        nuc_grn = blob.grn
+        nuc_blu = blob.blu
+        @p.stroke(nuc_red,nuc_grn,nuc_blu)
+        @p.noFill()
+        rad = blob.rad
+        @p.strokeWeight(2)
+        @p.ellipse(x,y,2*rad, 2*rad)
+
 
       if blob.reproducing?
         red2 = Math.min red + 9, 255

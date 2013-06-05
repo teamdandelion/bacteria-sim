@@ -121,8 +121,8 @@ class Blob
           aBlob.numAttacks++
           # I attack them
           amt = Math.min(attackDelta, aBlob.energy)
-          if @observed? or aBlob.observed? 
-            console.log "#{@id} attacking #{aBlob.id} for #{amt}"
+          # if @observed? or aBlob.observed? 
+            # console.log "#{@id} attacking #{aBlob.id} for #{amt}"
 
           @energy += amt
           @attackEnergyThisTurn += amt
