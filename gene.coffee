@@ -55,8 +55,12 @@ class GeneCode
 
       childEnergy: new Gene(null, 0, 1000, 1)
 
-    atk_pho_total = @genes.atk.val + @genes.pho.val 
-    spd_eff_total = @genes.spd.val + @genes.eff.val
+    if C.TWO_TRADEOFF
+      atk_pho_total = @genes.atk.val + @genes.pho.val 
+      spd_eff_total = @genes.spd.val + @genes.eff.val
+    else
+      atk_pho_total = @genes.atk.val + @genes.pho.val + @genes.spd.val + @genes.eff.val
+      spd_eff_total = atk_pho_total
     @atk = @genes.atk.val / atk_pho_total * 100
     @pho = @genes.pho.val / atk_pho_total * 100
     @spd = @genes.spd.val / spd_eff_total * 100

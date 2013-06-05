@@ -18,7 +18,7 @@ class Environment
       prevId = @observedBlob.id
       @observedBlob.observed = null
       @observedBlob = null
-    nearbyBlobs = @getAdjacent(clickLocation, 30)
+    nearbyBlobs = @getAdjacent(clickLocation, 80)
     nearbyBlobs = ([b, clickLocation.distSq(@location[b.id])] for b in nearbyBlobs)
     selected = minByIndex(nearbyBlobs, 1)
     if selected? and selected[1] < selected[0].rad + 10 and selected[0].id != prevId
@@ -78,8 +78,9 @@ class Environment
   addChildBlob: (parentID, childEnergy, childGenes) -> 
     parentPosition = @location[parentID]
     parentRadius = @blobs[parentID].rad
+    parentSpeed = @blobs[parentID].spd
     childOffset = Vector2D.randomUnitVector()
-    childOffset.multiply(C.CHILD_DISTANCE + parentRadius)
+    childOffset.multiply(C.CHILD_DISTANCE + parentRadius + parentSpeed / 2)
     childPosition = childOffset.add(parentPosition)
     childPosition.wrapToBound(C.X_BOUND, C.Y_BOUND)
     @addBlob(childPosition, childEnergy, childGenes)

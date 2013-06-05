@@ -131,7 +131,7 @@ class Blob
           aBlob.attackEnergyThisTurn -= attackDelta + 5
     if isNaN(@attackEnergyThisTurn)
       console.log @
-      throw new Error("NAN attack energy")
+      console.log "NAN attack energy"
 
   wrapUp: () -> 
     if @action.type is "repr"
@@ -142,7 +142,7 @@ class Blob
     @rad = Math.sqrt(@energy) * C.RADIUS_FACTOR + C.RADIUS_CONSTANT # Radius of the blob
     @radSq = @rad*@rad
     #duplicated in constructor
-    if @energy < 0
+    if @energy < 0 or isNaN(@energy)
       @environment.removeBlob(@id)
       @alive = off
 
