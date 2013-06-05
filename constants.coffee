@@ -16,7 +16,7 @@ class C
   @CHILD_DISTANCE    = 20
   @ATTACK_MARGIN     = 100
   @STARTING_ENERGY   = 200
-  @STARTING_BLOBS    = 60
+  @STARTING_BLOBS    = 200
   
   # Blob variables
   @MOVEMENT_PER_ENERGY = 100
@@ -25,7 +25,7 @@ class C
   @PHO_EPS =  .5
   @ATK_EPS = -1
   @SPD_EPS = 0.2
-  @AGE_ENERGY_DECAY = .0001
+  @AGE_ENERGY_DECAY = .001
   @RADIUS_FACTOR = .2
   @RADIUS_CONSTANT = 4 
   @ENERGY_DECAY = .001 # not implemented

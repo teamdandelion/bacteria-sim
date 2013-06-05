@@ -87,16 +87,16 @@ class GeneCode
 
   calcHuntImpulse: ([b, dist]) -> 
     i =  @genes.nrgHunt.val * b.energy
-    i += @genes.atkHunt.val * b.atk
-    i += @genes.spdHunt.val * b.spd
+    i += @genes.atkHunt.val * (b.atk - @atk)
+    i += @genes.spdHunt.val * (b.spd - @spd)
     i += @genes.phoHunt.val * b.pho
     i += @genes.effHunt.val * b.eff
     i += @genes.dstHunt.val * dist
   
   calcFleeImpulse: ([b, dist]) -> 
     i =  @genes.nrgFlee.val * b.energy
-    i += @genes.atkFlee.val * b.atk
-    i += @genes.spdFlee.val * b.spd
+    i += @genes.atkFlee.val * (b.atk - @atk)
+    i += @genes.spdFlee.val * (b.spd - @atk)
     i += @genes.phoFlee.val * b.pho
     i += @genes.effFlee.val * b.eff
     i += @genes.dstFlee.val * dist
