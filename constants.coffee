@@ -12,7 +12,7 @@ class C
   @HUGE_SIZE   = 200
   
 
-  @NEIGHBOR_DISTANCE = 100
+  @NEIGHBOR_DISTANCE = 20
   @CHILD_DISTANCE    = 20
   @ATTACK_MARGIN     = 100
   @STARTING_ENERGY   = 200
@@ -20,9 +20,9 @@ class C
   
   # Blob variables
   @MOVEMENT_PER_ENERGY = 100
-  @REPR_ENERGY_COST    = 350
+  @REPR_ENERGY_COST    = 600
   @MOVEMENT_SPEED_FACTOR = .05
-  @PHO_EPS =  .5
+  @PHO_EPS =  1
   @ATK_EPS = -.75
   @SPD_EPS = 0.2
   @AGE_ENERGY_DECAY = .001

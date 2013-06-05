@@ -15,9 +15,12 @@ class Blob
     @currentHeading = null
     @maxMovement = @spd * C.MOVEMENT_SPEED_FACTOR
     @rad = Math.sqrt(@energy) * C.RADIUS_FACTOR + C.RADIUS_CONSTANT # Duplicated in wrap-up
+    @radSq = @rad*@rad
     @stepsUntilNextAction = 0 
     @stepsUntilNextQuery = 0
     @alive = on
+    @ageOfLastMove = 0
+    @neighborDists = {}
 
   preStep: () ->
     """One full step of simulation for this blob.
@@ -26,6 +29,7 @@ class Blob
     @attackedThisTurn = {}
     @attackEnergyThisTurn = 0
     @numAttacks = 0
+    @movedThisTurn = off
 
     @energy += @energyPerSecond
     @age++
@@ -42,6 +46,11 @@ class Blob
       @stepsUntilNextQuery--
     # Return list of blobs
     
+  getObservables: () ->
+    for n in @neighbors
+      unless @neighborDists[n.id]? and @neighborDists[n.id][1] == n.ageOfLastMove
+        @neighborDists[n.id] = [@environment.blobDist(@,n), n.ageOfLastMove]
+    ([n, @neighborDists[n.id][0]] for n in @neighbors)
 
   chooseAction: () -> 
     if @maintainCurrentAction > 0
@@ -52,8 +61,7 @@ class Blob
         @maintainCurrentAction--
         return
 
-    neighborDists = ([n, @environment.blobDist(@,n)] for n in @neighbors)
-    @action = @geneCode.chooseAction(@energy, neighborDists)
+    @action = @geneCode.chooseAction(@energy, @getObservables())
     if @action.type == "hunt"
       if @huntTarget
         @huntTarget = @action.argument[0]
@@ -61,6 +69,7 @@ class Blob
     if @action.type == "repr"
       @maintainCurrentAction = C.REPR_TIME_REQUIREMENT
       @reproducing = on
+
     # reproduction maintenance is handled in reproduction code
     # -1 signals to repr code to check viability and put timeline if viable
     # this is so that if a cell 
@@ -98,9 +107,8 @@ class Blob
       @move(heading, moveAmt)
 
   handleAttacks: () ->
-    neighborDists = ([n, @environment.blobDist(@,n)] for n in @neighbors)
-    for [aBlob, dist] in neighborDists
-      if dist < @.rad + aBlob.rad + 1
+    for [aBlob, dist] in @getObservables()
+      if dist < @rad + aBlob.rad + 1
         attackDelta = @attackPower - aBlob.attackPower
         if attackDelta >= 0
           # @attackedThisTurn[aBlob.id] = on
@@ -126,6 +134,7 @@ class Blob
         @reproducing = null
 
     @rad = Math.sqrt(@energy) * C.RADIUS_FACTOR + C.RADIUS_CONSTANT # Radius of the blob
+    @radSq = @rad*@rad
     #duplicated in constructor
     if @energy < 0
       @environment.removeBlob(@id)
@@ -137,6 +146,7 @@ class Blob
     moveAmt = Math.max(moveAmt, 0) # in case @energy is negative due to recieved attacks
     @energy -= moveAmt * @efficiencyFactor / C.MOVEMENT_PER_ENERGY
     @environment.moveBlob(@id, heading, moveAmt)
+    @neighborDists = {}
 
   reproduce: (childEnergy) ->
     if @energy <= C.REPR_ENERGY_COST
