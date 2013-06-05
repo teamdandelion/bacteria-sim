@@ -15,12 +15,13 @@ class C
   @REPR_ENERGY_COST    = 600
   @MOVEMENT_SPEED_FACTOR = .1
   @PHO_EPS =  1.5
-  @ATK_EPS = -3
+  @ATK_EPS = -2
   @SPD_EPS = 0
   @AGE_ENERGY_DECAY = .0001
   @RADIUS_FACTOR = .3
   @RADIUS_CONSTANT = 5 
   @ENERGY_DECAY = .001 # not implemented
+  @REPR_TIME_REQUIREMENT = 7
 
 
   # Backend variables

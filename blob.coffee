@@ -15,6 +15,7 @@ class Blob
     @currentHeading = null
     @maxMovement = @spd * C.MOVEMENT_SPEED_FACTOR
     @rad = Math.sqrt(@energy) * C.RADIUS_FACTOR + C.RADIUS_CONSTANT # Duplicated in wrap-up
+    @stepsUntilNextAction = 0 
 
   preStep: () ->
     """One full step of simulation for this blob.
@@ -31,12 +32,30 @@ class Blob
     
 
   chooseAction: () -> 
+    if @maintainCurrentAction > 0
+      if @action.type == "hunt" and not @environment.isAlive(@huntTarget.id)
+        #when a target dies, stop hunting it and do something else
+        @maintainCurrentAction = 0
+      else
+        @maintainCurrentAction--
+        return
+
     """Neighbors: Everything within seeing distance. Represented as
     list of [blob, distance] pairs."""
     neighbors = @environment.getNeighbors(@id) 
     # Return list of [Blob, Distance]
 
     @action = @geneCode.chooseAction(@energy, neighbors)
+    if @action.type == "hunt"
+      if @huntTarget
+        @huntTarget = @action.argument[0]
+        @maintainCurrentAction = 20 # keep hunting same target for 20 turns
+    if @action.type == "repr"
+      @maintainCurrentAction = 7
+      @reproducing = on
+    # reproduction maintenance is handled in reproduction code
+    # -1 signals to repr code to check viability and put timeline if viable
+    # this is so that if a cell 
 
   handleMovement: () ->
     if @action.type is "hunt"
@@ -93,7 +112,9 @@ class Blob
 
   wrapUp: () -> 
     if @action.type is "repr"
-      @reproduce(@action.argument)
+      if @maintainCurrentAction == 0
+        @reproduce(@action.argument)
+        @reproducing = null
 
     @rad = Math.sqrt(@energy) * C.RADIUS_FACTOR + C.RADIUS_CONSTANT # Radius of the blob
     #duplicated in constructor
@@ -108,7 +129,11 @@ class Blob
     @environment.moveBlob(@id, heading, moveAmt)
 
   reproduce: (childEnergy) ->
+    if @energy <= C.REPR_ENERGY_COST
+      @energy -= C.REPR_ENERGY_COST / 2 
+      return
     if childEnergy > (@energy-C.REPR_ENERGY_COST)/2
+      @energy -= C.REPR_ENERGY_COST / 2
       return
     if @energy >= childEnergy + C.REPR_ENERGY_COST * @efficiencyFactor
       @energy  -= childEnergy + C.REPR_ENERGY_COST * @efficiencyFactor

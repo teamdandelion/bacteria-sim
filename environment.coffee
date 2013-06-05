@@ -1,5 +1,5 @@
 class Environment
-  constructor: (starting_blobs, @processing) ->
+  constructor: (starting_blobs, @p) ->
     @blobs = {}
     @qtree = new QuadTree(C.X_BOUND, C.Y_BOUND, C.QTREE_BUCKET_SIZE)
     @nBlobs = 0
@@ -45,40 +45,55 @@ class Environment
 
 
   drawAll: () -> 
-    if @processing?
+    if @p?
       for id, blob of @blobs
         @draw(id, blob)
 
 
 
   draw: (blobID, blob) ->
-    @processing.fill(blob.atk*2.55,blob.pho*2.55,blob.spd*2.55)
-    # @processing.strokeWeight(Math.sqrt(blob.energy))
+    @p.noFill()
+    @p.noStroke()
+    red = blob.atk * 2.55
+    grn = blob.pho * 2.55
+    blu = blob.spd * 2.55
+
+
+    @p.fill(red,grn,blu)
+    # @p.strokeWeight(Math.sqrt(blob.energy))
     pos = @qtree.id2point[blobID]
     if blob.observed?
-      @processing.strokeWeight(3)
-      @processing.stroke(255)
+      @p.strokeWeight(1)
+      @p.stroke(255)
 
-    @processing.ellipse(pos.x, pos.y, 2*blob.rad, 2*blob.rad)
+    @p.ellipse(pos.x, pos.y, 2*blob.rad, 2*blob.rad)
+
+    if blob.reproducing?
+      red2 = Math.min red + 9, 255
+      grn2 = Math.min grn + 9, 255
+      blu2 = Math.min blu + 9, 255
+      @p.noFill()
+      @p.stroke(red2,grn2,blu2)
+      weight = 5 * (C.REPR_TIME_REQUIREMENT - blob.maintainCurrentAction) / C.REPR_TIME_REQUIREMENT
+      @p.strokeWeight(weight)
+      @p.ellipse(pos.x, pos.y, 2*blob.rad-5, 2*blob.rad-5)
+
     #make draw wrap-around
-    if pos.x - blob.rad < 0
-      wrap_x = pos.x + C.X_BOUND
-    if pos.x + blob.rad > C.X_BOUND
-      wrap_x = pos.x - C.X_BOUND
+    # if pos.x - blob.rad < 0
+    #   wrap_x = pos.x + C.X_BOUND
+    # if pos.x + blob.rad > C.X_BOUND
+    #   wrap_x = pos.x - C.X_BOUND
 
-    if pos.y - blob.rad < 0
-      wrap_y = pos.y + C.Y_BOUND
-    if pos.y + blob.rad > C.Y_BOUND
-      wrap_y = pos.y - C.Y_BOUND
+    # if pos.y - blob.rad < 0
+    #   wrap_y = pos.y + C.Y_BOUND
+    # if pos.y + blob.rad > C.Y_BOUND
+    #   wrap_y = pos.y - C.Y_BOUND
 
-    if wrap_x or wrap_y
-      wrap_x ?= pos.x
-      wrap_y ?= pos.y
+    # if wrap_x or wrap_y
+    #   wrap_x ?= pos.x
+    #   wrap_y ?= pos.y
 
-    @processing.ellipse(wrap_x, wrap_y, 2*blob.rad, 2*blob.rad)
-
-    @processing.noStroke()
-    # @processing.point(position.x, position.y)
+    # @p.ellipse(wrap_x, wrap_y, 2*blob.rad, 2*blob.rad)
 
   getNeighbors: (blobID) ->
     pos = @qtree.id2point[blobID]
@@ -135,6 +150,9 @@ class Environment
     delete @blobs[blobID]
     @qtree.removeObject(blobID)
     @nBlobs--
+
+  isAlive: (blobID) -> 
+    blobID of @blobs
 
 
 
