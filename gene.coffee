@@ -142,12 +142,12 @@ class Gene
 
   constructor: (@val, @min=-100, @max=100, @mutationSize=5) ->
     @val ?= Math.random() * (@max-@min) + @min
-    @mutationProbability = .3
+    @mutationProbability = C.MUTATION_PROBABILITY
 
   mutate: () ->
     if Math.random() < @mutationProbability
       sign = randomSign()
-      mutationSize = @mutationSize * 2 * Math.random()
+      mutationSize = @mutationSize * 2 * Math.random() * C.MUTATION_CONSTANT
       @val += sign * mutationSize
       @val = Math.max @val, @min
       @val = Math.min @val, @max

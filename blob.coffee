@@ -25,7 +25,8 @@ class Blob
     @stepsUntilNextAction = 0 
     @stepsUntilNextQuery = 0
     @alive = on
-    @ageOfLastMove = 0
+    @movedLastTurn = 0
+    @movedThisTurn = 0
     @neighborDists = {}
 
   preStep: () ->
@@ -35,7 +36,8 @@ class Blob
     @attackedThisTurn = {}
     @attackEnergyThisTurn = 0
     @numAttacks = 0
-    @movedThisTurn = off
+    @movedLastTurn = @movedThisTurn
+    @movedThisTurn = 0
 
     @energy += @energyPerSecond
     @age++
@@ -54,8 +56,14 @@ class Blob
     
   getObservables: () ->
     for n in @neighbors
-      unless @neighborDists[n.id]? and @neighborDists[n.id][1] == n.ageOfLastMove
-        @neighborDists[n.id] = [@environment.blobDist(@,n), n.ageOfLastMove]
+      if @neighborDists[n.id]?
+        [dist, move_so_far] = @neighborDists[n.id]
+        move_so_far += @movedLastTurn + n.movedLastTurn
+        if move_so_far > C.MOVE_UPDATE_AMT
+          delete @neighborDists[n.id]
+
+      @neighborDists[n.id] ?= [@environment.blobDist(@,n), 0]
+
     ([n, @neighborDists[n.id][0]] for n in @neighbors)
 
   chooseAction: () -> 
@@ -153,6 +161,7 @@ class Blob
     @energy -= moveAmt * @efficiencyFactor / C.MOVEMENT_PER_ENERGY
     @environment.moveBlob(@id, heading, moveAmt)
     @neighborDists = {}
+    @movedThisTurn = moveAmt
 
   reproduce: (childEnergy) ->
     if @energy <= C.REPR_ENERGY_COST

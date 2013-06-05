@@ -14,6 +14,7 @@ class Simulation
     @yUpper = 100 + C.DISPLAY_Y
     @showNucleus = off
     @showShells = off
+    @showReproduction = off
 
   step: () -> 
     if @running
@@ -27,6 +28,8 @@ class Simulation
       @showNucleus = !@showNucleus
     if k == 83 # 's'
       @showShells = !@showShells
+    if k == 82 # 'r'
+      @showReproduction = !@showReproduction
 
   mouseClick: (x, y) -> 
     @env.observeBlob(x+100,y+100)
@@ -96,7 +99,7 @@ class Simulation
         @p.ellipse(x,y,2*rad, 2*rad)
 
 
-      if blob.reproducing?
+      if @showReproduction and blob.reproducing?
         red2 = Math.min red + 9, 255
         grn2 = Math.min grn + 9, 255
         blu2 = Math.min blu + 9, 255
