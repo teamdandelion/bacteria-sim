@@ -2,6 +2,7 @@ class Environment
   constructor: (starting_blobs, @p) ->
     @blobs = {}
     @qtree = new QuadTree(C.X_BOUND, C.Y_BOUND, C.QTREE_BUCKET_SIZE)
+    @location = @qtree.id2point
     @nBlobs = 0
     @nextBlobId = 0
     @observedBlobID = null
@@ -18,22 +19,23 @@ class Environment
       @observedBlob.observed = null
       @observedBlob = null
     nearbyBlobs = @getAdjacent(clickLocation, 30)
+    nearbyBlobs = ([b, clickLocation.distSq(@location[b.id])] for b in nearbyBlobs)
     selected = minByIndex(nearbyBlobs, 1)
-    if selected?
+    if selected? and selected[1] < selected[0].rad + 10 and selected[0].id != prevId
       selected = selected[0]
-    if selected? and selected.id != prevId
       @observedBlob = selected
       console.log "Observing blob:" + @observedBlob.id
+      # console.log @observedBlob
       @observedBlob.observed = on
 
   step: () ->
+    @qtree.rebuild()
     for id, blob of @blobs
       blob.preStep()
       blob.chooseAction()
 
     for id, blob of @blobs
       blob.handleMovement()
-    @qtree.rebuild()
 
     for id, blob of @blobs
       blob.handleAttacks()
@@ -43,32 +45,23 @@ class Environment
 
 
   getNeighbors: (blobID) ->
-    pos = @qtree.id2point[blobID]
-    @getAdjacent(pos, C.NEIGHBOR_DISTANCE, blobID)
-  
-  getAttackables: (blobID) ->
-    pos = @qtree.id2point[blobID]
+    pos = @location[blobID]
     rad = @blobs[blobID].rad
-    @getAdjacent(pos, C.ATTACK_MARGIN + rad, blobID)
+    @getAdjacent(pos, C.NEIGHBOR_DISTANCE + rad * 1.5, blobID)
 
   getAdjacent: (position, distance, blobID) ->
-    # Returns [adjcentBlob, distance] tuples
-    adj = []
-    queryResult = @qtree.circleQuery(position, distance)
-    for otherID in queryResult
-      unless otherID is blobID
-        pos2 = @qtree.id2point[otherID]
-        d = position.distance(pos2)
-        adj.push([@blobs[otherID], d])
-    return adj
+    # Returns nearby blobs
+    queryResult = @qtree.approximateCircleQuery(position, distance)
+    (@blobs[otherID] for otherID in queryResult when otherID != blobID)
+
 
   getHeading: (sourceID, targetID) ->
-    sourcePos = @qtree.id2point[sourceID]
-    targetPos = @qtree.id2point[targetID]
+    sourcePos = @location[sourceID]
+    targetPos = @location[targetID]
     Vector2D.subtract(targetPos, sourcePos).heading()
 
   moveBlob: (blobID, heading, moveAmt) -> 
-    sourcePos = @qtree.id2point[blobID]
+    sourcePos = @location[blobID]
     moveVector = Vector2D.headingVector(heading).multiply(moveAmt)
     newPos = moveVector.add(sourcePos)
     newPos.wrapToBound(C.X_BOUND, C.Y_BOUND)
@@ -83,7 +76,7 @@ class Environment
     @nBlobs++
 
   addChildBlob: (parentID, childEnergy, childGenes) -> 
-    parentPosition = @qtree.id2point[parentID]
+    parentPosition = @location[parentID]
     parentRadius = @blobs[parentID].rad
     childOffset = Vector2D.randomUnitVector()
     childOffset.multiply(C.CHILD_DISTANCE + parentRadius)
@@ -100,6 +93,14 @@ class Environment
 
   isAlive: (blobID) -> 
     blobID of @blobs
+
+  blobDistSq: (blob1, blob2) ->
+    p1 = @location[blob1.id]
+    p2 = @location[blob2.id]
+    p1.distSq(p2)
+
+  blobDist: (blob1, blob2) ->
+    Math.sqrt @blobDistSq(blob1, blob2)
 
 
 

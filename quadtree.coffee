@@ -43,9 +43,9 @@ class QuadTree
     """Returns a list of all object IDs that fall within the circle"""
     @tree.circleQuery centerPoint, radius, radius*radius
 
-  quickQuery: (centerPoint, radius) -> 
-    """NOT provably correct, this is a hack..."""
-    @tree.nearbyPoints(centerPoint, radius)
+  approximateCircleQuery: (centerPoint, radius) -> 
+    """Returns a list of all object IDs that fall in nodes that intersect the circle"""
+    @tree.approximateCircleQuery centerPoint, radius, radius*radius
     
 
   rebuild: () ->
@@ -133,6 +133,22 @@ class QTNode
         (id for id, pt of @points when centerPoint.distSq(pt) <= radiusSq)
       else 
         [].concat (c.circleQuery(centerPoint, radius, radiusSq) for c in @children)...
+    else
+      []
+
+  approximateCircleQuery: (centerPoint, radius, radiusSq) ->
+    intersect = false
+    xDist = Math.abs(centerPoint.x-@x)
+    yDist = Math.abs(centerPoint.y-@y)
+    intersect ||= xDist <= @xEdge and yDist <= @yEdge + radius # intersects top or bottom of rect
+    intersect ||= yDist <= @yEdge and xDist <= @xEdge + radius # intersects left or right of rect
+    minDist2Corner = Math.min (centerPoint.distSq c for c in @corners)...
+    intersect ||= minDist2Corner <= radiusSq
+    if intersect
+      if @leaf 
+        (id for id, pt of @points)
+      else 
+        [].concat (c.approximateCircleQuery(centerPoint, radius, radiusSq) for c in @children)...
     else
       []
 
