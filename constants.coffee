@@ -2,6 +2,7 @@ class C
   # Environment variables
   @X_BOUND = 1000
   @Y_BOUND = 500
+  @DISPLAY_BOUND = 100
   @NEIGHBOR_DISTANCE = 100
   @CHILD_DISTANCE    = 100
   @ATTACK_MARGIN     = 100
@@ -18,6 +19,7 @@ class C
   @SPD_EPS = -0.01
   @AGE_ENERGY_DECAY = .0001
   @RADIUS_FACTOR = .3
+  @RADIUS_CONSTANT = 5 
   @ENERGY_DECAY = .001
 
 

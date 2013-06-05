@@ -58,8 +58,8 @@ class GeneCode
 
     if ALWAYS_REPRODUCE
       return {"type": "repr", "argument": 0}
-    huntPairs = ([@calcHuntImpulse(o), o[0]] for o in observables)
-    fleePairs = ([@calcFleeImpulse(o), o[0]] for o in observables)
+    huntPairs = ([@calcHuntImpulse(o), o] for o in observables)
+    fleePairs = ([@calcFleeImpulse(o), o] for o in observables)
 
     maxHunt = maxByIndex(huntPairs, 0) ? [0, null]
     maxFlee = maxByIndex(fleePairs, 0) ? [0, null]

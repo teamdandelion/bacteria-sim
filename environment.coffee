@@ -28,12 +28,26 @@ class Environment
 
   step: () ->
     for id, blob of @blobs
-      blob.step()
+      blob.preStep()
+      blob.chooseAction()
 
+    for id, blob of @blobs
+      blob.handleMovement()
+    @qtree.rebuild()
+
+    for id, blob of @blobs
+      blob.handleAttacks()
+
+    for id, blob of @blobs
+      blob.wrapUp()
+
+    @drawAll()
+
+
+  drawAll: () -> 
     if @processing?
       for id, blob of @blobs
         @draw(id, blob)
-    @qtree.rebuild()
 
   draw: (blobID, blob) ->
     @processing.fill(blob.atk*2.55,blob.pho*2.55,blob.spd*2.55)
@@ -67,8 +81,8 @@ class Environment
     return adj
 
   getHeading: (sourceID, targetID) ->
-    sourcePos = @qtree.id2point(sourceID)
-    targetPos = @qtree.id2point(targetID)
+    sourcePos = @qtree.id2point[sourceID]
+    targetPos = @qtree.id2point[targetID]
     Vector2D.subtract(targetPos, sourcePos).heading()
 
   moveBlob: (blobID, heading, moveAmt) -> 

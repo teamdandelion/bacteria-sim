@@ -2,12 +2,16 @@ simulator_draw = (p) ->
   i = 0
   env = new Environment(C.STARTING_BLOBS, p)
   running = on
+  info = new InfoArea(p, env)
   p.mouseClicked = () -> 
     env.observeBlob(p.mouseX, p.mouseY)
+    if !running
+      p.background(0)
+      env.drawAll()
 
   p.setup = () ->
     p.frameRate(10)
-    p.size(1000, 500)
+    p.size(C.X_BOUND, C.Y_BOUND + C.DISPLAY_BOUND)
     p.background(0)
 
   # env = Environment(500, p)
@@ -17,6 +21,7 @@ simulator_draw = (p) ->
       p.background(0)
       env.step()
       console.log env.nBlobs
+    info.draw()
 
   p.keyPressed = () -> 
     console.log p.keyCode

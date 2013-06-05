@@ -14,7 +14,7 @@ class QuadTree
 
   addObject: (id, point) ->
     if not (0<point.x<@xBound and 0<point.y<@yBound)
-      throw new Error("Index out of bounds")
+      throw new Error("Index out of bounds: #{point.x}, #{point.y}")
     if id of @id2point and not @rebuilding
       throw Error("Object ID collision on id: " + id)
     @id2point[id] = point

@@ -13,51 +13,35 @@ class Blob
     @attackPower = @atk*3
     @currentHeading = null
     @maxMovement = @spd * C.MOVEMENT_SPEED_FACTOR
-    
-  step: () ->
+    @rad = Math.sqrt(@energy) * C.RADIUS_FACTOR + C.RADIUS_CONSTANT # Duplicated in wrap-up
+
+  preStep: () ->
     """One full step of simulation for this blob.
-    Observables: Everything within seeing distance. Represented as
-    list of [blob, distance] pairs.
     Attackables: Everything which is adjacent and close enough to 
     auto-attack. These are passed by the environment"""
     @attackedThisTurn = {}
+    @attackEnergyThisTurn = 0
+    @numAttacks = 0
+
     @energy += @energyPerSecond
     @age++
     @energyPerSecond -= C.AGE_ENERGY_DECAY
-    @energy *= (1-C.ENERGY_DECAY)
-    @rad = Math.sqrt(@energy) * C.RADIUS_FACTOR + 5 # Radius of the blob
+    # @energy *= (1-C.ENERGY_DECAY)
+    
 
+  chooseAction: () -> 
+    """Neighbors: Everything within seeing distance. Represented as
+    list of [blob, distance] pairs."""
     neighbors = @environment.getNeighbors(@id) 
     # Return list of [Blob, Distance]
 
-    action = @geneCode.chooseAction(@energy, neighbors)
-    if action.type is "repr"
-      @reproduce(action.argument)
-    
-    @handleMovement(action)
+    @action = @geneCode.chooseAction(@energy, neighbors)
 
-    for [aBlob, dist] in @environment.getAttackables(@id)
-      if dist < @.rad + aBlob.rad and aBlob.id not of @attackedThisTurn
-        @attackedThisTurn[aBlob.id] = on
-        attackDelta = @attackPower - aBlob.attackPower
-        if attackDelta > 0
-          # I attack them
-          @energy += Math.min(attackDelta, aBlob.energy)
-          aBlob.energy -= attackDelta + 5
-        else
-          # They attack me!
-          @energy -= attackDelta + 5
-          aBlob.energy += Math.min(attackDelta, @energy)
-    
-    if @energy < 0
-      @environment.removeBlob(@id)
-
-
-  handleMovement: (action) ->
-    if action.type is "pursuit"
-      if action.argument?
+  handleMovement: () ->
+    if @action.type is "hunt"
+      if @action.argument?
         # Let's set heading as the vector pointing towards target 
-        [targetBlob, distance] = action.argument 
+        [targetBlob, distance] = @action.argument 
         heading = @environment.getHeading(@id, targetBlob.id)
         moveAmt = distance - 3 #will be further constrained by avail. energy and speed
         @wandering = null
@@ -71,8 +55,8 @@ class Blob
         heading = @wandering
         moveAmt = @maxMovement
 
-    else if action.type is "flight" and action.argument?
-      [targetBlob, distance] = action.argument 
+    else if @action.type is "flee" and @action.argument?
+      [targetBlob, distance] = @action.argument 
       heading = @environment.getHeading(@id, targetBlob.id)
       heading = Vector2D.negateHeading(heading)
       moveAmt = @maxMovement
@@ -85,13 +69,47 @@ class Blob
     if heading? and moveAmt?
       @move(heading, moveAmt)
 
+  handleAttacks: () ->
+    for [aBlob, dist] in @environment.getAttackables(@id)
+      if dist < @.rad + aBlob.rad + 5 and aBlob.id not of @attackedThisTurn
+        @attackedThisTurn[aBlob.id] = on
+        @numAttacks++
+        attackDelta = @attackPower - aBlob.attackPower
+        if attackDelta > 0
+          # I attack them
+          amt = Math.min(attackDelta, aBlob.energy)
+          @energy += amt
+          @attackEnergyThisTurn += amt
+          aBlob.energy -= attackDelta + 5
+          aBlob.attackEnergyThisTurn -= attackDelta + 5
+        else
+          # They attack me!
+          @energy -= attackDelta + 5
+          @attackEnergyThisTurn -= attackDelta + 5
+          amt = Math.min(attackDelta, @energy)
+          aBlob.energy += amt
+          aBlob.attackEnergyThisTurn += amt
+
+
+  wrapUp: () -> 
+    if @action.type is "repr"
+      @reproduce(@action.argument)
+
+    @rad = Math.sqrt(@energy) * C.RADIUS_FACTOR + C.RADIUS_CONSTANT # Radius of the blob
+    #duplicated in constructor
+    if @energy < 0
+      @environment.removeBlob(@id)
+
+
   move: (heading, moveAmt) ->
     moveAmt = Math.min(moveAmt, @maxMovement, @energy * C.MOVEMENT_PER_ENERGY / @efficiencyFactor)
     moveAmt = Math.max(moveAmt, 0) # in case @energy is negative due to recieved attacks
-    @energy -= moveAmt * efficiencyFactor / C.MOVEMENT_PER_ENERGY
+    @energy -= moveAmt * @efficiencyFactor / C.MOVEMENT_PER_ENERGY
     @environment.moveBlob(@id, heading, moveAmt)
 
   reproduce: (childEnergy) ->
+    if childEnergy > @energy/2
+      childEnergy = @energy/2
     if @energy >= childEnergy + C.REPR_ENERGY_COST * @efficiencyFactor
       @energy  -= childEnergy + C.REPR_ENERGY_COST * @efficiencyFactor
       childGenes = GeneCode.copy(@geneCode)
