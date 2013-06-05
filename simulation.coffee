@@ -1,3 +1,9 @@
+if window.innerWidth
+  C.DISPLAY_X = window.innerWidth - 20
+  C.DISPLAY_Y = window.innerHeight - 120
+  C.X_BOUND = C.DISPLAY_X + 200
+  C.Y_BOUND = C.DISPLAY_Y + 200
+
 class Simulation
   constructor: (@p) -> 
     # assumption: The bounds of environment are 
