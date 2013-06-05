@@ -1,10 +1,11 @@
 class C
   # Environment variables
-  @DISPLAY_X = 1000
-  @DISPLAY_Y = 500
+  @DISPLAY_X = window.innerWidth  - 20 ? 1000
+  @DISPLAY_Y = window.innerHeight - 20 ? 500
   @X_BOUND = @DISPLAY_X + 200
   @Y_BOUND = @DISPLAY_Y + 200
-  @DISPLAY_BOUND = 100
+  @DISPLAY_BOUND = 0
+  @INFO_WINDOW = off # change display bound if you turn this on
 
   @SMALL_SIZE  = 10
   @MEDIUM_SIZE = 30

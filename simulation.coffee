@@ -1,9 +1,3 @@
-if window.innerWidth
-  C.DISPLAY_X = window.innerWidth - 20
-  C.DISPLAY_Y = window.innerHeight - 120
-  C.X_BOUND = C.DISPLAY_X + 200
-  C.Y_BOUND = C.DISPLAY_Y + 200
-
 class Simulation
   constructor: (@p) -> 
     # assumption: The bounds of environment are 
@@ -13,7 +7,7 @@ class Simulation
     # at teh same time
     @env = new Environment(C.STARTING_BLOBS, p)
     @running = on
-    @infoArea = new InfoArea(@p, @env)
+    if C.INFO_WINDOW then @infoArea = new InfoArea(@p, @env)
     @xLower = 100
     @yLower = 100
     @xUpper = 100 + C.DISPLAY_X
@@ -38,16 +32,17 @@ class Simulation
       @showReproduction = !@showReproduction
 
   mouseClick: (x, y) -> 
-    @env.observeBlob(x+100,y+100)
-    if !@running
-      @drawAll()
+    if C.INFO_WINDOW
+      @env.observeBlob(x+100,y+100)
+      if !@running
+        @drawAll()
 
   drawAll: () -> 
     @p.background(0)
     for blobID, blob of @env.blobs
       pos = @env.qtree.id2point[blobID]
       @drawBlob(blob, pos)
-    @infoArea.draw()
+    if C.INFO_WINDOW then @infoArea.draw()
 
 
   drawBlob: (blob, position) -> 
