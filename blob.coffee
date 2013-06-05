@@ -16,6 +16,8 @@ class Blob
     @maxMovement = @spd * C.MOVEMENT_SPEED_FACTOR
     @rad = Math.sqrt(@energy) * C.RADIUS_FACTOR + C.RADIUS_CONSTANT # Duplicated in wrap-up
     @stepsUntilNextAction = 0 
+    @stepsUntilNextQuery = 0
+    @alive = on
 
   preStep: () ->
     """One full step of simulation for this blob.
@@ -29,6 +31,16 @@ class Blob
     @age++
     @energyPerSecond -= C.AGE_ENERGY_DECAY
     @energy *= (1-C.ENERGY_DECAY)
+    """Neighbors: Everything within seeing distance. Represented as
+    list of blobs. Querying only once every 10 steps, so force-recalc
+    distance for each neighbor everytime."""
+    if @stepsUntilNextQuery <= 0
+      @neighbors = @environment.getNeighbors(@id) 
+      @stepsUntilNextQuery = 10
+    else
+      @neighbors = (n for n in @neighbors when n.alive)
+      @stepsUntilNextQuery--
+    # Return list of blobs
     
 
   chooseAction: () -> 
@@ -40,18 +52,14 @@ class Blob
         @maintainCurrentAction--
         return
 
-    """Neighbors: Everything within seeing distance. Represented as
-    list of [blob, distance] pairs."""
-    neighbors = @environment.getNeighbors(@id) 
-    # Return list of [Blob, Distance]
-
-    @action = @geneCode.chooseAction(@energy, neighbors)
+    neighborDists = ([n, @environment.blobDist(@,n)] for n in @neighbors)
+    @action = @geneCode.chooseAction(@energy, neighborDists)
     if @action.type == "hunt"
       if @huntTarget
         @huntTarget = @action.argument[0]
         @maintainCurrentAction = 20 # keep hunting same target for 20 turns
     if @action.type == "repr"
-      @maintainCurrentAction = 7
+      @maintainCurrentAction = C.REPR_TIME_REQUIREMENT
       @reproducing = on
     # reproduction maintenance is handled in reproduction code
     # -1 signals to repr code to check viability and put timeline if viable
@@ -90,7 +98,8 @@ class Blob
       @move(heading, moveAmt)
 
   handleAttacks: () ->
-    for [aBlob, dist] in @environment.getAttackables(@id)
+    neighborDists = ([n, @environment.blobDist(@,n)] for n in @neighbors)
+    for [aBlob, dist] in neighborDists
       if dist < @.rad + aBlob.rad + 1
         attackDelta = @attackPower - aBlob.attackPower
         if attackDelta >= 0
@@ -120,6 +129,7 @@ class Blob
     #duplicated in constructor
     if @energy < 0
       @environment.removeBlob(@id)
+      @alive = off
 
 
   move: (heading, moveAmt) ->
