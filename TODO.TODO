@@ -6,5 +6,9 @@ Backend:
  ☐ Quadtree max recursion depth
  ☐ Handle huge blob interactions
 
+ Switch Genes to 2 tradeoff, nonlinear photo
+ Jitter?
+ Family signa?
+
  Frontend:
  ☐ Single blob display / info

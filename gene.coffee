@@ -47,11 +47,12 @@ class GeneCode
 
       childEnergy: new Gene(null, 0, 1000, 1)
 
-    total_Stats = @genes.atk.val + @genes.spd.val + @genes.pho.val + @genes.eff.val
-    @atk = @genes.atk.val / total_Stats * 100
-    @spd = @genes.spd.val / total_Stats * 100
-    @pho = @genes.pho.val / total_Stats * 100
-    @eff = @genes.eff.val / total_Stats * 100
+    atk_pho_total = @genes.atk.val + @genes.pho.val 
+    spd_eff_total = @genes.spd.val + @genes.eff.val
+    @atk = @genes.atk.val / atk_pho_total * 100
+    @pho = @genes.pho.val / atk_pho_total * 100
+    @spd = @genes.spd.val / spd_eff_total * 100
+    @eff = @genes.eff.val / spd_eff_total * 100
 
   chooseAction: (energy, observables) ->
     # an observable is a [blob, distance] pair

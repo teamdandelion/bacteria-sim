@@ -7,9 +7,9 @@ class Blob
     @atk = @geneCode.atk
     @spd = @geneCode.spd
     @eff = @geneCode.eff
-    @efficiencyFactor = 1 - @eff / 100
-    @energyPerSecond  = @pho * C.PHO_EPS
-    @energyPerSecond += @atk * C.ATK_EPS * @efficiencyFactor
+    @efficiencyFactor = 1 - (@eff / 100) * .75
+    @energyPerSecond  =  @pho * (@pho * C.PHO_SQ_EPS + C.PHO_EPS)
+    @energyPerSecond += (@atk * (@atk * C.ATK_SQ_EPS + C.ATK_EPS)) * @efficiencyFactor
     @energyPerSecond += @spd * C.SPD_EPS * @efficiencyFactor
     @attackPower = @atk*@atk
     @currentHeading = null
