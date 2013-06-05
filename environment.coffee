@@ -4,9 +4,27 @@ class Environment
     @qtree = new QuadTree(C.X_BOUND, C.Y_BOUND, C.QTREE_BUCKET_SIZE)
     @nBlobs = 0
     @nextBlobId = 0
+    @observedBlobID = null
     for i in [0...starting_blobs]
       position  = Vector2D.randomVector(C.X_BOUND, C.Y_BOUND)
       @addBlob(position, C.STARTING_ENERGY)
+
+  observeBlob: (xCoord, yCoord) -> 
+    console.log "Called observeBlob with " + xCoord + "," + yCoord
+    clickLocation = new Vector2D(xCoord, yCoord)
+    # find closest blob to the click
+    if @observedBlob?
+      prevId = @observedBlob.id
+      @observedBlob.observed = null
+      @observedBlob = null
+    nearbyBlobs = @getAdjacent(clickLocation, 30)
+    selected = minByIndex(nearbyBlobs, 1)
+    if selected?
+      selected = selected[0]
+    if selected? and selected.id != prevId
+      @observedBlob = selected
+      console.log "Observing blob:" + @observedBlob.id
+      @observedBlob.observed = on
 
   step: () ->
     for id, blob of @blobs
@@ -21,24 +39,30 @@ class Environment
     @processing.fill(blob.atk*2.55,blob.pho*2.55,blob.spd*2.55)
     # @processing.strokeWeight(Math.sqrt(blob.energy))
     pos = @qtree.id2point[blobID]
+    if blob.observed?
+      @processing.strokeWeight(3)
+      @processing.stroke(255)
     @processing.ellipse(pos.x, pos.y, 2*blob.rad, 2*blob.rad)
+    @processing.noStroke()
     # @processing.point(position.x, position.y)
 
   getNeighbors: (blobID) ->
-    @getAdjacent(blobID, C.NEIGHBOR_DISTANCE)
+    pos = @qtree.id2point[blobID]
+    @getAdjacent(pos, C.NEIGHBOR_DISTANCE, blobID)
   
-  getAttackables: (blob) ->
-    rad = blob.rad
-    @getAdjacent(blob.id, C.ATTACK_MARGIN + rad)
+  getAttackables: (blobID) ->
+    pos = @qtree.id2point[blobID]
+    rad = @blobs[blobID].rad
+    @getAdjacent(pos, C.ATTACK_MARGIN + rad, blobID)
 
-  getAdjacent: (blobID, distance) ->
+  getAdjacent: (position, distance, blobID) ->
     # Returns [adjcentBlob, distance] tuples
     adj = []
-    blobPosition = @qtree.id2point[blobID]
-    queryResult = @qtree.circleQuery(blobPosition, distance)
+    queryResult = @qtree.circleQuery(position, distance)
     for otherID in queryResult
       unless otherID is blobID
-        d = @getDistance(blobID, otherID)
+        pos2 = @qtree.id2point[otherID]
+        d = position.distance(pos2)
         adj.push([@blobs[otherID], d])
     return adj
 
@@ -72,13 +96,11 @@ class Environment
     @addBlob(childPosition, childEnergy, childGenes)
 
   removeBlob: (blobID) ->
+    if @observedBlob? and @observedBlob.id == blobID
+      @observedBlob = null
     delete @blobs[blobID]
     @qtree.removeObject(blobID)
     @nBlobs--
 
-  getDistance: (ID1, ID2) -> 
-    v1 = @qtree.id2point[ID1]
-    v2 = @qtree.id2point[ID2]
-    v1.distance(v2)
 
 

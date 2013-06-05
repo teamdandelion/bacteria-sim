@@ -3,7 +3,7 @@ simulator_draw = (p) ->
   env = new Environment(C.STARTING_BLOBS, p)
   running = on
   p.mouseClicked = () -> 
-    console.log p.mouseX
+    env.observeBlob(p.mouseX, p.mouseY)
 
   p.setup = () ->
     p.frameRate(10)

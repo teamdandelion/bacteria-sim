@@ -36,7 +36,7 @@ class Blob
     
     @handleMovement(action)
 
-    for [aBlob, dist] in @environment.getAttackables(@)
+    for [aBlob, dist] in @environment.getAttackables(@id)
       if dist < @.rad + aBlob.rad and aBlob.id not of @attackedThisTurn
         @attackedThisTurn[aBlob.id] = on
         attackDelta = @attackPower - aBlob.attackPower
