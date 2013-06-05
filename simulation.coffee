@@ -12,14 +12,18 @@ class Simulation
     @yLower = 100
     @xUpper = 100 + C.DISPLAY_X
     @yUpper = 100 + C.DISPLAY_Y
+    @showNucleus = off
 
   step: () -> 
     if @running
       @env.step()
       @drawAll()
 
-  togglePause: () -> 
-    @running = !@running
+  keyCode: (k) -> 
+    if k == 32 # 'space'
+      @running = !@running
+    if k == 78 # 'n'
+      @showNucleus = !@showNucleus
 
   mouseClick: (x, y) -> 
     @env.observeBlob(x+100,y+100)
@@ -45,9 +49,9 @@ class Simulation
     if intersectX and intersectY
       x-= @xLower
       y-= @yLower
-
-      @p.noFill()
       @p.noStroke()
+
+      
       red = blob.atk * 2.55
       grn = blob.pho * 2.55
       blu = blob.spd * 2.55
@@ -68,6 +72,15 @@ class Simulation
         @p.stroke(255)
       
       @p.ellipse(x, y, 2*r, 2*r)
+
+      # nucleus colors
+      if @showNucleus
+        nuc_red = blob.red
+        nuc_grn = blob.grn
+        nuc_blu = blob.blu
+        @p.fill(nuc_red,nuc_grn,nuc_blu)
+        rad = Math.min(3, blob.rad/2)
+        @p.ellipse(x,y,2*rad, 2*rad)
 
       if blob.reproducing?
         red2 = Math.min red + 9, 255
@@ -98,8 +111,7 @@ simulator_draw = (p) ->
 
   p.keyPressed = () -> 
     console.log p.keyCode
-    if p.keyCode == 32
-      s.togglePause()
+    s.keyCode(p.keyCode)
 
 # wait for the DOM to be ready, 
 # create a processing instance...
