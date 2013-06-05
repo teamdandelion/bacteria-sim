@@ -49,6 +49,8 @@ class Environment
       for id, blob of @blobs
         @draw(id, blob)
 
+
+
   draw: (blobID, blob) ->
     @processing.fill(blob.atk*2.55,blob.pho*2.55,blob.spd*2.55)
     # @processing.strokeWeight(Math.sqrt(blob.energy))
@@ -56,7 +58,25 @@ class Environment
     if blob.observed?
       @processing.strokeWeight(3)
       @processing.stroke(255)
+
     @processing.ellipse(pos.x, pos.y, 2*blob.rad, 2*blob.rad)
+    #make draw wrap-around
+    if pos.x - blob.rad < 0
+      wrap_x = pos.x + C.X_BOUND
+    if pos.x + blob.rad > C.X_BOUND
+      wrap_x = pos.x - C.X_BOUND
+
+    if pos.y - blob.rad < 0
+      wrap_y = pos.y + C.Y_BOUND
+    if pos.y + blob.rad > C.Y_BOUND
+      wrap_y = pos.y - C.Y_BOUND
+
+    if wrap_x or wrap_y
+      wrap_x ?= pos.x
+      wrap_y ?= pos.y
+
+    @processing.ellipse(wrap_x, wrap_y, 2*blob.rad, 2*blob.rad)
+
     @processing.noStroke()
     # @processing.point(position.x, position.y)
 
@@ -77,7 +97,6 @@ class Environment
       unless otherID is blobID
         pos2 = @qtree.id2point[otherID]
         d = position.distance(pos2)
-        console.log otherID, d
         adj.push([@blobs[otherID], d])
     return adj
 

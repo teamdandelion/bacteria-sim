@@ -33,7 +33,10 @@ class InfoArea
   writeAction: (blob) ->
     action = blob.action
     if action.type == "flee" or action.type == "hunt"
-      argument = action.argument.id ? "none"
+      if action.argument?
+        argument = action.argument[0].id
+      else
+        argument = "none"
     else if action.type == "repr"
       argument = @fmt(action.argument)
     else

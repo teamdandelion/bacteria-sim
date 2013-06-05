@@ -20,7 +20,6 @@ simulator_draw = (p) ->
       i++
       p.background(0)
       env.step()
-      console.log env.nBlobs
     info.draw()
 
   p.keyPressed = () -> 
