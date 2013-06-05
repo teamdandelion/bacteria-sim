@@ -7,6 +7,11 @@ class Blob
     @atk = @geneCode.atk
     @spd = @geneCode.spd
     @eff = @geneCode.eff
+
+    @red = @geneCode.red
+    @grn = @geneCode.grn
+    @blu = @geneCode.blu
+    
     @efficiencyFactor = 1 - @eff / 100
     @energyPerSecond  = @pho * C.PHO_EPS
     @energyPerSecond += @atk * C.ATK_EPS * @efficiencyFactor

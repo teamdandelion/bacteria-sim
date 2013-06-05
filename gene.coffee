@@ -21,13 +21,18 @@ class GeneCode
       spd: new Gene(null, 0, 100)
       pho: new Gene(null, 0, 100)
       eff: new Gene(null, 0, 100)
+
+      # determines the nucleus color
+      red: new Gene(null, 0, 255, 1)
+      grn: new Gene(null, 0, 255, 1)
+      blu: new Gene(null, 0, 255, 1)
       # decision threhsolds are calculated as base + modifier * energy
-      huntBase: new Gene()
-      fleeBase: new Gene()
-      reprBase: new Gene()
+      huntBase: new Gene(null, -10000, 10000, 100)
+      fleeBase: new Gene(null, -10000, 10000, 100)
+      reprBase: new Gene(null, -10000, 10000, 100)
       huntMod:  new Gene()
       fleeMod:  new Gene()
-      reprMod:  new Gene()
+      reprMod:  new Gene(null, 0)
       
       # mapping from other blob's stats to this blob's hunt response
       nrgHunt: new Gene()
@@ -36,6 +41,8 @@ class GeneCode
       phoHunt: new Gene()
       effHunt: new Gene()
       dstHunt: new Gene()
+      clrHunt: new Gene()
+
 
       # mapping from other blob's stats to this blob's flee response
       nrgFlee: new Gene()
@@ -44,6 +51,7 @@ class GeneCode
       phoFlee: new Gene()
       effFlee: new Gene()
       dstFlee: new Gene()
+      clrFlee: new Gene()
 
       childEnergy: new Gene(null, 0, 1000, 1)
 
@@ -52,6 +60,12 @@ class GeneCode
     @spd = @genes.spd.val / total_Stats * 100
     @pho = @genes.pho.val / total_Stats * 100
     @eff = @genes.eff.val / total_Stats * 100
+
+    @red = @genes.red.val
+    @grn = @genes.grn.val
+    @blu = @genes.blu.val
+
+
 
   chooseAction: (energy, observables) ->
     # an observable is a [blob, distance] pair
@@ -85,6 +99,15 @@ class GeneCode
       action.argument = maxAction[2]
     action
 
+  calcColorDist: (b) -> 
+    # high value indicates high distance
+    # negative value indicates closeness
+    dred = Math.abs(b.red - @red)
+    dgrn = Math.abs(b.grn - @grn)
+    dblu = Math.abs(b.blu - @blu)
+    dred + dgrn + dblu - 10
+
+
   calcHuntImpulse: ([b, dist]) -> 
     i =  @genes.nrgHunt.val * b.energy
     i += @genes.atkHunt.val * (b.atk - @atk)
@@ -92,6 +115,7 @@ class GeneCode
     i += @genes.phoHunt.val * b.pho
     i += @genes.effHunt.val * b.eff
     i += @genes.dstHunt.val * dist
+    i += @genes.clrHunt.val * @calcColorDist(b)
   
   calcFleeImpulse: ([b, dist]) -> 
     i =  @genes.nrgFlee.val * b.energy
@@ -100,6 +124,7 @@ class GeneCode
     i += @genes.phoFlee.val * b.pho
     i += @genes.effFlee.val * b.eff
     i += @genes.dstFlee.val * dist
+    i += @genes.clrFlee.val * @calcColorDist(b)
 
 class Gene
   """Represent a single gene in the GeneCode. Has method for mutation.
@@ -122,33 +147,3 @@ class Gene
       @val = Math.max @val, @min
       @val = Math.min @val, @max
     this
-
-stdGenes =
-  # determines the stats
-  atk: new Gene(null, 0, 100, 1)
-  spd: new Gene(null, 0, 100, 1)
-  pho: new Gene(null, 0, 100, 1)
-  eff: new Gene(null, 0, 100, 1)
-  # decision threhsolds are calculated as base + modifier * energy
-  huntBase: new Gene(-100)
-  fleeBase: new Gene(-100)
-  reprBase: new Gene(-400)
-  huntMod:  new Gene(-10)
-  fleeMod:  new Gene(5)
-  reprMod:  new Gene(10)
-  # mapping from other blob's stats to this blob's hunt response
-  nrgHunt: new Gene(3)
-  atkHunt: new Gene(-5)
-  spdHunt: new Gene(-5)
-  phoHunt: new Gene(5)
-  effHunt: new Gene(5)
-  dstHunt: new Gene(-3)
-  # mapping from other blob's stats to this blob's flee response
-  nrgFlee: new Gene(0)
-  atkFlee: new Gene(10)
-  spdFlee: new Gene(6)
-  phoFlee: new Gene(-10)
-  effFlee: new Gene(-5)
-  dstFlee: new Gene(-5)
-  childEnergy: new Gene(100)
-stdGeneCode = new GeneCode(stdGenes)
