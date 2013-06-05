@@ -11,7 +11,7 @@ simulator_draw = (p) ->
 
   p.setup = () ->
     p.frameRate(10)
-    p.size(C.X_BOUND, C.Y_BOUND + C.DISPLAY_BOUND)
+    p.size(C.DISPLAY_X, C.DISPLAY_Y + C.DISPLAY_BOUND)
     p.background(0)
 
   # env = Environment(500, p)

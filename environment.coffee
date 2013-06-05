@@ -60,6 +60,16 @@ class Environment
 
 
     @p.fill(red,grn,blu)
+    # if blob.rad < C.SMALL_SIZE
+    #   @p.fill(255,0,0)
+    # else if blob.rad < C.MEDIUM_SIZE
+    #   @p.fill(0,255,0)
+    # else if blob.rad < C.LARGE_SIZE
+    #   @p.fill(0,0,255)
+    # else if blob.rad < C.HUGE_SIZE
+    #   @p.fill(255,255,0)
+    # else
+    #   @p.fill(255)
     # @p.strokeWeight(Math.sqrt(blob.energy))
     pos = @qtree.id2point[blobID]
     if blob.observed?

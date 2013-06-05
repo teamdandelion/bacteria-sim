@@ -3,7 +3,7 @@ class InfoArea
 
   draw: () ->
     @p.pushMatrix()
-    @p.translate(0, C.Y_BOUND)
+    @p.translate(0, C.DISPLAY_Y)
     @makeRect()
     @blob = @e.observedBlob
     if @blob?
@@ -15,7 +15,7 @@ class InfoArea
     @p.strokeWeight(6)
     @p.stroke(0)
     @p.fill(0) 
-    @p.rect(0,0,C.X_BOUND,C.DISPLAY_BOUND)
+    @p.rect(0,0,C.DISPLAY_X,C.DISPLAY_BOUND)
     @p.noStroke()
 
   printInfo: (blob) -> 
