@@ -24,7 +24,7 @@ class C
 
   @REPR_ENERGY_COST    = 700
   @MOVEMENT_SPEED_FACTOR = .05
-  @PHO_EPS =  -.1
+  @PHO_EPS =  -.05
   @PHO_SQ_EPS = .06
   @ATK_EPS = -1
   @ATK_SQ_EPS = -.003
