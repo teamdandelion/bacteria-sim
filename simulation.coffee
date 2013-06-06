@@ -6,6 +6,29 @@ class Simulation
     # displaying them at both edges of the field 
     # at teh same time
     @env = new Environment(C.STARTING_BLOBS, p)
+    
+    opt = {}
+    opt['Kill all blobs'] = () => 
+      @env.killAllBlobs()
+    opt['Add a blob'] = () =>
+      @env.addRandomBlob()
+    
+    gui = new dat.GUI()
+    # gui.onChange = () ->
+      # console.log "CHANGE RECORDED"
+    gui.add(C, 'REPR_ENERGY_COST', 50, 5000)
+    gui.add(C, 'PHO_EPS', -1.0, 1.0)
+    gui.add(C, 'PHO_SQ_EPS', 0, .1)
+    gui.add(C, 'ATK_EPS', -1.0, 1.0)
+    gui.add(C, 'ATK_SQ_EPS', -.2, .2)
+    gui.add(C, 'BLOB_SIZE', 0.1, 5)
+    gui.add(C, 'MUTATION_CONSTANT', .01, 1)
+    gui.add(C, 'MUTATION_PROBABILITY', 0, .5)
+    gui.add(C, 'ENERGY_DECAY', 0, .1)
+    gui.add(C, 'AGE_ENERGY_DECAY', 0, .1)
+    gui.add(opt, 'Kill all blobs')
+    gui.add(opt, 'Add a blob')
+
     @running = on
     if C.INFO_WINDOW then @infoArea = new InfoArea(@p, @env)
     @xLower = 100
@@ -36,6 +59,7 @@ class Simulation
       @env.observeBlob(x+100,y+100)
       if !@running
         @drawAll()
+
 
   drawAll: () -> 
     @p.background(0)

@@ -7,8 +7,7 @@ class Environment
     @nextBlobId = 0
     @observedBlobID = null
     for i in [0...starting_blobs]
-      position  = Vector2D.randomVector(C.X_BOUND, C.Y_BOUND)
-      @addBlob(position, C.STARTING_ENERGY)
+      @addRandomBlob()
 
   observeBlob: (xCoord, yCoord) -> 
     console.log "Called observeBlob with " + xCoord + "," + yCoord
@@ -75,6 +74,11 @@ class Environment
     @nextBlobId++
     @nBlobs++
 
+  addRandomBlob: () -> 
+    pos = Vector2D.randomBoundedVector(C.X_MARGIN, C.DISPLAY_X + C.X_MARGIN,
+                                       C.Y_MARGIN, C.DISPLAY_Y + C.Y_MARGIN)
+    @addBlob(pos, C.STARTING_ENERGY)
+
   addChildBlob: (parentID, childEnergy, childGenes) -> 
     parentPosition = @location[parentID]
     parentRadius = @blobs[parentID].rad
@@ -91,6 +95,10 @@ class Environment
     delete @blobs[blobID]
     @qtree.removeObject(blobID)
     @nBlobs--
+
+  killAllBlobs: () ->
+    for blobID, blob of @blobs
+      @removeBlob(blobID)
 
   isAlive: (blobID) -> 
     blobID of @blobs

@@ -13,21 +13,27 @@ class Blob
     @grn = @geneCode.grn
     @blu = @geneCode.blu
 
+    @currentHeading = null
+    @maxMovement = @spd * C.MOVEMENT_SPEED_FACTOR
+    @stepsUntilNextAction = 0 
+    @stepsUntilNextQuery = 0
+    @alive = on
+    @neighborDists = {}
+    @calculateEnergyAndRadius()
+
+  calculateEnergyAndRadius: () ->
     @efficiencyFactor = 1 - (@eff / 100) * .75
     @energyPerSecond  =  @pho * (@pho * C.PHO_SQ_EPS + C.PHO_EPS)
     @energyPerSecond += (@atk * (@atk * C.ATK_SQ_EPS + C.ATK_EPS)) * @efficiencyFactor
     @energyPerSecond += @spd * C.SPD_EPS * @efficiencyFactor
+    @energyPerSecond -= C.AGE_ENERGY_DECAY * @age
     @attackPower = @atk*@atk
-    @currentHeading = null
-    @maxMovement = @spd * C.MOVEMENT_SPEED_FACTOR
-    @rad = Math.sqrt(@energy) * C.RADIUS_FACTOR + C.RADIUS_CONSTANT # Duplicated in wrap-up
-    @radSq = @rad*@rad
-    @stepsUntilNextAction = 0 
-    @stepsUntilNextQuery = 0
-    @alive = on
-    @movedLastTurn = 0
-    @movedThisTurn = 0
-    @neighborDists = {}
+    @calculateRadius()
+
+  calculateRadius: () ->
+    @rad = Math.sqrt(@energy) * C.RADIUS_FACTOR + C.RADIUS_CONSTANT
+    @rad *= C.BLOB_SIZE
+
 
   preStep: () ->
     """One full step of simulation for this blob.
@@ -41,7 +47,6 @@ class Blob
 
     @energy += @energyPerSecond
     @age++
-    @energyPerSecond -= C.AGE_ENERGY_DECAY
     @energy *= (1-C.ENERGY_DECAY)
     """Neighbors: Everything within seeing distance. Represented as
     list of blobs. Querying only once every 10 steps, so force-recalc
@@ -147,8 +152,7 @@ class Blob
         @reproduce(@action.argument)
         @reproducing = null
 
-    @rad = Math.sqrt(@energy) * C.RADIUS_FACTOR + C.RADIUS_CONSTANT # Radius of the blob
-    @radSq = @rad*@rad
+    @calculateEnergyAndRadius()
     #duplicated in constructor
     if @energy < 0 or isNaN(@energy)
       @environment.removeBlob(@id)
@@ -165,10 +169,10 @@ class Blob
 
   reproduce: (childEnergy) ->
     if @energy <= C.REPR_ENERGY_COST
-      @energy -= C.REPR_ENERGY_COST / 2 
+      if C.HARSH_REPRODUCTION then @energy -= C.REPR_ENERGY_COST / 2 
       return
     if childEnergy > (@energy-C.REPR_ENERGY_COST)/2
-      @energy -= C.REPR_ENERGY_COST / 2
+      if C.HARSH_REPRODUCTION then @energy -= C.REPR_ENERGY_COST / 2
       return
     if @energy >= childEnergy + C.REPR_ENERGY_COST * @efficiencyFactor
       @energy  -= childEnergy + C.REPR_ENERGY_COST * @efficiencyFactor

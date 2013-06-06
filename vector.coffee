@@ -16,6 +16,10 @@ class Vector2D
     Vector2D.randomVector = (xMax, yMax) ->
       new Vector2D(Math.random() * xMax, Math.random() * yMax)
 
+    Vector2D.randomBoundedVector = (xMin, xMax, yMin, yMax) -> 
+      v = Vector2D.randomVector(xMax-xMin, yMax-yMin)
+      v.add(new Vector2D(xMin, yMin))
+
     Vector2D.randomHeading = () -> 
       Math.random() * Math.PI2
 
