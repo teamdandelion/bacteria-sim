@@ -3,18 +3,16 @@ class Blob
     @age = 0
     @id += '' #coerce to string to avoid equality issues
     @geneCode ?= new GeneCode()
-    @pho = @geneCode.pho
-    @atk = @geneCode.atk
-    @spd = @geneCode.spd
-    @eff = @geneCode.eff
-
     #nucleus colors
     @red = @geneCode.red
     @grn = @geneCode.grn
     @blu = @geneCode.blu
 
+    @redSq = @red*@red
+    @grnSq = @grn*@grn
+    @bluSq = @blu*@blu
+
     @currentHeading = null
-    @maxMovement = @spd * C.MOVEMENT_SPEED_FACTOR
     @stepsUntilNextAction = 0 
     @stepsUntilNextQuery = 0
     @alive = on
@@ -22,12 +20,10 @@ class Blob
     @calculateEnergyAndRadius()
 
   calculateEnergyAndRadius: () ->
-    @efficiencyFactor = 1 - (@eff / 100) * .75
-    @energyPerSecond  =  @pho * (@pho * C.PHO_SQ_EPS + C.PHO_EPS)
-    @energyPerSecond += (@atk * (@atk * C.ATK_SQ_EPS + C.ATK_EPS)) * @efficiencyFactor
-    @energyPerSecond += @spd * C.SPD_EPS * @efficiencyFactor
-    @energyPerSecond -= C.AGE_ENERGY_DECAY * @age
-    @attackPower = @atk*@atk
+    rEnergy = C.RED_ENERGY * @redSq / @environment.total_red
+    gEnergy = C.GRN_ENERGY * @grnSq / @environment.total_grn
+    bEnergy = C.BLU_ENERGY * @bluSq / @environment.total_blu
+    @energyPerSecond = rEnergy + gEnergy + bEnergy + C.BASE_EPS
     @calculateRadius()
 
   calculateRadius: () ->
@@ -36,6 +32,7 @@ class Blob
 
 
   preStep: () ->
+    @calculateEnergyAndRadius()
     """One full step of simulation for this blob.
     Attackables: Everything which is adjacent and close enough to 
     auto-attack. These are passed by the environment"""
@@ -45,6 +42,7 @@ class Blob
     @movedLastTurn = @movedThisTurn
     @movedThisTurn = 0
 
+    console.log "A:" + @energy, @energyPerSecond
     @energy += @energyPerSecond
     @age++
     @energy *= (1-C.ENERGY_DECAY)
@@ -99,7 +97,7 @@ class Blob
         # Let's set heading as the vector pointing towards target 
         [targetBlob, distance] = @action.argument 
         heading = @environment.getHeading(@id, targetBlob.id)
-        moveAmt = distance - 3 #will be further constrained by avail. energy and speed
+        moveAmt = distance #will be further constrained by avail. energy and speed
         @wandering = null
       else
         # If we don't have a current heading, set it randomly
@@ -109,13 +107,13 @@ class Blob
         # keep in the same direction
         @wandering ?= Vector2D.randomHeading()
         heading = @wandering
-        moveAmt = @maxMovement
+        moveAmt = C.MOVE_SPEED
 
     else if @action.type is "flee" and @action.argument?
       [targetBlob, distance] = @action.argument 
       heading = @environment.getHeading(@id, targetBlob.id)
       heading = Vector2D.negateHeading(heading)
-      moveAmt = @maxMovement
+      moveAmt = C.MOVE_SPEED
       @wandering = null
       # Current implementation only flees 1 target w/ highest fear
 
@@ -127,24 +125,29 @@ class Blob
 
   handleAttacks: () ->
     for [aBlob, dist] in @getObservables()
-      if dist < @rad + aBlob.rad + 1
-        attackDelta = @attackPower - aBlob.attackPower
-        if attackDelta >= 0
-          # @attackedThisTurn[aBlob.id] = on
-          @numAttacks++
-          aBlob.numAttacks++
-          # I attack them
-          amt = Math.min(attackDelta, aBlob.energy)
-          # if @observed? or aBlob.observed? 
-            # console.log "#{@id} attacking #{aBlob.id} for #{amt}"
+      if dist < @rad + aBlob.rad + 1 and aBlob.id not of @attackedThisTurn
+        @attackedThisTurn[aBlob.id] = on
+        aBlob.attackedThisTurn[@id] = on
 
-          @energy += amt
-          @attackEnergyThisTurn += amt
-          aBlob.energy -= attackDelta + 5
-          aBlob.attackEnergyThisTurn -= attackDelta + 5
-    if isNaN(@attackEnergyThisTurn)
-      console.log @
-      console.log "NAN attack energy"
+        redDelta = @red * aBlob.grn - aBlob.red * @grn
+        grnDelta = @grn * aBlob.blu - aBlob.grn * @blu
+        bluDelta = @blu * aBlob.red - aBlob.blu * @red
+        attackDelta = redDelta + grnDelta + bluDelta
+        attackDelta /= 30
+
+        if attackDelta >= 0
+          winner = @
+          loser = aBlob
+        else
+          winner = aBlob
+          loser = @
+        @numAttacks++
+        aBlob.numAttacks++
+        amt = Math.min(attackDelta, loser.energy)
+        loser.energy -= attackDelta
+        winner.energy += amt
+        loser.attackEnergyThisTurn -= attackDelta + C.CLUMP_PENALTY
+        winner.attackEnergyThisTurn += amt - C.CLUMP_PENALTY
 
   wrapUp: () -> 
     if @action.type is "repr"
@@ -155,14 +158,15 @@ class Blob
     @calculateEnergyAndRadius()
     #duplicated in constructor
     if @energy < 0 or isNaN(@energy)
+      if isNaN(@energy) 
+        console.log "WARNING: Blob #{@id} had NaN energy"
       @environment.removeBlob(@id)
       @alive = off
 
 
   move: (heading, moveAmt) ->
-    moveAmt = Math.min(moveAmt, @maxMovement, @energy * C.MOVEMENT_PER_ENERGY / @efficiencyFactor)
-    moveAmt = Math.max(moveAmt, 0) # in case @energy is negative due to recieved attacks
-    @energy -= moveAmt * @efficiencyFactor / C.MOVEMENT_PER_ENERGY
+    moveAmt = Math.min(moveAmt, C.MOVE_SPEED)
+    @energy -= moveAmt / C.MOVEMENT_PER_ENERGY
     @environment.moveBlob(@id, heading, moveAmt)
     @neighborDists = {}
     @movedThisTurn = moveAmt
@@ -174,7 +178,7 @@ class Blob
     if childEnergy > (@energy-C.REPR_ENERGY_COST)/2
       if C.HARSH_REPRODUCTION then @energy -= C.REPR_ENERGY_COST / 2
       return
-    if @energy >= childEnergy + C.REPR_ENERGY_COST * @efficiencyFactor
-      @energy  -= childEnergy + C.REPR_ENERGY_COST * @efficiencyFactor
+    if @energy >= childEnergy + C.REPR_ENERGY_COST
+      @energy  -= childEnergy + C.REPR_ENERGY_COST
       childGenes = GeneCode.copy(@geneCode)
       @environment.addChildBlob(@id, childEnergy, childGenes)

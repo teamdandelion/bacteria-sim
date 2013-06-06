@@ -6,6 +6,7 @@ class Simulation
     # displaying them at both edges of the field 
     # at teh same time
     @env = new Environment(C.STARTING_BLOBS, p)
+    console.log @env.blobs
     
     opt = {}
     opt['Kill all blobs'] = () => 
@@ -17,15 +18,16 @@ class Simulation
     # gui.onChange = () ->
       # console.log "CHANGE RECORDED"
     gui.add(C, 'REPR_ENERGY_COST', 50, 5000)
-    gui.add(C, 'PHO_EPS', -1.0, 1.0)
-    gui.add(C, 'PHO_SQ_EPS', 0, .1)
-    gui.add(C, 'ATK_EPS', -1.0, 1.0)
-    gui.add(C, 'ATK_SQ_EPS', -.2, .2)
     gui.add(C, 'BLOB_SIZE', 0.1, 5)
     gui.add(C, 'MUTATION_CONSTANT', .01, 1)
     gui.add(C, 'MUTATION_PROBABILITY', 0, .5)
     gui.add(C, 'ENERGY_DECAY', 0, .1)
     gui.add(C, 'AGE_ENERGY_DECAY', 0, .1)
+    gui.add(C, 'RED_ENERGY', 0, 10000)
+    gui.add(C, 'GRN_ENERGY', 0, 10000)
+    gui.add(C, 'BLU_ENERGY', 0, 10000)
+    gui.add(C, 'BASE_EPS', -100, -5)
+    gui.add(C, 'CLUMP_PENALTY', 0, 50)
     gui.add(opt, 'Kill all blobs')
     gui.add(opt, 'Add a blob')
 
@@ -64,7 +66,7 @@ class Simulation
   drawAll: () -> 
     @p.background(0)
     for blobID, blob of @env.blobs
-      pos = @env.qtree.id2point[blobID]
+      pos = @env.location[blobID]
       @drawBlob(blob, pos)
     if C.INFO_WINDOW then @infoArea.draw()
 
@@ -83,9 +85,9 @@ class Simulation
       @p.noStroke()
 
       
-      red = blob.atk * 2.55
-      grn = blob.pho * 2.55
-      blu = blob.spd * 2.55
+      red = blob.red
+      grn = blob.grn
+      blu = blob.blu
       @p.fill(red,grn,blu)
 
       # if blob.rad < C.SMALL_SIZE

@@ -6,11 +6,13 @@ class Environment
     @nBlobs = 0
     @nextBlobId = 0
     @observedBlobID = null
+    @total_red = 0
+    @total_grn = 0
+    @total_blu = 0
     for i in [0...starting_blobs]
       @addRandomBlob()
 
   observeBlob: (xCoord, yCoord) -> 
-    console.log "Called observeBlob with " + xCoord + "," + yCoord
     clickLocation = new Vector2D(xCoord, yCoord)
     # find closest blob to the click
     if @observedBlob?
@@ -23,8 +25,6 @@ class Environment
     if selected? and selected[1] < selected[0].rad + 10 and selected[0].id != prevId
       selected = selected[0]
       @observedBlob = selected
-      console.log "Observing blob:" + @observedBlob.id
-      # console.log @observedBlob
       @observedBlob.observed = on
 
   step: () ->
@@ -73,6 +73,9 @@ class Environment
     @qtree.addObject(@nextBlobId, position)
     @nextBlobId++
     @nBlobs++
+    @total_red += b.redSq
+    @total_grn += b.grnSq
+    @total_blu += b.bluSq
 
   addRandomBlob: () -> 
     pos = Vector2D.randomBoundedVector(C.X_MARGIN, C.DISPLAY_X + C.X_MARGIN,
@@ -82,9 +85,8 @@ class Environment
   addChildBlob: (parentID, childEnergy, childGenes) -> 
     parentPosition = @location[parentID]
     parentRadius = @blobs[parentID].rad
-    parentSpeed = @blobs[parentID].spd
     childOffset = Vector2D.randomUnitVector()
-    childOffset.multiply(C.CHILD_DISTANCE + parentRadius + parentSpeed / 2)
+    childOffset.multiply(C.CHILD_DISTANCE + parentRadius)
     childPosition = childOffset.add(parentPosition)
     childPosition.wrapToBound(C.X_BOUND, C.Y_BOUND)
     @addBlob(childPosition, childEnergy, childGenes)
@@ -92,9 +94,13 @@ class Environment
   removeBlob: (blobID) ->
     if @observedBlob? and @observedBlob.id == blobID
       @observedBlob = null
+    b = @blobs[blobID]
     delete @blobs[blobID]
     @qtree.removeObject(blobID)
     @nBlobs--
+    @total_red -= b.redSq
+    @total_grn -= b.grnSq
+    @total_blu -= b.bluSq
 
   killAllBlobs: () ->
     for blobID, blob of @blobs

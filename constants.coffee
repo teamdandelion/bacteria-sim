@@ -12,38 +12,33 @@ class C
   @X_BOUND = @DISPLAY_X + 2 * @X_MARGIN
   @Y_BOUND = @DISPLAY_Y + 2 * @Y_MARGIN
   @DISPLAY_BOUND = 0
-  @INFO_WINDOW = off # change display bound if you turn this on
+  @INFO_WINDOW = on # change display bound if you turn this on
 
-  @SMALL_SIZE  = 10
-  @MEDIUM_SIZE = 30
-  @LARGE_SIZE  = 60
-  @HUGE_SIZE   = 200
   
-  @TWO_TRADEOFF = off
   @HARSH_REPRODUCTION = off
 
   @NEIGHBOR_DISTANCE = 20
-  @CHILD_DISTANCE    = 20
+  @CHILD_DISTANCE    = 60
   @ATTACK_MARGIN     = 100
   @STARTING_ENERGY   = 200
-  @STARTING_BLOBS    = 400
+  @STARTING_BLOBS    = 20
   
   # Blob variables
   @MOVEMENT_PER_ENERGY = 100
+  @MOVE_SPEED = 1
+  @RED_ENERGY = 400
+  @GRN_ENERGY = 400
+  @BLU_ENERGY = 400
+  @BASE_EPS = -5
 
   @REPR_ENERGY_COST    = 700
-  @MOVEMENT_SPEED_FACTOR = .05
-  @PHO_EPS =  .1
-  @PHO_SQ_EPS = .06
-  @ATK_EPS = -.5
-  @ATK_SQ_EPS = 0
-  @SPD_EPS = 0
-  @AGE_ENERGY_DECAY = .001
+  @AGE_ENERGY_DECAY = .001 #NOT IMPLEMENTED
   @RADIUS_FACTOR = .2
   @RADIUS_CONSTANT = 3 
   @BLOB_SIZE = 1.0 # single scaling factor
-  @ENERGY_DECAY = .005
+  @ENERGY_DECAY = .005 #NOT IMPLEMENTED
   @REPR_TIME_REQUIREMENT = 7
+  @CLUMP_PENALTY = 10
 
   @MUTATION_PROBABILITY = .1
   @MUTATION_CONSTANT = .5

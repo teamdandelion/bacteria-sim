@@ -16,16 +16,11 @@ class GeneCode
 
   constructor: (@genes) ->
     @genes ?= 
-      # determines the stats
-      atk: new Gene(null, 0, 100)
-      spd: new Gene(null, 0, 100)
-      pho: new Gene(null, 0, 100)
-      eff: new Gene(null, 0, 100)
-
+      
       # determines the nucleus color
-      red: new Gene(null, 0, 255, 1)
-      grn: new Gene(null, 0, 255, 1)
-      blu: new Gene(null, 0, 255, 1)
+      red: new Gene(null, 0, 255)
+      grn: new Gene(null, 0, 255)
+      blu: new Gene(null, 0, 255)
       # decision threhsolds are calculated as base + modifier * energy
       huntBase: new Gene(null, -10000, 10000, 100)
       fleeBase: new Gene(null, -10000, 10000, 100)
@@ -36,47 +31,36 @@ class GeneCode
       
       # mapping from other blob's stats to this blob's hunt response
       nrgHunt: new Gene()
-      atkHunt: new Gene()
-      spdHunt: new Gene()
-      phoHunt: new Gene()
-      effHunt: new Gene()
+      redHunt: new Gene()
+      grnHunt: new Gene()
+      bluHunt: new Gene()
       dstHunt: new Gene()
       clrHunt: new Gene()
 
 
       # mapping from other blob's stats to this blob's flee response
       nrgFlee: new Gene()
-      atkFlee: new Gene()
-      spdFlee: new Gene()
-      phoFlee: new Gene()
-      effFlee: new Gene()
+      redFlee: new Gene()
+      grnFlee: new Gene()
+      bluFlee: new Gene()
       dstFlee: new Gene()
       clrFlee: new Gene()
 
       childEnergy: new Gene(null, 0, 1000, 1)
 
-    if C.TWO_TRADEOFF
-      atk_pho_total = @genes.atk.val + @genes.pho.val 
-      spd_eff_total = @genes.spd.val + @genes.eff.val
-    else
-      atk_pho_total = @genes.atk.val + @genes.pho.val + @genes.spd.val + @genes.eff.val
-      spd_eff_total = atk_pho_total
-    @atk = @genes.atk.val / atk_pho_total * 100
-    @pho = @genes.pho.val / atk_pho_total * 100
-    @spd = @genes.spd.val / spd_eff_total * 100
-    @eff = @genes.eff.val / spd_eff_total * 100
-
     @red = @genes.red.val
     @grn = @genes.grn.val
     @blu = @genes.blu.val
+    total = (@red + @grn + @blu) / 255
+    @red /= total
+    @grn /= total
+    @blu /= total
 
 
 
   chooseAction: (energy, observables) ->
     # an observable is a [blob, distance] pair
 
-    if ALWAYS_REPRODUCE
-      return {"type": "repr", "argument": 0}
     huntPairs = ([@calcHuntImpulse(o), o] for o in observables)
     fleePairs = ([@calcFleeImpulse(o), o] for o in observables)
 
@@ -115,19 +99,17 @@ class GeneCode
 
   calcHuntImpulse: ([b, dist]) -> 
     i =  @genes.nrgHunt.val * b.energy
-    i += @genes.atkHunt.val * (b.atk - @atk)
-    i += @genes.spdHunt.val * (b.spd - @spd)
-    i += @genes.phoHunt.val * b.pho
-    i += @genes.effHunt.val * b.eff
+    i += @genes.redHunt.val * b.red
+    i += @genes.grnHunt.val * b.grn
+    i += @genes.bluHunt.val * b.blu
     i += @genes.dstHunt.val * dist
     i += @genes.clrHunt.val * @calcColorDist(b)
   
   calcFleeImpulse: ([b, dist]) -> 
     i =  @genes.nrgFlee.val * b.energy
-    i += @genes.atkFlee.val * (b.atk - @atk)
-    i += @genes.spdFlee.val * (b.spd - @atk)
-    i += @genes.phoFlee.val * b.pho
-    i += @genes.effFlee.val * b.eff
+    i += @genes.redFlee.val * b.red
+    i += @genes.grnFlee.val * b.grn
+    i += @genes.bluFlee.val * b.blu
     i += @genes.dstFlee.val * dist
     i += @genes.clrFlee.val * @calcColorDist(b)
 
