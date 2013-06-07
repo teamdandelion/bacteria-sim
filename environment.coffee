@@ -28,6 +28,10 @@ class Environment
       @observedBlob.observed = on
 
   step: () ->
+    @redEnergy = C.RED_ENERGY * @nBlobs
+    @grnEnergy = C.GRN_ENERGY * @nBlobs
+    @bluEnergy = C.BLU_ENERGY * @nBlobs
+
     @qtree.rebuild()
     for id, blob of @blobs
       blob.preStep()

@@ -26,9 +26,9 @@ class C
   # Blob variables
   @MOVEMENT_PER_ENERGY = 100
   @MOVE_SPEED = 1
-  @RED_ENERGY = 400
-  @GRN_ENERGY = 400
-  @BLU_ENERGY = 400
+  @RED_ENERGY = 5.0
+  @GRN_ENERGY = 5.0
+  @BLU_ENERGY = 5.0
   @BASE_EPS = -5
 
   @REPR_ENERGY_COST    = 700

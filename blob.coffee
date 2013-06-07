@@ -20,9 +20,9 @@ class Blob
     @calculateEnergyAndRadius()
 
   calculateEnergyAndRadius: () ->
-    rEnergy = C.RED_ENERGY * @redSq / @environment.total_red
-    gEnergy = C.GRN_ENERGY * @grnSq / @environment.total_grn
-    bEnergy = C.BLU_ENERGY * @bluSq / @environment.total_blu
+    rEnergy = @environment.redEnergy * @redSq / @environment.total_red
+    gEnergy = @environment.grnEnergy * @grnSq / @environment.total_grn
+    bEnergy = @environment.bluEnergy * @bluSq / @environment.total_blu
     @energyPerSecond = rEnergy + gEnergy + bEnergy + C.BASE_EPS
     @calculateRadius()
 
