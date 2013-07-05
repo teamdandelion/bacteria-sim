@@ -1,5 +1,5 @@
 class Blob
-  constructor: (@environment, @id, @energy=0, @geneCode) -> 
+  constructor: (@simulation, @id, @energy=0, @geneCode) -> 
     @age = 0
     @id += '' #coerce to string to avoid equality issues
     @geneCode ?= new GeneCode()
@@ -38,7 +38,7 @@ class Blob
   preStep: () ->
     """One full step of simulation for this blob.
     Attackables: Everything which is adjacent and close enough to 
-    auto-attack. These are passed by the environment"""
+    auto-attack. These are passed by the simulation"""
     @attackedThisTurn = {}
     @attackEnergyThisTurn = 0
     @numAttacks = 0
@@ -52,7 +52,7 @@ class Blob
     list of blobs. Querying only once every 10 steps, so force-recalc
     distance for each neighbor everytime."""
     if @stepsUntilNextQuery <= 0
-      @neighbors = @environment.getNeighbors(@id) 
+      @neighbors = @simulation.getNeighbors(@id) 
       @stepsUntilNextQuery = 10
     else
       @neighbors = (n for n in @neighbors when n.alive)
@@ -67,13 +67,13 @@ class Blob
         if move_so_far > C.MOVE_UPDATE_AMT
           delete @neighborDists[n.id]
 
-      @neighborDists[n.id] ?= [@environment.blobDist(@,n), 0]
+      @neighborDists[n.id] ?= [@simulation.blobDist(@,n), 0]
 
     ([n, @neighborDists[n.id][0]] for n in @neighbors)
 
   chooseAction: () -> 
     if @maintainCurrentAction > 0
-      if @action.type == "hunt" and not @environment.isAlive(@huntTarget.id)
+      if @action.type == "hunt" and not @simulation.isAlive(@huntTarget.id)
         #when a target dies, stop hunting it and do something else
         @maintainCurrentAction = 0
       else
@@ -98,7 +98,7 @@ class Blob
       if @action.argument?
         # Let's set heading as the vector pointing towards target 
         [targetBlob, distance] = @action.argument 
-        heading = @environment.getHeading(@id, targetBlob.id)
+        heading = @simulation.getHeading(@id, targetBlob.id)
         moveAmt = distance - 3 #will be further constrained by avail. energy and speed
         @wandering = null
       else
@@ -113,7 +113,7 @@ class Blob
 
     else if @action.type is "flee" and @action.argument?
       [targetBlob, distance] = @action.argument 
-      heading = @environment.getHeading(@id, targetBlob.id)
+      heading = @simulation.getHeading(@id, targetBlob.id)
       heading = Vector2D.negateHeading(heading)
       moveAmt = @maxMovement
       @wandering = null
@@ -146,7 +146,8 @@ class Blob
       console.log @
       console.log "NAN attack energy"
 
-  wrapUp: () -> 
+  wrapUp: (@pos) -> 
+    # hack: pass in position as an attribute so we can draw conveniently
     if @action.type is "repr"
       if @maintainCurrentAction == 0
         @reproduce(@action.argument)
@@ -155,7 +156,7 @@ class Blob
     @calculateEnergyAndRadius()
     #duplicated in constructor
     if @energy < 0 or isNaN(@energy)
-      @environment.removeBlob(@id)
+      @simulation.removeBlob(@id)
       @alive = off
 
 
@@ -163,7 +164,7 @@ class Blob
     moveAmt = Math.min(moveAmt, @maxMovement, @energy * C.MOVEMENT_PER_ENERGY / @efficiencyFactor)
     moveAmt = Math.max(moveAmt, 0) # in case @energy is negative due to recieved attacks
     @energy -= moveAmt * @efficiencyFactor / C.MOVEMENT_PER_ENERGY
-    @environment.moveBlob(@id, heading, moveAmt)
+    @simulation.moveBlob(@id, heading, moveAmt)
     @neighborDists = {}
     @movedThisTurn = moveAmt
 
@@ -177,4 +178,4 @@ class Blob
     if @energy >= childEnergy + C.REPR_ENERGY_COST * @efficiencyFactor
       @energy  -= childEnergy + C.REPR_ENERGY_COST * @efficiencyFactor
       childGenes = GeneCode.copy(@geneCode)
-      @environment.addChildBlob(@id, childEnergy, childGenes)
+      @simulation.addChildBlob(@id, childEnergy, childGenes)
