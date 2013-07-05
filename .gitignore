@@ -8,3 +8,6 @@ testBlob.coffee
 combined.js
 
 *.DS_Store
+
+web/*.js
+web/*.coffee

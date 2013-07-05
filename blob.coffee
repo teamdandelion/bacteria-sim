@@ -1,5 +1,5 @@
 class Blob
-  constructor: (@simulation, @id, @energy=0, @geneCode) -> 
+  constructor: (@simulation, @id, @energy=0, @geneCode, @pos) -> 
     @age = 0
     @id += '' #coerce to string to avoid equality issues
     @geneCode ?= new GeneCode()

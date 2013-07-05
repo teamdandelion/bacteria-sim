@@ -9,6 +9,19 @@ class Simulation
     for i in [0...starting_blobs]
       @addRandomBlob()
 
+  processMessage: (msg) ->
+    switch msg
+      when "go"
+        @step()
+        postMessage({
+          type: 'blobs'
+          data: @blobs
+        })
+      when "killAllBlobs"
+        @killAllBlobs()
+      when "addRandomBlob"
+        @addRandomBlob()
+
   observeBlob: (xCoord, yCoord) -> 
     console.log "Called observeBlob with " + xCoord + "," + yCoord
     clickLocation = new Vector2D(xCoord, yCoord)
@@ -67,7 +80,7 @@ class Simulation
     
 
   addBlob: (position, energy, geneCode) ->
-    b = new Blob(@, @nextBlobId, energy, geneCode)
+    b = new Blob(@, @nextBlobId, energy, geneCode, position)
     @blobs[@nextBlobId] = b
     @qtree.addObject(@nextBlobId, position)
     @nextBlobId++
@@ -110,8 +123,13 @@ class Simulation
   blobDist: (blob1, blob2) ->
     Math.sqrt @blobDistSq(blob1, blob2)
 
+postDebug = (msg) ->
+  postMessage {
+    type: 'debug'
+    msg: msg
+  }
+
 sim = new Simulation()
-while true
-  sim.step()
-  postMessage sim.blobs
+@onmessage = (event) => 
+  sim.processMessage(event.data)
 

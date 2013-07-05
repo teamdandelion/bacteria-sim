@@ -6,8 +6,8 @@ class C
   # computing 100 pixels in each direction of spcae that isnt displayed
   # if drawing code is improved to handle wraparounds elegantly then this will
   # be unnecessary. its a hack.
-  @DISPLAY_X = window.innerWidth  - 20 ? 1000
-  @DISPLAY_Y = window.innerHeight - 20 ? 500
+  @DISPLAY_X = 1000
+  @DISPLAY_Y = 500
 
   @X_BOUND = @DISPLAY_X + 2 * @X_MARGIN
   @Y_BOUND = @DISPLAY_Y + 2 * @Y_MARGIN

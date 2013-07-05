@@ -7,18 +7,23 @@ class Frontend
     # at teh same time
     @sim = new Worker 'simulation.js'
     @sim.onmessage = (event) =>
-      @hasNewBlobs = yes
-      @newBlobs = event.data
+      switch event.data.type
+        when 'blobs'
+          @hasNewBlobs = yes
+          @newBlobs = event.data.data
+        when 'debug'
+          console.log event.data.msg
 
     @hasNewBlobs = no
+    @sim.postMessage 'go' 
     
-    # opt = {}
-    # opt['Kill all blobs'] = () => 
-    #   @env.killAllBlobs()
-    # opt['Add a blob'] = () =>
-    #   @env.addRandomBlob()
+    opt = {}
+    opt['Kill all blobs'] = () => 
+      @sim.postMessage 'killAllBlobs'
+    opt['Add a blob'] = () =>
+      @sim.postMessage 'addRandomBlob'
     
-    # gui = new dat.GUI()
+    gui = new dat.GUI()
     # # gui.onChange = () ->
     #   # console.log "CHANGE RECORDED"
     # gui.add(C, 'REPR_ENERGY_COST', 50, 5000)
@@ -31,8 +36,8 @@ class Frontend
     # gui.add(C, 'MUTATION_PROBABILITY', 0, .5)
     # gui.add(C, 'ENERGY_DECAY', 0, .1)
     # gui.add(C, 'AGE_ENERGY_DECAY', 0, .1)
-    # gui.add(opt, 'Kill all blobs')
-    # gui.add(opt, 'Add a blob')
+    gui.add(opt, 'Kill all blobs')
+    gui.add(opt, 'Add a blob')
 
     @running = on
     # if C.INFO_WINDOW then @infoArea = new InfoArea(@p, @env)
@@ -48,6 +53,7 @@ class Frontend
     if @running and @hasNewBlobs
       @drawAll(@newBlobs)
       @hasNewBlobs = no
+      @sim.postMessage 'go'
 
   keyCode: (k) -> 
     if k == 32 # 'space'
