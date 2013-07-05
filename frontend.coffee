@@ -7,39 +7,53 @@ class Frontend
     # at teh same time
     @running = on
     @sim = new Worker 'simulation.js'
-    @renderer = new Renderer(@, @p)
     @sim.onmessage = (event) =>
       switch event.data.type
         when 'blobs'
           @renderer.receiveUpdate(event.data)
         when 'debug'
           console.log event.data.msg
+    @updateConstants() # This initializes the simulation with the constants we are using
+    # It's required for the sim to start operating
+    @setupGui()
+    @addBlobs(20)
+    @renderer = new Renderer(@, @p)
+    @running = on
 
-    
+  updateConstants: () -> 
+    newC = {}
+    for k,v of C
+      newC[k] = v
+    @sim.postMessage {type: 'updateConstants', data: newC}
+
+  setupGui: () ->
     opt = {}
     opt['Kill all blobs'] = () => 
-      @sim.postMessage 'killAllBlobs'
+      @sim.postMessage {type: 'killAllBlobs'}
     opt['Add a blob'] = () =>
-      @sim.postMessage 'addRandomBlob'
+      @sim.postMessage {type: 'addRandomBlob'}
 
     
     gui = new dat.GUI()
-    # # gui.onChange = () ->
-    #   # console.log "CHANGE RECORDED"
-    # gui.add(C, 'REPR_ENERGY_COST', 50, 5000)
-    # gui.add(C, 'PHO_EPS', -1.0, 1.0)
-    # gui.add(C, 'PHO_SQ_EPS', 0, .1)
-    # gui.add(C, 'ATK_EPS', -1.0, 1.0)
-    # gui.add(C, 'ATK_SQ_EPS', -.2, .2)
-    # gui.add(C, 'BLOB_SIZE', 0.1, 5)
-    # gui.add(C, 'MUTATION_CONSTANT', .01, 1)
-    # gui.add(C, 'MUTATION_PROBABILITY', 0, .5)
-    # gui.add(C, 'ENERGY_DECAY', 0, .1)
-    # gui.add(C, 'AGE_ENERGY_DECAY', 0, .1)
+    gui.onChange = () =>
+      console.log "CHANGE RECORDED"
+    gui.add(C, 'REPR_ENERGY_COST', 50, 5000).onChange(
+      (newVal) -> 
+        console.log "Val changed!"
+      )
+    # gui.add(C, 'REPR_ENERGY_COST',)
+    gui.add(C, 'PHO_EPS', -1.0, 1.0)
+    gui.add(C, 'PHO_SQ_EPS', 0, .1)
+    gui.add(C, 'ATK_EPS', -1.0, 1.0)
+    gui.add(C, 'ATK_SQ_EPS', -.2, .2)
+    gui.add(C, 'BLOB_SIZE', 0.1, 5)
+    gui.add(C, 'MUTATION_CONSTANT', .01, 1)
+    gui.add(C, 'MUTATION_PROBABILITY', 0, .5)
+    gui.add(C, 'ENERGY_DECAY', 0, .1)
+    gui.add(C, 'AGE_ENERGY_DECAY', 0, .1)
     gui.add(opt, 'Kill all blobs')
     gui.add(opt, 'Add a blob')
 
-    @running = on
     # if C.INFO_WINDOW then @infoArea = new InfoArea(@p, @env)
 
     @showNucleus = off
@@ -51,7 +65,10 @@ class Frontend
       @renderer.step()
 
   requestUpdate: () -> 
-    @sim.postMessage 'go'
+    @sim.postMessage {type: 'go'}
+
+  addBlobs: (n) -> 
+    @sim.postMessage {type: 'addBlobs', data: n}
 
   keyCode: (k) -> 
     if k == 32 # 'space'

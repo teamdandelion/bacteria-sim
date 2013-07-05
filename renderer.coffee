@@ -27,7 +27,7 @@ class Renderer
   step: () ->
     @frames++
     currentTime = Date.now()
-    console.log "Time since last frame: #{currentTime - @lastFrame}"
+    # console.log "Time since last frame: #{currentTime - @lastFrame}"
     @lastFrame = currentTime
     if @framesUntilUpdate == 0
       if @updateAvailable
@@ -72,13 +72,13 @@ class Renderer
     @frontend.requestUpdate()
 
   receiveUpdate: (@update) ->
-    console.log "Got update"
+    # console.log "Got update"
     @timeElapsed = Date.now() - @requestTime
     @updateAvailable = yes
 
 
   processUpdate: () -> 
-    console.log "Processing update"
+    # console.log "Processing update"
     @updateAvailable = no
     @requestUpdate()
     @currentState = @futureState

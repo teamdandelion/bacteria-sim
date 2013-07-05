@@ -19,7 +19,7 @@ class Blob
     # @blu = @geneCode.blu
 
     @currentHeading = null
-    @maxMovement = @spd * C.MOVEMENT_SPEED_FACTOR
+    @maxMovement = @spd * self.C.MOVEMENT_SPEED_FACTOR
     @stepsUntilNextAction = 0 
     @stepsUntilNextQuery = 0
     @alive = on
@@ -28,16 +28,16 @@ class Blob
 
   calculateEnergyAndRadius: () ->
     @efficiencyFactor = 1 - (@eff / 100) * .75
-    @energyPerSecond  =  @pho * (@pho * C.PHO_SQ_EPS + C.PHO_EPS)
-    @energyPerSecond += (@atk * (@atk * C.ATK_SQ_EPS + C.ATK_EPS)) * @efficiencyFactor
-    @energyPerSecond += @spd * C.SPD_EPS * @efficiencyFactor
-    @energyPerSecond -= C.AGE_ENERGY_DECAY * @age
+    @energyPerSecond  =  @pho * (@pho * self.C.PHO_SQ_EPS + self.C.PHO_EPS)
+    @energyPerSecond += (@atk * (@atk * self.C.ATK_SQ_EPS + self.C.ATK_EPS)) * @efficiencyFactor
+    @energyPerSecond += @spd * self.C.SPD_EPS * @efficiencyFactor
+    @energyPerSecond -= self.C.AGE_ENERGY_DECAY * @age
     @attackPower = @atk*@atk
     @calculateRadius()
 
   calculateRadius: () ->
-    @rad = Math.sqrt(@energy) * C.RADIUS_FACTOR + C.RADIUS_CONSTANT
-    @rad *= C.BLOB_SIZE
+    @rad = Math.sqrt(@energy) * self.C.RADIUS_FACTOR + self.C.RADIUS_CONSTANT
+    @rad *= self.C.BLOB_SIZE
 
 
   preStep: () ->
@@ -52,7 +52,7 @@ class Blob
 
     @energy += @energyPerSecond
     @age++
-    @energy *= (1-C.ENERGY_DECAY)
+    @energy *= (1-self.C.ENERGY_DECAY)
     """Neighbors: Everything within seeing distance. Represented as
     list of blobs. Querying only once every 10 steps, so force-recalc
     distance for each neighbor everytime."""
@@ -69,7 +69,7 @@ class Blob
       if @neighborDists[n.id]?
         [dist, move_so_far] = @neighborDists[n.id]
         move_so_far += @movedLastTurn + n.movedLastTurn
-        if move_so_far > C.MOVE_UPDATE_AMT
+        if move_so_far > self.C.MOVE_UPDATE_AMT
           delete @neighborDists[n.id]
 
       @neighborDists[n.id] ?= [@simulation.blobDist(@,n), 0]
@@ -91,7 +91,7 @@ class Blob
         @huntTarget = @action.argument[0]
         @maintainCurrentAction = 20 # keep hunting same target for 20 turns
     if @action.type == "repr"
-      @maintainCurrentAction = C.REPR_TIME_REQUIREMENT + Math.round(Math.random())
+      @maintainCurrentAction = self.C.REPR_TIME_REQUIREMENT + Math.round(Math.random())
       @reproducing = on
 
     # reproduction maintenance is handled in reproduction code
@@ -166,21 +166,21 @@ class Blob
 
 
   move: (heading, moveAmt) ->
-    moveAmt = Math.min(moveAmt, @maxMovement, @energy * C.MOVEMENT_PER_ENERGY / @efficiencyFactor)
+    moveAmt = Math.min(moveAmt, @maxMovement, @energy * self.C.MOVEMENT_PER_ENERGY / @efficiencyFactor)
     moveAmt = Math.max(moveAmt, 0) # in case @energy is negative due to recieved attacks
-    @energy -= moveAmt * @efficiencyFactor / C.MOVEMENT_PER_ENERGY
+    @energy -= moveAmt * @efficiencyFactor / self.C.MOVEMENT_PER_ENERGY
     @simulation.moveBlob(@id, heading, moveAmt)
     @neighborDists = {}
     @movedThisTurn = moveAmt
 
   reproduce: (childEnergy) ->
-    if @energy <= C.REPR_ENERGY_COST
-      if C.HARSH_REPRODUCTION then @energy -= C.REPR_ENERGY_COST / 2 
+    if @energy <= self.C.REPR_ENERGY_COST
+      if self.C.HARSH_REPRODUCTION then @energy -= self.C.REPR_ENERGY_COST / 2 
       return
-    if childEnergy > (@energy-C.REPR_ENERGY_COST)/2
-      if C.HARSH_REPRODUCTION then @energy -= C.REPR_ENERGY_COST / 2
+    if childEnergy > (@energy-self.C.REPR_ENERGY_COST)/2
+      if self.C.HARSH_REPRODUCTION then @energy -= self.C.REPR_ENERGY_COST / 2
       return
-    if @energy >= childEnergy + C.REPR_ENERGY_COST * @efficiencyFactor
-      @energy  -= childEnergy + C.REPR_ENERGY_COST * @efficiencyFactor
+    if @energy >= childEnergy + self.C.REPR_ENERGY_COST * @efficiencyFactor
+      @energy  -= childEnergy + self.C.REPR_ENERGY_COST * @efficiencyFactor
       childGenes = GeneCode.copy(@geneCode)
       @simulation.addChildBlob(@id, childEnergy, childGenes)

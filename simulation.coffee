@@ -1,28 +1,42 @@
 class Simulation
-  constructor: (starting_blobs=20) ->
+  constructor: () ->
+    # Do nothing; we need to wait for an initialization message that contains the C (Constants) data object
+    @initialized = off
+
+  initialize: () -> 
+    @initialized = on
     @blobs = {}
-    @qtree = new QuadTree(C.X_BOUND, C.Y_BOUND, C.QTREE_BUCKET_SIZE)
+    @qtree = new QuadTree(self.C.X_BOUND, self.C.Y_BOUND, self.C.QTREE_BUCKET_SIZE)
     @location = @qtree.id2point
     @nBlobs = 0
     @nextBlobId = 0
     @observedBlobID = null
     @blobsRemovedThisStep = []
     @blobsAddedThisStep = {}
-    for i in [0...starting_blobs]
-      @addRandomBlob()
-
-
 
   processMessage: (msg) ->
-    switch msg
+    unless @initialized or msg.type == "updateConstants"
+      self.postDebug "Recieved msg #{msg} while uninitialized"
+      return
+    switch msg.type
       when "go"
         @step()
         @postBlobData()
         
       when "killAllBlobs"
         @killAllBlobs()
+      
       when "addRandomBlob"
         @addRandomBlob()
+      
+      when "addBlobs"
+        for i in [0...msg.data]
+          @addRandomBlob()
+
+      when "updateConstants"
+        self.C = msg.data
+        unless @initialized
+          @initialize()
 
   postBlobData: () ->
     blobStates = {}
@@ -73,7 +87,7 @@ class Simulation
   getNeighbors: (blobID) ->
     pos = @location[blobID]
     rad = @blobs[blobID].rad
-    @getAdjacent(pos, C.NEIGHBOR_DISTANCE + rad * 1.5, blobID)
+    @getAdjacent(pos, self.C.NEIGHBOR_DISTANCE + rad * 1.5, blobID)
 
   getAdjacent: (position, distance, blobID) ->
     # Returns nearby blobs
@@ -90,7 +104,7 @@ class Simulation
     sourcePos = @location[blobID]
     moveVector = Vector2D.headingVector(heading).multiply(moveAmt)
     newPos = moveVector.add(sourcePos)
-    newPos.wrapToBound(C.X_BOUND, C.Y_BOUND)
+    newPos.wrapToBound(self.C.X_BOUND, self.C.Y_BOUND)
     @qtree.moveObject(blobID, newPos)
     
 
@@ -103,18 +117,18 @@ class Simulation
     @nBlobs++
 
   addRandomBlob: () -> 
-    pos = Vector2D.randomBoundedVector(C.X_MARGIN, C.DISPLAY_X + C.X_MARGIN,
-                                       C.Y_MARGIN, C.DISPLAY_Y + C.Y_MARGIN)
-    @addBlob(pos, C.STARTING_ENERGY)
+    pos = Vector2D.randomBoundedVector(self.C.X_MARGIN, self.C.DISPLAY_X + self.C.X_MARGIN,
+                                       self.C.Y_MARGIN, self.C.DISPLAY_Y + self.C.Y_MARGIN)
+    @addBlob(pos, self.C.STARTING_ENERGY)
 
   addChildBlob: (parentID, childEnergy, childGenes) -> 
     parentPosition = @location[parentID]
     parentRadius = @blobs[parentID].rad
     parentSpeed = @blobs[parentID].spd
     childOffset = Vector2D.randomUnitVector()
-    childOffset.multiply(C.CHILD_DISTANCE + parentRadius + parentSpeed / 2)
+    childOffset.multiply(self.C.CHILD_DISTANCE + parentRadius + parentSpeed / 2)
     childPosition = childOffset.add(parentPosition)
-    childPosition.wrapToBound(C.X_BOUND, C.Y_BOUND)
+    childPosition.wrapToBound(self.C.X_BOUND, self.C.Y_BOUND)
     @addBlob(childPosition, childEnergy, childGenes)
 
   removeBlob: (blobID) ->
@@ -140,7 +154,7 @@ class Simulation
   blobDist: (blob1, blob2) ->
     Math.sqrt @blobDistSq(blob1, blob2)
 
-postDebug = (msg) ->
+self.postDebug = (msg) ->
   postMessage {
     type: 'debug'
     msg: msg
