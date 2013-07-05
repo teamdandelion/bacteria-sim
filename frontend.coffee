@@ -11,7 +11,7 @@ class Frontend
     @sim.onmessage = (event) =>
       switch event.data.type
         when 'blobs'
-          @renderer.takeMessage(event.data)
+          @renderer.recieveUpdate(event.data)
         when 'debug'
           console.log event.data.msg
 
@@ -49,10 +49,10 @@ class Frontend
     @showReproduction = off
 
   step: () -> 
-    if @running and @hasNewBlobs
-      @drawAll(@newBlobs)
-      @hasNewBlobs = no
-      @sim.postMessage 'go'
+    @renderer.step()
+
+  requestUpdate: () -> 
+    @sim.postMessage 'go'
 
   keyCode: (k) -> 
     if k == 32 # 'space'

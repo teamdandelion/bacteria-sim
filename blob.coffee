@@ -8,10 +8,15 @@ class Blob
     @spd = @geneCode.spd
     @eff = @geneCode.eff
 
-    #nucleus colors
-    @red = @geneCode.red
-    @grn = @geneCode.grn
-    @blu = @geneCode.blu
+
+    @red = @atk * 2.55
+    @grn = @pho * 2.55
+    @blu = @spd * 2.55
+
+    # #nucleus colors
+    # @red = @geneCode.red
+    # @grn = @geneCode.grn
+    # @blu = @geneCode.blu
 
     @currentHeading = null
     @maxMovement = @spd * C.MOVEMENT_SPEED_FACTOR
