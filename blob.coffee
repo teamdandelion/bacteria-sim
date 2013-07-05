@@ -91,7 +91,7 @@ class Blob
         @huntTarget = @action.argument[0]
         @maintainCurrentAction = 20 # keep hunting same target for 20 turns
     if @action.type == "repr"
-      @maintainCurrentAction = C.REPR_TIME_REQUIREMENT
+      @maintainCurrentAction = C.REPR_TIME_REQUIREMENT + Math.round(Math.random())
       @reproducing = on
 
     # reproduction maintenance is handled in reproduction code

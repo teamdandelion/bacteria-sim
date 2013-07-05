@@ -1,7 +1,7 @@
 #!/usr/local/bin/fish
 set BACKEND_FILES constants.coffee util.coffee vector.coffee quadtree.coffee
 set SIMULATION_FILES $BACKEND_FILES gene.coffee blob.coffee simulation.coffee
-set FRONTEND_FILES constants.coffee frontend.coffee
+set FRONTEND_FILES constants.coffee renderer.coffee frontend.coffee
 
 if test (count $argv) -eq 0
 	set arg web

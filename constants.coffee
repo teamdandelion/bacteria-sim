@@ -1,7 +1,7 @@
 class C
   # Environment variables
-  @X_MARGIN = 100
-  @Y_MARGIN = 100
+  @X_MARGIN = 400
+  @Y_MARGIN = 400
   # these stop blobs from flickering at margins, although at the expense of
   # computing 100 pixels in each direction of spcae that isnt displayed
   # if drawing code is improved to handle wraparounds elegantly then this will
@@ -32,15 +32,15 @@ class C
   @MOVEMENT_PER_ENERGY = 100
 
   @REPR_ENERGY_COST    = 700
-  @MOVEMENT_SPEED_FACTOR = .05
+  @MOVEMENT_SPEED_FACTOR = .3
   @PHO_EPS =  .1
   @PHO_SQ_EPS = .06
   @ATK_EPS = -.5
   @ATK_SQ_EPS = 0
   @SPD_EPS = 0
   @AGE_ENERGY_DECAY = .001
-  @RADIUS_FACTOR = .2
-  @RADIUS_CONSTANT = 3 
+  @RADIUS_FACTOR = .1
+  @RADIUS_CONSTANT = 1 
   @BLOB_SIZE = 1.0 # single scaling factor
   @ENERGY_DECAY = .005
   @REPR_TIME_REQUIREMENT = 7
@@ -50,5 +50,5 @@ class C
 
   # Backend variables
   @QTREE_BUCKET_SIZE = 50
-  @FRAME_RATE = 30
+  @FRAME_RATE = 60
   @MOVE_UPDATE_AMT = 5

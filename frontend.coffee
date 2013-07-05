@@ -5,13 +5,13 @@ class Frontend
     # blobs wrap around we don't need to worry about
     # displaying them at both edges of the field 
     # at teh same time
+    @running = on
     @sim = new Worker 'simulation.js'
     @renderer = new Renderer(@, @p)
-    @sim.postMessage 'go' 
     @sim.onmessage = (event) =>
       switch event.data.type
         when 'blobs'
-          @renderer.recieveUpdate(event.data)
+          @renderer.receiveUpdate(event.data)
         when 'debug'
           console.log event.data.msg
 
@@ -21,6 +21,7 @@ class Frontend
       @sim.postMessage 'killAllBlobs'
     opt['Add a blob'] = () =>
       @sim.postMessage 'addRandomBlob'
+
     
     gui = new dat.GUI()
     # # gui.onChange = () ->
@@ -40,16 +41,14 @@ class Frontend
 
     @running = on
     # if C.INFO_WINDOW then @infoArea = new InfoArea(@p, @env)
-    @xLower = 100
-    @yLower = 100
-    @xUpper = 100 + C.DISPLAY_X
-    @yUpper = 100 + C.DISPLAY_Y
+
     @showNucleus = off
     @showShells = off
     @showReproduction = off
 
   step: () -> 
-    @renderer.step()
+    if @running
+      @renderer.step()
 
   requestUpdate: () -> 
     @sim.postMessage 'go'

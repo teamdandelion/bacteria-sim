@@ -6,12 +6,12 @@ class Simulation
     @nBlobs = 0
     @nextBlobId = 0
     @observedBlobID = null
+    @blobsRemovedThisStep = []
+    @blobsAddedThisStep = {}
     for i in [0...starting_blobs]
       @addRandomBlob()
-    postMessage({
-      type: 'start'
-      
-      })
+
+
 
   processMessage: (msg) ->
     switch msg
@@ -25,9 +25,13 @@ class Simulation
         @addRandomBlob()
 
   postBlobData: () ->
+    blobStates = {}
+    for id, blob of @blobs
+      blobStates[id] = [blob.pos.x, blob.pos.y, blob.rad]
     msg = {
       type: 'blobs'
-      blobs: @blobs
+      blobs: blobStates
+      added: @blobsAddedThisStep
       removed: @blobsRemovedThisStep
     }
     postMessage(msg)
@@ -93,6 +97,7 @@ class Simulation
   addBlob: (position, energy, geneCode) ->
     b = new Blob(@, @nextBlobId, energy, geneCode, position)
     @blobs[@nextBlobId] = b
+    @blobsAddedThisStep[@nextBlobId] = [b.red, b.grn, b.blu]
     @qtree.addObject(@nextBlobId, position)
     @nextBlobId++
     @nBlobs++

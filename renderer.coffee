@@ -1,8 +1,16 @@
+WAIT_FACTOR = 1.1
+
 class Renderer
   # Renders blobs
   constructor: (@frontend, @p) ->
+    @xLower = 100
+    @yLower = 100
+    @xUpper = 100 + C.DISPLAY_X
+    @yUpper = 100 + C.DISPLAY_Y
+
+    @frames = 0
     @frameRate = C.FRAME_RATE
-    @framesUntilNextDraw = 0
+    @framesUntilUpdate = 1
     @colors = {} # map from ID -> [r,g,b]
     @futureColors = {}
     @currentState = {} # Map from ID -> [x,y,size]
@@ -12,11 +20,19 @@ class Renderer
     @updateAvailable = no
     @update = []
     @thunks = 0
+    @requestUpdate()
+    @lastFrame = Date.now()
+    @removedLastStep = []
 
   step: () ->
-    if @framesUntilNextDraw == 0
+    @frames++
+    currentTime = Date.now()
+    console.log "Time since last frame: #{currentTime - @lastFrame}"
+    @lastFrame = currentTime
+    if @framesUntilUpdate == 0
       if @updateAvailable
         if @thunks > 0
+          WAIT_FACTOR += .05
           console.log "Thunked #{@thunks} times"
           @thunks = 0
         @processUpdate()
@@ -26,16 +42,9 @@ class Renderer
     unless @thunks
       @drawAll()
 
-  drawAll: () ->
-    @p.background(0)
-    for id, state of @currentState
-      state[0] += @delta[id][0]
-      state[1] += @delta[id][1]
-      state[2] += @delta[id][2]
-      drawBlob(state, @colors[id])
-    --@framesUntilNextDraw
-
-  drawBlob: ([x,y,r],[red,grn,blu]) -> 
+  drawBlob: (state, color) -> 
+    [x,y,r] = state
+    [red, grn, blu] = color
     intersectX = x+r > @xLower or x-r < @xUpper
     intersectY = y+r > @yLower or y-r < @yUpper
     if intersectX and intersectY
@@ -47,43 +56,66 @@ class Renderer
       
       @p.ellipse(x, y, 2*r, 2*r)
 
+  drawAll: () ->
+    @p.background(0)
+    for id, state of @currentState
+      state[0] += @delta[id][0]
+      state[1] += @delta[id][1]
+      state[2] += @delta[id][2]
+      @drawBlob(state, @colors[id])
+    --@framesUntilUpdate
 
 
-
-  processUpdate: () -> 
-  @updateAvailable = no
-  @requestUpdate()
-  @currentState = @futureState
-  @futureState = []
-  @colors = @futureColors
-  @futureColors = []
-  [futureBlobs, removedBlobs] = @update
-  for id, blob of futureBlobs
-    @futureState[id]  = [blob.pos.x, blob.pos.y, blob.rad]
-    @futureColors[id] = [blob.red, blob.grn, blob.blu]
-
-  @framesUntilNextDraw = Math.ceil(1.1 * @timeElapsed / @frameRate)
-  for id, blob of futureBlobs
-    unless id in @currentState
-      @currentState[id] = [blob.pos.x, blob.pos.y, 0]
-      @colors[id] = [blob.red, blob.grn, blob.blu]
-
-    x,y,r = @currentState[id]
-    dx = (blob.pos.x - x) / @framesUntilNextDraw
-    dy = (blob.pos.y - y) / @framesUntilNextDraw
-    dr = (blob.pos.r - r) / @framesUntilNextDraw
-    @delta[id] = [dx, dy, dr]
-
-  for id in removedBlobs
-    dr = -@currentState[id][2] / @framesUntilNextDraw
-    @delta[id] = [0,0,dr] 
 
   requestUpdate: () ->
     @requestTime = Date.now()
     @frontend.requestUpdate()
 
-  recieveUpdate: (@update) ->
+  receiveUpdate: (@update) ->
+    console.log "Got update"
     @timeElapsed = Date.now() - @requestTime
     @updateAvailable = yes
+
+
+  processUpdate: () -> 
+    console.log "Processing update"
+    @updateAvailable = no
+    @requestUpdate()
+    @currentState = @futureState
+    @futureState = @update.blobs
+    removedBlobs = @update.removed
+    addedBlobs = @update.added
+
+    for id, c of addedBlobs
+      @colors[id] = c
+    for id in @removedLastStep
+      delete @colors[id]
+      
+
+    @framesUntilUpdate = Math.ceil(WAIT_FACTOR * @timeElapsed / @frameRate)
+    if @framesUntilUpdate < 4
+      @framesUntilUpdate = 4
+    # console.log @timeElapsed, @frameRate, @timeElapsed / @frameRate
+    # console.log "FUU: " + @framesUntilUpdate
+    for id, [xf,yf,rf] of @futureState
+      unless id of @currentState
+        @currentState[id] = [xf, yf, 0]
+
+      [xc,yc,rc] = @currentState[id]
+      dx = xf - xc
+      dx = if Math.abs(dx) > C.DISPLAY_X / 2 then 0 else dx / @framesUntilUpdate
+
+      dy = yf - yc
+      dy = if Math.abs(dy) > C.DISPLAY_X / 2 then 0 else dy / @framesUntilUpdate
+
+      dr = (rf - rc) / @framesUntilUpdate
+      @delta[id] = [dx, dy, dr]
+
+    for id in removedBlobs
+      # console.log @frames, id, @currentState[id]
+      dr = -@currentState[id][2] / @framesUntilUpdate
+      @delta[id] = [0,0,dr] 
+    @removedLastStep = removedBlobs
+
 
 
