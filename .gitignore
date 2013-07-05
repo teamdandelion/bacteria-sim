@@ -11,3 +11,5 @@ combined.js
 
 web/*.js
 web/*.coffee
+web/frontend.coffee
+web/simulation.js
