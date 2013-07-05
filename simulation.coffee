@@ -8,19 +8,29 @@ class Simulation
     @observedBlobID = null
     for i in [0...starting_blobs]
       @addRandomBlob()
+    postMessage({
+      type: 'start'
+      
+      })
 
   processMessage: (msg) ->
     switch msg
       when "go"
         @step()
-        postMessage({
-          type: 'blobs'
-          data: @blobs
-        })
+        @postBlobData()
+        
       when "killAllBlobs"
         @killAllBlobs()
       when "addRandomBlob"
         @addRandomBlob()
+
+  postBlobData: () ->
+    msg = {
+      type: 'blobs'
+      blobs: @blobs
+      removed: @blobsRemovedThisStep
+    }
+    postMessage(msg)
 
   observeBlob: (xCoord, yCoord) -> 
     console.log "Called observeBlob with " + xCoord + "," + yCoord
@@ -41,6 +51,7 @@ class Simulation
       @observedBlob.observed = on
 
   step: () ->
+    @blobsRemovedThisStep = []
     @qtree.rebuild()
     for id, blob of @blobs
       blob.preStep()
@@ -106,6 +117,7 @@ class Simulation
       @observedBlob = null
     delete @blobs[blobID]
     @qtree.removeObject(blobID)
+    @blobsRemovedThisStep.push blobID
     @nBlobs--
 
   killAllBlobs: () ->
