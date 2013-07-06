@@ -7,7 +7,6 @@ class Simulation
     @initialized = on
     @blobs = {}
     @qtree = new QuadTree(self.C.X_BOUND, self.C.Y_BOUND, self.C.QTREE_BUCKET_SIZE)
-    @location = @qtree.id2point
     @nBlobs = 0
     @nextBlobId = 0
     @observedBlobID = null
@@ -30,13 +29,23 @@ class Simulation
         @addRandomBlob()
       
       when "addBlobs"
-        for i in [0...msg.data]
+        for i in [0..msg.data]
           @addRandomBlob()
 
       when "updateConstants"
         self.C = msg.data
         unless @initialized
           @initialize()
+        if self.C.X_BOUND != @qtree.xBound or self.C.Y_BOUND != @qtree.yBound
+          @resize()
+
+  resize: () ->
+    xBound = self.C.X_BOUND
+    yBound = self.C.Y_BOUND
+    for id, pos of @qtree.id2point
+      if pos.x > xBound or pos.y > yBound
+        @removeBlob(id)
+    @qtree.resize(self.C.X_BOUND, self.C.Y_BOUND)
 
   postBlobData: () ->
     blobStates = {}
@@ -59,7 +68,7 @@ class Simulation
       @observedBlob.observed = null
       @observedBlob = null
     nearbyBlobs = @getAdjacent(clickLocation, 80)
-    nearbyBlobs = ([b, clickLocation.distSq(@location[b.id])] for b in nearbyBlobs)
+    nearbyBlobs = ([b, clickLocation.distSq(@qtree.id2point[b.id])] for b in nearbyBlobs)
     selected = minByIndex(nearbyBlobs, 1)
     if selected? and selected[1] < selected[0].rad + 10 and selected[0].id != prevId
       selected = selected[0]
@@ -71,6 +80,7 @@ class Simulation
   step: () ->
     @blobsRemovedThisStep = []
     @qtree.rebuild()
+    for id, pos of @qtree.id2point
     for id, blob of @blobs
       blob.preStep()
       blob.chooseAction()
@@ -82,10 +92,10 @@ class Simulation
       blob.handleAttacks()
 
     for id, blob of @blobs
-      blob.wrapUp(@location[id])
+      blob.wrapUp(@qtree.id2point[id])
 
   getNeighbors: (blobID) ->
-    pos = @location[blobID]
+    pos = @qtree.id2point[blobID]
     rad = @blobs[blobID].rad
     @getAdjacent(pos, self.C.NEIGHBOR_DISTANCE + rad * 1.5, blobID)
 
@@ -96,15 +106,15 @@ class Simulation
 
 
   getHeading: (sourceID, targetID) ->
-    sourcePos = @location[sourceID]
-    targetPos = @location[targetID]
+    sourcePos = @qtree.id2point[sourceID]
+    targetPos = @qtree.id2point[targetID]
     Vector2D.subtract(targetPos, sourcePos).heading()
 
   moveBlob: (blobID, heading, moveAmt) -> 
-    sourcePos = @location[blobID]
+    sourcePos = @qtree.id2point[blobID]
     moveVector = Vector2D.headingVector(heading).multiply(moveAmt)
     newPos = moveVector.add(sourcePos)
-    newPos.wrapToBound(self.C.X_BOUND, self.C.Y_BOUND)
+    newPos.constrainToBound(self.C.X_BOUND, self.C.Y_BOUND)
     @qtree.moveObject(blobID, newPos)
     
 
@@ -117,18 +127,17 @@ class Simulation
     @nBlobs++
 
   addRandomBlob: () -> 
-    pos = Vector2D.randomBoundedVector(self.C.X_MARGIN, self.C.DISPLAY_X + self.C.X_MARGIN,
-                                       self.C.Y_MARGIN, self.C.DISPLAY_Y + self.C.Y_MARGIN)
+    pos = Vector2D.randomBoundedVector(0, self.C.X_BOUND, 0, self.C.Y_BOUND)
     @addBlob(pos, self.C.STARTING_ENERGY)
 
   addChildBlob: (parentID, childEnergy, childGenes) -> 
-    parentPosition = @location[parentID]
+    parentPosition = @qtree.id2point[parentID]
     parentRadius = @blobs[parentID].rad
     parentSpeed = @blobs[parentID].spd
     childOffset = Vector2D.randomUnitVector()
     childOffset.multiply(self.C.CHILD_DISTANCE + parentRadius + parentSpeed / 2)
     childPosition = childOffset.add(parentPosition)
-    childPosition.wrapToBound(self.C.X_BOUND, self.C.Y_BOUND)
+    childPosition.constrainToBound(self.C.X_BOUND, self.C.Y_BOUND)
     @addBlob(childPosition, childEnergy, childGenes)
 
   removeBlob: (blobID) ->
@@ -147,8 +156,8 @@ class Simulation
     blobID of @blobs
 
   blobDistSq: (blob1, blob2) ->
-    p1 = @location[blob1.id]
-    p2 = @location[blob2.id]
+    p1 = @qtree.id2point[blob1.id]
+    p2 = @qtree.id2point[blob2.id]
     p1.distSq(p2)
 
   blobDist: (blob1, blob2) ->

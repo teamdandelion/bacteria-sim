@@ -3,11 +3,6 @@ WAIT_FACTOR = 1.1
 class Renderer
   # Renders blobs
   constructor: (@frontend, @p) ->
-    @xLower = 100
-    @yLower = 100
-    @xUpper = 100 + C.DISPLAY_X
-    @yUpper = 100 + C.DISPLAY_Y
-
     @frames = 0
     @frameRate = C.FRAME_RATE
     @framesUntilUpdate = 1
@@ -45,16 +40,10 @@ class Renderer
   drawBlob: (state, color) -> 
     [x,y,r] = state
     [red, grn, blu] = color
-    intersectX = x+r > @xLower or x-r < @xUpper
-    intersectY = y+r > @yLower or y-r < @yUpper
-    if intersectX and intersectY
-      x-= @xLower
-      y-= @yLower
-      @p.noStroke()
-
-      @p.fill(red,grn,blu)
-      
-      @p.ellipse(x, y, 2*r, 2*r)
+    
+    @p.noStroke()
+    @p.fill(red,grn,blu)
+    @p.ellipse(x, y, 2*r, 2*r)
 
   drawAll: () ->
     @p.background(0)
@@ -103,11 +92,7 @@ class Renderer
 
       [xc,yc,rc] = @currentState[id]
       dx = xf - xc
-      dx = if Math.abs(dx) > C.DISPLAY_X / 2 then 0 else dx / @framesUntilUpdate
-
       dy = yf - yc
-      dy = if Math.abs(dy) > C.DISPLAY_X / 2 then 0 else dy / @framesUntilUpdate
-
       dr = (rf - rc) / @framesUntilUpdate
       @delta[id] = [dx, dy, dr]
 

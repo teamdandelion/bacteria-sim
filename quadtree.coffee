@@ -13,9 +13,10 @@ class QuadTree
     @tree = new QTNode(@xBound/2, @yBound/2, @xBound/2, @yBound/2, @bucketSize)
 
   addObject: (id, point) ->
-    if not (0<point.x<@xBound and 0<point.y<@yBound)
+    postDebug("QT addition: #{id}, #{point.x}, #{point.y}")
+    unless (0 <= point.x <= @xBound and 0 <= point.y <= @yBound)
       throw new Error("Index out of bounds: #{point.x}, #{point.y}")
-    if id of @id2point and not @rebuilding
+    if id of @id2point
       throw Error("Object ID collision on id: " + id)
     @id2point[id] = point
     @tree.addPoint(id, point)
@@ -41,19 +42,23 @@ class QuadTree
 
   circleQuery: (centerPoint, radius) -> 
     """Returns a list of all object IDs that fall within the circle"""
-    @tree.circleQuery centerPoint, radius, radius*radius
+    @tree.circleQuery centerPoint, radius, radius*radius    
 
   approximateCircleQuery: (centerPoint, radius) -> 
     """Returns a list of all object IDs that fall in nodes that intersect the circle"""
     @tree.approximateCircleQuery centerPoint, radius, radius*radius
-    
 
   rebuild: () ->
-    @rebuilding = on
     @tree = new QTNode(@xBound/2, @yBound/2, @xBound/2, @yBound/2, @bucketSize)
-    for id, pt of @id2point
+    oldPoints = @id2point
+    @id2point = {}
+    for id, pt of oldPoints
       @addObject id, pt
-    @rebuilding = off
+
+  resize: (@xBound, @yBound) ->
+    @rebuild()
+
+
 
 class QTNode
   constructor: (@x, @y, @xEdge, @yEdge, @bucketSize, @depth=0) ->

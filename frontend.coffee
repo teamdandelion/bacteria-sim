@@ -16,9 +16,16 @@ class Frontend
     @updateConstants() # This initializes the simulation with the constants we are using
     # It's required for the sim to start operating
     @setupGui()
-    @addBlobs(20)
+    @addBlobs(4)
     @renderer = new Renderer(@, @p)
     @running = on
+    $(window).resize(
+      () => 
+        C.X_BOUND = $(window).width()
+        C.Y_BOUND = $(window).height()
+        @p.size(C.X_BOUND, C.Y_BOUND)
+        @updateConstants()
+    )
 
   updateConstants: () -> 
     newC = {}
@@ -35,19 +42,13 @@ class Frontend
 
     
     gui = new dat.GUI()
-    gui.onChange = () =>
-      console.log "CHANGE RECORDED"
-    gui.add(C, 'REPR_ENERGY_COST', 50, 5000).onChange(
-      (newVal) -> 
-        console.log "Val changed!"
-      )
-    
+
     addSlider = (name, min, max, step) => 
       step ?= (max-min)/100
-      gui.add(C, name, min, max, step).onChange(
+      gui.add(C, name, min, max, step).onFinishChange(
         (newVal) => @updateConstants()
         )
-    # gui.add(C, 'REPR_ENERGY_COST',)
+    addSlider('REPR_ENERGY_COST', 100, 2000)
     addSlider('PHO_EPS', -1.0, 1.0)
     addSlider('PHO_SQ_EPS', 0, .1)
     addSlider('ATK_EPS', -1.0, 1.0)
@@ -105,7 +106,7 @@ simulator_draw = (p) ->
    
   p.setup = () ->
     p.frameRate(C.FRAME_RATE)
-    p.size(C.DISPLAY_X, C.DISPLAY_Y + C.DISPLAY_BOUND)
+    p.size(C.X_BOUND, C.Y_BOUND)
     p.background(0,20,90)
 
   p.draw = () ->
