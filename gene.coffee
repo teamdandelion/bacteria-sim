@@ -55,7 +55,7 @@ class GeneCode
 
       childEnergy: new Gene(null, 0, 1000, 1)
 
-    if C.TWO_TRADEOFF
+    if self.C.TWO_TRADEOFF
       atk_pho_total = @genes.atk.val + @genes.pho.val 
       spd_eff_total = @genes.spd.val + @genes.eff.val
     else
@@ -142,12 +142,12 @@ class Gene
 
   constructor: (@val, @min=-100, @max=100, @mutationSize=5) ->
     @val ?= Math.random() * (@max-@min) + @min
-    @mutationProbability = C.MUTATION_PROBABILITY
+    @mutationProbability = self.C.MUTATION_PROBABILITY
 
   mutate: () ->
     if Math.random() < @mutationProbability
       sign = randomSign()
-      mutationSize = @mutationSize * 2 * Math.random() * C.MUTATION_CONSTANT
+      mutationSize = @mutationSize * 2 * Math.random() * self.C.MUTATION_CONSTANT
       @val += sign * mutationSize
       @val = Math.max @val, @min
       @val = Math.min @val, @max
