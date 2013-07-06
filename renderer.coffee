@@ -46,7 +46,7 @@ class Renderer
     @p.ellipse(x, y, 2*r, 2*r)
 
   drawAll: () ->
-    @p.background(0)
+    @p.background(0,40,0)
     for id, state of @currentState
       state[0] += @delta[id][0]
       state[1] += @delta[id][1]
@@ -91,8 +91,8 @@ class Renderer
         @currentState[id] = [xf, yf, 0]
 
       [xc,yc,rc] = @currentState[id]
-      dx = xf - xc
-      dy = yf - yc
+      dx = (xf - xc) / @framesUntilUpdate
+      dy = (yf - yc) / @framesUntilUpdate
       dr = (rf - rc) / @framesUntilUpdate
       @delta[id] = [dx, dy, dr]
 

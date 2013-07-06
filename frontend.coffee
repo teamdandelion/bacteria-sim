@@ -21,6 +21,7 @@ class Frontend
     @running = on
     $(window).resize(
       () => 
+        console.log "Resizing"
         C.X_BOUND = $(window).width()
         C.Y_BOUND = $(window).height()
         @p.size(C.X_BOUND, C.Y_BOUND)
@@ -37,6 +38,8 @@ class Frontend
     opt = {}
     opt['Kill all blobs'] = () => 
       @sim.postMessage {type: 'killAllBlobs'}
+    opt['Kill most blobs'] = () => 
+      @sim.postMessage {type: 'killMostBlobs'}
     opt['Add a blob'] = () =>
       @sim.postMessage {type: 'addRandomBlob'}
 
@@ -60,6 +63,7 @@ class Frontend
     addSlider('AGE_ENERGY_DECAY', 0, .1)
     gui.add(opt, 'Kill all blobs')
     gui.add(opt, 'Add a blob')
+    gui.add(opt, 'Kill most blobs')
 
     # if C.INFO_WINDOW then @infoArea = new InfoArea(@p, @env)
 

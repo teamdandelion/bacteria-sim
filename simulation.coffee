@@ -24,6 +24,9 @@ class Simulation
         
       when "killAllBlobs"
         @killAllBlobs()
+
+      when "killMostBlobs"
+        @killMostBlobs()
       
       when "addRandomBlob"
         @addRandomBlob()
@@ -142,6 +145,7 @@ class Simulation
   removeBlob: (blobID) ->
     if @observedBlob? and @observedBlob.id == blobID
       @observedBlob = null
+    @blobs[blobID].alive = no
     delete @blobs[blobID]
     @qtree.removeObject(blobID)
     @blobsRemovedThisStep.push blobID
@@ -150,6 +154,11 @@ class Simulation
   killAllBlobs: () ->
     for blobID, blob of @blobs
       @removeBlob(blobID)
+
+  killMostBlobs: () ->
+    for blobID, blob of @blobs
+      unless Math.random() < .05
+        @removeBlob(blobID)
 
   isAlive: (blobID) -> 
     blobID of @blobs
