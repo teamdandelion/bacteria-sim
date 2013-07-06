@@ -80,7 +80,6 @@ class Simulation
   step: () ->
     @blobsRemovedThisStep = []
     @qtree.rebuild()
-    for id, pos of @qtree.id2point
     for id, blob of @blobs
       blob.preStep()
       blob.chooseAction()

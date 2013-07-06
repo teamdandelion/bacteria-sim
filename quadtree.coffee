@@ -13,7 +13,6 @@ class QuadTree
     @tree = new QTNode(@xBound/2, @yBound/2, @xBound/2, @yBound/2, @bucketSize)
 
   addObject: (id, point) ->
-    postDebug("QT addition: #{id}, #{point.x}, #{point.y}")
     unless (0 <= point.x <= @xBound and 0 <= point.y <= @yBound)
       throw new Error("Index out of bounds: #{point.x}, #{point.y}")
     if id of @id2point
