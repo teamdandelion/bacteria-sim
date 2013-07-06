@@ -41,16 +41,22 @@ class Frontend
       (newVal) -> 
         console.log "Val changed!"
       )
+    
+    addSlider = (name, min, max, step) => 
+      step ?= (max-min)/100
+      gui.add(C, name, min, max, step).onChange(
+        (newVal) => @updateConstants()
+        )
     # gui.add(C, 'REPR_ENERGY_COST',)
-    gui.add(C, 'PHO_EPS', -1.0, 1.0)
-    gui.add(C, 'PHO_SQ_EPS', 0, .1)
-    gui.add(C, 'ATK_EPS', -1.0, 1.0)
-    gui.add(C, 'ATK_SQ_EPS', -.2, .2)
-    gui.add(C, 'BLOB_SIZE', 0.1, 5)
-    gui.add(C, 'MUTATION_CONSTANT', .01, 1)
-    gui.add(C, 'MUTATION_PROBABILITY', 0, .5)
-    gui.add(C, 'ENERGY_DECAY', 0, .1)
-    gui.add(C, 'AGE_ENERGY_DECAY', 0, .1)
+    addSlider('PHO_EPS', -1.0, 1.0)
+    addSlider('PHO_SQ_EPS', 0, .1)
+    addSlider('ATK_EPS', -1.0, 1.0)
+    addSlider('ATK_SQ_EPS', -.2, .2)
+    addSlider('BLOB_SIZE', 0.1, 5)
+    addSlider('MUTATION_CONSTANT', .01, 1)
+    addSlider('MUTATION_PROBABILITY', 0, .5)
+    addSlider('ENERGY_DECAY', 0, .1)
+    addSlider('AGE_ENERGY_DECAY', 0, .1)
     gui.add(opt, 'Kill all blobs')
     gui.add(opt, 'Add a blob')
 
