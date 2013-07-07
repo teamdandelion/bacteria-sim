@@ -16,7 +16,7 @@ class Frontend
     @updateConstants() # This initializes the simulation with the constants we are using
     # It's required for the sim to start operating
     @setupGui()
-    @addBlobs(4)
+    @addBlobs(C.STARTING_BLOBS)
     @renderer = new Renderer(@, @p)
     @running = on
     $(window).resize(

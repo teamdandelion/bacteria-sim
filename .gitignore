@@ -1,5 +1,5 @@
 web/*js
 web/*coffee
-
+test/*
 *.DS_Store
 

@@ -13,19 +13,19 @@ class C
   @CHILD_DISTANCE    = 20
   @ATTACK_MARGIN     = 100
   @STARTING_ENERGY   = 200
-  @STARTING_BLOBS    = 400
+  @STARTING_BLOBS    = 100
   
   # Blob variables
   @MOVEMENT_PER_ENERGY = 100
 
-  @REPR_ENERGY_COST    = 400
+  @REPR_ENERGY_COST    = 2000
   @MOVEMENT_SPEED_FACTOR = .3
-  @PHO_EPS =  .2
+  @PHO_EPS =  .1
   @PHO_SQ_EPS = .15
   @ATK_EPS = -.5
   @ATK_SQ_EPS = 0
   @SPD_EPS = 0
-  @AGE_ENERGY_DECAY = .001
+  @AGE_ENERGY_DECAY = 1
   @RADIUS_FACTOR = .1
   @RADIUS_CONSTANT = 1 
   @BLOB_SIZE = 1.0 # single scaling factor

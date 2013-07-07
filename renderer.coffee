@@ -28,6 +28,7 @@ class Renderer
       if @updateAvailable
         if @thunks > 0
           WAIT_FACTOR += .05
+          WAIT_FACTOR *= 1.05
           console.log "Thunked #{@thunks} times"
           @thunks = 0
         @processUpdate()
@@ -67,17 +68,29 @@ class Renderer
 
 
   processUpdate: () -> 
-    # console.log "Processing update"
     @updateAvailable = no
     @requestUpdate()
     @currentState = @futureState
-    @futureState = @update.blobs
-    removedBlobs = @update.removed
-    addedBlobs = @update.added
+    # The current state for this turn is the last turn's future state
+    # The reason for doing this instead of continuing to update the 
+    # currentState instance we already have is that float addition
+    # errors might grow over time so that the renderer would go out
+    # of sync with the simulation
+    @futureState  = @update.blobs   # {id -> [x,y,r]}
+    removedBlobs  = @update.removed #[id]
+    addedBlobs    = @update.added   # {id -> color}
+
+
+
+
+
 
     for id, c of addedBlobs
       @colors[id] = c
-    for id in @removedLastStep
+    for id in @removedLastStep 
+    # We don't remove the color on the turn in which they're removed, becuse
+    # we need to render them getting smaller. After they've visually disappeared,
+    # we delete from the dict to avoid a memory leak
       delete @colors[id]
       
 
@@ -98,8 +111,13 @@ class Renderer
 
     for id in removedBlobs
       # console.log @frames, id, @currentState[id]
-      dr = -@currentState[id][2] / @framesUntilUpdate
-      @delta[id] = [0,0,dr] 
+      if id of @currentState
+
+        dr = -@currentState[id][2] / @framesUntilUpdate
+        @delta[id] = [0,0,dr]
+      else 
+        # This generally means that a blog was added and died within a single update
+        console.log "blob #{id} was listed as removed but not found in state" 
     @removedLastStep = removedBlobs
 
 
