@@ -102,6 +102,13 @@ class Vector2D
       @x = (@x+xBound) % xBound
       @y = (@y+yBound) % yBound
 
+    constrainToBound: (xBound, yBound) -> 
+      if @x < 0 then @x = 0
+      if @x > xBound then @x = xBound
+
+      if @y < 0 then @y = 0
+      if @y > yBound then @y = yBound
+
     # Called on a vector acting as a position vector to return the wrapped representation closest
     # to another location
     wrapRelativeTo: (location, dimensions) ->

@@ -1,12 +1,20 @@
 #!/usr/local/bin/fish
-set BACKEND_FILES constants.coffee util.coffee vector.coffee quadtree.coffee
-set BLOB_FILES gene.coffee blob.coffee environment.coffee
-set MAIN_FILES $BACKEND_FILES $BLOB_FILES
-set WEB_FILES $MAIN_FILES infoArea.coffee simulation.coffee
-switch $argv[1]
+set BACKEND_FILES util.coffee vector.coffee quadtree.coffee
+set SIMULATION_FILES $BACKEND_FILES gene.coffee blob.coffee simulation.coffee
+set FRONTEND_FILES constants.coffee renderer.coffee frontend.coffee
+
+if test (count $argv) -eq 0
+	set arg web
+else
+	set arg $argv[1]
+end
+switch $arg
 	case web
-		cat $WEB_FILES > web/combined.coffee
-		coffee -c web/combined.coffee
+		cat $SIMULATION_FILES > web/simulation.coffee 
+		cat $FRONTEND_FILES   > web/frontend.coffee
+		coffee -c web/simulation.coffee
+		coffee -c web/frontend.coffee
+		echo rebuilt the web files
 
 	case quadtree_test
 		cat $BACKEND_FILES test/quadtree.test > combined.coffee
@@ -15,7 +23,11 @@ switch $argv[1]
 	case debug
 		cat $MAIN_FILES test/debugSimulation.coffee > combined.coffee
 		coffee combined.coffee
+
+	case clear
+		rm web/*.coffee
+		rm web/*.js
 		
 	case '*'
-	    echo I need a command
+	    echo Unrecognized command
 end

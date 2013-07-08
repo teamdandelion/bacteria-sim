@@ -1,10 +1,5 @@
-
-test.coffee
-
-combined.coffee
-
-testBlob.coffee
-
-combined.js
-
+web/*js
+web/*coffee
+test/*
 *.DS_Store
+
