@@ -5,9 +5,9 @@
   C = (function() {
     function C() {}
 
-    C.X_BOUND = 1000;
+    C.X_BOUND = $(window).width();
 
-    C.Y_BOUND = 500;
+    C.Y_BOUND = $(window).height();
 
     C.DISPLAY_BOUND = 0;
 
@@ -33,7 +33,7 @@
 
     C.MOVEMENT_SPEED_FACTOR = .3;
 
-    C.PHO_EPS = .1;
+    C.PHO_EPS = .05;
 
     C.PHO_SQ_EPS = .15;
 
@@ -43,7 +43,7 @@
 
     C.SPD_EPS = 0;
 
-    C.AGE_ENERGY_DECAY = 1;
+    C.AGE_ENERGY_DECAY = .5;
 
     C.RADIUS_FACTOR = .1;
 
@@ -274,15 +274,15 @@
         });
       };
       addSlider('REPR_ENERGY_COST', 100, 2000);
-      addSlider('PHO_EPS', -1.0, 1.0);
-      addSlider('PHO_SQ_EPS', 0, .1);
+      addSlider('PHO_EPS', 0, 1.0);
+      addSlider('PHO_SQ_EPS', 0, .2);
       addSlider('ATK_EPS', -1.0, 1.0);
       addSlider('ATK_SQ_EPS', -.2, .2);
       addSlider('BLOB_SIZE', 0.1, 5);
       addSlider('MUTATION_CONSTANT', .01, 1);
       addSlider('MUTATION_PROBABILITY', 0, .5);
       addSlider('ENERGY_DECAY', 0, .1);
-      addSlider('AGE_ENERGY_DECAY', 0, .1);
+      addSlider('AGE_ENERGY_DECAY', 0, 1);
       gui.add(opt, 'Kill all blobs');
       gui.add(opt, 'Add a blob');
       gui.add(opt, 'Kill most blobs');

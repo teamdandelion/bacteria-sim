@@ -17,7 +17,14 @@ class ParameterManager
 
   randomize: () ->
     for name, config of @configs
-      @values[name] = Math.random() * (config.max - config.min) + config.minw
+      @values[name] = Math.random() * (config.max - config.min) + config.min
+
+  generateGui: () ->
+    @dat = new dat.GUI()
+
+  addSlider: (config) ->
+    addSlider
+
 
 
 
