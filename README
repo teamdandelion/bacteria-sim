@@ -1,8 +1,1 @@
 This is a Coffeescript / Processing.js project to simulate evolution in the browser.
-
-Abstract: There is a world of 'blobs' which have 4 principle attributes, determined by DNA:
-
-- Photosynthesis: Ability to continuously generate energy
-- Speed: Ability to move, at the expense of energy
-- Attack: Ability to damage other blobs, at the expense of energy
-- Efficency: Lower energy cost for all activities

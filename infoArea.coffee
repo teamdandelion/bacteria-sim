@@ -1,3 +1,5 @@
+# This code is not presently used
+
 class InfoArea
   constructor: (@p, @e) -> 
 
