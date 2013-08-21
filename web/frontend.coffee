@@ -164,11 +164,11 @@ class Renderer
 
 
 class Frontend
-  constructor: (@p) -> 
-    # assumption: The bounds of environment are 
-    # greater than the display bounds, so when 
+  constructor: (@p) ->
+    # assumption: The bounds of environment are
+    # greater than the display bounds, so when
     # blobs wrap around we don't need to worry about
-    # displaying them at both edges of the field 
+    # displaying them at both edges of the field
     # at teh same time
     @running = on
     @sim = new Worker 'simulation.js'
@@ -185,7 +185,7 @@ class Frontend
     @renderer = new Renderer(@, @p)
     @running = on
     $(window).resize(
-      () => 
+      () =>
         console.log "Resizing"
         C.X_BOUND = $(window).width()
         C.Y_BOUND = $(window).height()
@@ -193,7 +193,7 @@ class Frontend
         @updateConstants()
     )
 
-  updateConstants: () -> 
+  updateConstants: () ->
     newC = {}
     for k,v of C
       newC[k] = v
@@ -201,17 +201,17 @@ class Frontend
 
   setupGui: () ->
     opt = {}
-    opt['Kill all blobs'] = () => 
+    opt['Kill all blobs'] = () =>
       @sim.postMessage {type: 'killAllBlobs'}
-    opt['Kill most blobs'] = () => 
+    opt['Kill most blobs'] = () =>
       @sim.postMessage {type: 'killMostBlobs'}
-    opt['Add a blob'] = () =>
-      @sim.postMessage {type: 'addRandomBlob'}
+    opt['Add 50 blobs'] = () =>
+      @sim.postMessage {type: 'addBlobs', data: 50}
 
-    
+
     gui = new dat.GUI()
 
-    addSlider = (name, min, max, step) => 
+    addSlider = (name, min, max, step) =>
       step ?= (max-min)/100
       gui.add(C, name, min, max, step).onFinishChange(
         (newVal) => @updateConstants()
@@ -227,7 +227,7 @@ class Frontend
     addSlider('ENERGY_DECAY', 0, .1)
     addSlider('AGE_ENERGY_DECAY', 0, 1)
     gui.add(opt, 'Kill all blobs')
-    gui.add(opt, 'Add a blob')
+    gui.add(opt, 'Add 50 blobs')
     gui.add(opt, 'Kill most blobs')
 
     # if C.INFO_WINDOW then @infoArea = new InfoArea(@p, @env)
@@ -236,17 +236,17 @@ class Frontend
     @showShells = off
     @showReproduction = off
 
-  step: () -> 
+  step: () ->
     if @running
       @renderer.step()
 
-  requestUpdate: () -> 
+  requestUpdate: () ->
     @sim.postMessage {type: 'go'}
 
-  addBlobs: (n) -> 
+  addBlobs: (n) ->
     @sim.postMessage {type: 'addBlobs', data: n}
 
-  keyCode: (k) -> 
+  keyCode: (k) ->
     if k == 32 # 'space'
       @running = !@running
     if k == 78 # 'n'
@@ -256,7 +256,7 @@ class Frontend
     if k == 82 # 'r'
       @showReproduction = !@showReproduction
 
-  # mouseClick: (x, y) -> 
+  # mouseClick: (x, y) ->
   #   if C.INFO_WINDOW
   #     @env.observeBlob(x+100,y+100)
   #     if !@running
@@ -266,13 +266,13 @@ class Frontend
 
 
 
-      
 
-simulator_draw = (p) -> 
+
+simulator_draw = (p) ->
   frontend = new Frontend(p)
-  p.mouseClicked = () -> 
+  p.mouseClicked = () ->
     frontend.mouseClick(p.mouseX, p.mouseY)
-   
+
   p.setup = () ->
     p.frameRate(C.FRAME_RATE)
     p.size(C.X_BOUND, C.Y_BOUND)
@@ -281,11 +281,11 @@ simulator_draw = (p) ->
   p.draw = () ->
     frontend.step()
 
-  p.keyPressed = () -> 
+  p.keyPressed = () ->
     console.log p.keyCode
     frontend.keyCode(p.keyCode)
 
-# wait for the DOM to be ready, 
+# wait for the DOM to be ready,
 # create a processing instance...
 $(document).ready ->
   canvas = document.getElementById "processing"

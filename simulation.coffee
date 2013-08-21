@@ -3,7 +3,7 @@ class Simulation
     # Do nothing; we need to wait for an initialization message that contains the C (Constants) data object
     @initialized = off
 
-  initialize: () -> 
+  initialize: () ->
     @initialized = on
     @blobs = {}
     @qtree = new QuadTree(self.C.X_BOUND, self.C.Y_BOUND, self.C.QTREE_BUCKET_SIZE)
@@ -21,16 +21,16 @@ class Simulation
       when "go"
         @step()
         @postBlobData()
-        
+
       when "killAllBlobs"
         @killAllBlobs()
 
       when "killMostBlobs"
         @killMostBlobs()
-      
+
       when "addRandomBlob"
         @addRandomBlob()
-      
+
       when "addBlobs"
         for i in [0..msg.data]
           @addRandomBlob()
@@ -62,7 +62,7 @@ class Simulation
     }
     postMessage(msg)
 
-  observeBlob: (xCoord, yCoord) -> 
+  observeBlob: (xCoord, yCoord) ->
     console.log "Called observeBlob with " + xCoord + "," + yCoord
     clickLocation = new Vector2D(xCoord, yCoord)
     # find closest blob to the click
@@ -112,13 +112,13 @@ class Simulation
     targetPos = @qtree.id2point[targetID]
     Vector2D.subtract(targetPos, sourcePos).heading()
 
-  moveBlob: (blobID, heading, moveAmt) -> 
+  moveBlob: (blobID, heading, moveAmt) ->
     sourcePos = @qtree.id2point[blobID]
     moveVector = Vector2D.headingVector(heading).multiply(moveAmt)
     newPos = moveVector.add(sourcePos)
     newPos.constrainToBound(self.C.X_BOUND, self.C.Y_BOUND)
     @qtree.moveObject(blobID, newPos)
-    
+
 
   addBlob: (position, energy, geneCode) ->
     b = new Blob(@, @nextBlobId, energy, geneCode, position)
@@ -128,11 +128,11 @@ class Simulation
     @nextBlobId++
     @nBlobs++
 
-  addRandomBlob: () -> 
+  addRandomBlob: () ->
     pos = Vector2D.randomBoundedVector(0, self.C.X_BOUND, 0, self.C.Y_BOUND)
     @addBlob(pos, self.C.STARTING_ENERGY)
 
-  addChildBlob: (parentID, childEnergy, childGenes) -> 
+  addChildBlob: (parentID, childEnergy, childGenes) ->
     parentPosition = @qtree.id2point[parentID]
     parentRadius = @blobs[parentID].rad
     parentSpeed = @blobs[parentID].spd
@@ -160,7 +160,7 @@ class Simulation
       unless Math.random() < .05
         @removeBlob(blobID)
 
-  isAlive: (blobID) -> 
+  isAlive: (blobID) ->
     blobID of @blobs
 
   blobDistSq: (blob1, blob2) ->
@@ -178,6 +178,6 @@ self.postDebug = (msg) ->
   }
 
 sim = new Simulation()
-@onmessage = (event) => 
+@onmessage = (event) =>
   sim.processMessage(event.data)
 
