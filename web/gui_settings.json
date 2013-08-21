@@ -10,16 +10,16 @@
   "ATK_EPS": {
     "descriptiveName": "Attack Energy/Sec",
     "maxValue": 1.0,
-    "minValue": -1.0,
-    "value": -0.5,
+    "minValue": 0.0,
+    "value": 0.5,
     "valueType": "Number",
     "variableName": "ATK_EPS"
   },
   "ATK_SQ_EPS": {
     "descriptiveName": "Attack^2 Energy/Sec",
     "maxValue": 1.0,
-    "minValue": -1.0,
-    "value": -0.1,
+    "minValue": 0.0,
+    "value": 0.1,
     "valueType": "Number",
     "variableName": "ATK_SQ_EPS"
   },
@@ -59,7 +59,7 @@
     "descriptiveName": "Photosynthesis Energy/Sec",
     "maxValue": 1.0,
     "minValue": -0.5,
-    "value": 0.1,
+    "value": 0.5,
     "valueType": "Number",
     "variableName": "PHO_EPS"
   },
@@ -67,7 +67,7 @@
     "descriptiveName": "Photosynthesis^2 Energy/Sec",
     "maxValue": 1.0,
     "minValue": 0.0,
-    "value": 0.03,
+    "value": 0.1,
     "valueType": "Number",
     "variableName": "PHO_SQ_EPS"
   },

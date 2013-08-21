@@ -42,23 +42,30 @@ class Frontend
 
   setupGui: () ->
     opt = {}
-    opt['Kill all blobs'] = () =>
+    opt['Kill all blobs'] = =>
       @sim.postMessage {type: 'killAllBlobs'}
-    opt['Kill most blobs'] = () =>
+    opt['Kill most blobs'] = =>
       @sim.postMessage {type: 'killMostBlobs'}
-    opt['Add 50 blobs'] = () =>
+    opt['Add 50 blobs'] = =>
       @sim.postMessage {type: 'addBlobs', data: 50}
+    opt['Randomize environment'] = =>
+      for varName, valueDict of @guiSettings
+        min = valueDict.minValue
+        max = valueDict.maxValue
+        @C[varName] = min + Math.random() * (max - min)
+      @updateConstants()
 
 
     gui = new dat.GUI()
     console.log(@C)
     for varName, vals of @guiSettings
       if vals.valueType == "Number"
-        gui.add(@C, varName).min(vals.minValue).max(vals.maxValue).onFinishChange( () => @updateConstants())
+        gui.add(@C, varName).min(vals.minValue).max(vals.maxValue).listen().onFinishChange( () => @updateConstants())
 
     gui.add(opt, 'Kill all blobs')
     gui.add(opt, 'Add 50 blobs')
     gui.add(opt, 'Kill most blobs')
+    gui.add(opt, 'Randomize environment')
 
     # if @C.INFO_WINDOW then @infoArea = new InfoArea(@p, @env)
 

@@ -29,7 +29,7 @@ class Blob
   calculateEnergyAndRadius: () ->
     @efficiencyFactor = 1 - (@eff / 100) * .75
     @energyPerSecond  =  @pho * (@pho * self.C.PHO_SQ_EPS + self.C.PHO_EPS)
-    @energyPerSecond += (@atk * (@atk * self.C.ATK_SQ_EPS + self.C.ATK_EPS)) * @efficiencyFactor
+    @energyPerSecond -= (@atk * (@atk * self.C.ATK_SQ_EPS + self.C.ATK_EPS)) * @efficiencyFactor
     @energyPerSecond += @spd * self.C.SPD_EPS * @efficiencyFactor
     @energyPerSecond -= self.C.AGE_ENERGY_DECAY * @age * @age
     @attackPower = @atk*@atk
