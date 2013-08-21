@@ -1,4 +1,4 @@
-import json
+import json, os
 
 def parse_gui_settings():
   outDict = {}
@@ -11,8 +11,8 @@ def parse_gui_settings():
         DefaultValue = float(DefaultValue)
         MinValue = float(MinValue)
         MaxValue = float(MaxValue)
-      subDict = {"DescriptiveName": DescriptiveName,  "VariableName": VariableName,
-                 "ValueType": ValueType,  "DefaultValue": DefaultValue,  "MinValue": MinValue,  "MaxValue": MaxValue}
+      subDict = {"descriptiveName": DescriptiveName,  "variableName": VariableName,
+                 "valueType": ValueType,  "value": DefaultValue,  "minValue": MinValue,  "maxValue": MaxValue}
       outDict[VariableName] = subDict
   writeToJson(outDict, "gui_settings.json")
 
@@ -25,6 +25,8 @@ def parse_non_gui_settings():
       [VariableName, Type, Value] = vals
       if Type == "Number":
         Value = float(Value)
+      elif Type == "Boolean":
+        Value = True if Value == "true" else False
       outDict[VariableName] = Value
   writeToJson(outDict, "non_gui_settings.json")
 
@@ -35,5 +37,6 @@ def writeToJson(dict2Json, file_name):
     f.write(outStr)
 
 if __name__ == '__main__':
+  os.chdir("settings")
   parse_gui_settings()
   parse_non_gui_settings()

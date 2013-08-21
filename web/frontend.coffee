@@ -1,51 +1,10 @@
-class C
-  # Environment variables
-
-  @X_BOUND = $(window).width()
-  @Y_BOUND = $(window).height()
-  @DISPLAY_BOUND = 0
-  @INFO_WINDOW = off # change display bound if you turn this on
-  
-  @TWO_TRADEOFF = off
-  @HARSH_REPRODUCTION = off
-
-  @NEIGHBOR_DISTANCE = 20
-  @CHILD_DISTANCE    = 20
-  @ATTACK_MARGIN     = 100
-  @STARTING_ENERGY   = 200
-  @STARTING_BLOBS    = 100
-  
-  # Blob variables
-  @MOVEMENT_PER_ENERGY = 100
-
-  @REPR_ENERGY_COST    = 2000
-  @MOVEMENT_SPEED_FACTOR = .3
-  @PHO_EPS =  .05
-  @PHO_SQ_EPS = .15
-  @ATK_EPS = -.5
-  @ATK_SQ_EPS = 0
-  @SPD_EPS = 0
-  @AGE_ENERGY_DECAY = .5
-  @RADIUS_FACTOR = .1
-  @RADIUS_CONSTANT = 1 
-  @BLOB_SIZE = 1.0 # single scaling factor
-  @ENERGY_DECAY = .005
-  @REPR_TIME_REQUIREMENT = 7
-
-  @MUTATION_PROBABILITY = .1
-  @MUTATION_CONSTANT = .5
-
-  # Backend variables
-  @QTREE_BUCKET_SIZE = 50
-  @FRAME_RATE = 60
-  @MOVE_UPDATE_AMT = 5
 WAIT_FACTOR = 1.1
 
 class Renderer
   # Renders blobs
   constructor: (@frontend, @p) ->
     @frames = 0
-    @frameRate = C.FRAME_RATE
+    @frameRate = @frontend.C.FRAME_RATE
     @framesUntilUpdate = 1
     @colors = {} # map from ID -> [r,g,b]
     @futureColors = {}
@@ -79,10 +38,10 @@ class Renderer
     unless @thunks
       @drawAll()
 
-  drawBlob: (state, color) -> 
+  drawBlob: (state, color) ->
     [x,y,r] = state
     [red, grn, blu] = color
-    
+
     @p.noStroke()
     @p.fill(red,grn,blu)
     @p.ellipse(x, y, 2*r, 2*r)
@@ -103,17 +62,16 @@ class Renderer
     @frontend.requestUpdate()
 
   receiveUpdate: (@update) ->
-    # console.log "Got update"
     @timeElapsed = Date.now() - @requestTime
     @updateAvailable = yes
 
 
-  processUpdate: () -> 
+  processUpdate: () ->
     @updateAvailable = no
     @requestUpdate()
     @currentState = @futureState
     # The current state for this turn is the last turn's future state
-    # The reason for doing this instead of continuing to update the 
+    # The reason for doing this instead of continuing to update the
     # currentState instance we already have is that float addition
     # errors might grow over time so that the renderer would go out
     # of sync with the simulation
@@ -122,18 +80,14 @@ class Renderer
     addedBlobs    = @update.added   # {id -> color}
 
 
-
-
-
-
     for id, c of addedBlobs
       @colors[id] = c
-    for id in @removedLastStep 
+    for id in @removedLastStep
     # We don't remove the color on the turn in which they're removed, becuse
     # we need to render them getting smaller. After they've visually disappeared,
     # we delete from the dict to avoid a memory leak
       delete @colors[id]
-      
+
 
     @framesUntilUpdate = Math.ceil(WAIT_FACTOR * @timeElapsed / @frameRate)
     if @framesUntilUpdate < 4
@@ -156,15 +110,15 @@ class Renderer
 
         dr = -@currentState[id][2] / @framesUntilUpdate
         @delta[id] = [0,0,dr]
-      else 
+      else
         # This generally means that a blog was added and died within a single update
-        console.log "blob #{id} was listed as removed but not found in state" 
+        console.log "blob #{id} was listed as removed but not found in state"
     @removedLastStep = removedBlobs
 
 
 
 class Frontend
-  constructor: (@p) ->
+  constructor: (@p, @guiSettings, @nonGuiSettings) ->
     # assumption: The bounds of environment are
     # greater than the display bounds, so when
     # blobs wrap around we don't need to worry about
@@ -178,26 +132,32 @@ class Frontend
           @renderer.receiveUpdate(event.data)
         when 'debug'
           console.log event.data.msg
+
+    @C = {}
+    for k,v of @nonGuiSettings
+      @C[k] = v
+    for k, d of @guiSettings
+      @C[k] = d.value
+    @C.X_BOUND = $(window).width()
+    @C.Y_BOUND = $(window).height()
     @updateConstants() # This initializes the simulation with the constants we are using
     # It's required for the sim to start operating
     @setupGui()
-    @addBlobs(C.STARTING_BLOBS)
+    @addBlobs(@C.STARTING_BLOBS)
     @renderer = new Renderer(@, @p)
     @running = on
     $(window).resize(
       () =>
         console.log "Resizing"
-        C.X_BOUND = $(window).width()
-        C.Y_BOUND = $(window).height()
-        @p.size(C.X_BOUND, C.Y_BOUND)
+        @C.X_BOUND = $(window).width()
+        @C.Y_BOUND = $(window).height()
+        @p.size(@C.X_BOUND, @C.Y_BOUND)
         @updateConstants()
     )
 
   updateConstants: () ->
-    newC = {}
-    for k,v of C
-      newC[k] = v
-    @sim.postMessage {type: 'updateConstants', data: newC}
+    console.log("Called update constants")
+    @sim.postMessage {type: 'updateConstants', data: @C}
 
   setupGui: () ->
     opt = {}
@@ -210,27 +170,16 @@ class Frontend
 
 
     gui = new dat.GUI()
+    console.log(@C)
+    for varName, vals of @guiSettings
+      if vals.valueType == "Number"
+        gui.add(@C, varName).min(vals.minValue).max(vals.maxValue).onFinishChange( () => @updateConstants())
 
-    addSlider = (name, min, max, step) =>
-      step ?= (max-min)/100
-      gui.add(C, name, min, max, step).onFinishChange(
-        (newVal) => @updateConstants()
-        )
-    addSlider('REPR_ENERGY_COST', 100, 2000)
-    addSlider('PHO_EPS', 0, 1.0)
-    addSlider('PHO_SQ_EPS', 0, .2)
-    addSlider('ATK_EPS', -1.0, 1.0)
-    addSlider('ATK_SQ_EPS', -.2, .2)
-    addSlider('BLOB_SIZE', 0.1, 5)
-    addSlider('MUTATION_CONSTANT', .01, 1)
-    addSlider('MUTATION_PROBABILITY', 0, .5)
-    addSlider('ENERGY_DECAY', 0, .1)
-    addSlider('AGE_ENERGY_DECAY', 0, 1)
     gui.add(opt, 'Kill all blobs')
     gui.add(opt, 'Add 50 blobs')
     gui.add(opt, 'Kill most blobs')
 
-    # if C.INFO_WINDOW then @infoArea = new InfoArea(@p, @env)
+    # if @C.INFO_WINDOW then @infoArea = new InfoArea(@p, @env)
 
     @showNucleus = off
     @showShells = off
@@ -257,7 +206,7 @@ class Frontend
       @showReproduction = !@showReproduction
 
   # mouseClick: (x, y) ->
-  #   if C.INFO_WINDOW
+  #   if @C.INFO_WINDOW
   #     @env.observeBlob(x+100,y+100)
   #     if !@running
   #       @drawAll()
@@ -268,14 +217,14 @@ class Frontend
 
 
 
-simulator_draw = (p) ->
-  frontend = new Frontend(p)
+processingSetup = (p) ->
+  frontend = new Frontend(p, window.HACKHACK.guiSettings, window.HACKHACK.nonGuiSettings)
   p.mouseClicked = () ->
     frontend.mouseClick(p.mouseX, p.mouseY)
 
   p.setup = () ->
-    p.frameRate(C.FRAME_RATE)
-    p.size(C.X_BOUND, C.Y_BOUND)
+    p.frameRate(frontend.C.FRAME_RATE)
+    p.size(frontend.C.X_BOUND, frontend.C.Y_BOUND)
     p.background(0,20,90)
 
   p.draw = () ->
@@ -285,9 +234,15 @@ simulator_draw = (p) ->
     console.log p.keyCode
     frontend.keyCode(p.keyCode)
 
+
 # wait for the DOM to be ready,
 # create a processing instance...
 $(document).ready ->
-  canvas = document.getElementById "processing"
-
-  processing = new Processing(canvas, simulator_draw)
+  canvas = $("#processing")[0]
+  window.HACKHACK = {}
+  window.HACKHACK.tryContinue = ->
+    if window.HACKHACK.guiSettings? and window.HACKHACK.nonGuiSettings?
+      processing = new Processing(canvas, processingSetup)
+      window.HACKHACK = null
+  $.getJSON("gui_settings.json",     (j) => window.HACKHACK.guiSettings    = j; window.HACKHACK.tryContinue())
+  $.getJSON("non_gui_settings.json", (j) => window.HACKHACK.nonGuiSettings = j; window.HACKHACK.tryContinue())

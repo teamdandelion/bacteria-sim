@@ -9,4 +9,4 @@ BLOB_SIZE, Cell Size, Number, 1.0, 0.05, 5.0
 MUTATION_CONSTANT, Mutation size, Number, 0.3, 0.01, 1.0
 MUTATION_PROBABILITY, Mutation frequency, Number, 0.05, 0.0, 1.0
 ENERGY_DECAY, Energy decay, Number, 0.03, 0, 0.2
-AGE_ENERGY_DEACY, Old age decay, Number, 0.3, 0.0, 3.0
+AGE_ENERGY_DECAY, Old age decay, Number, 0.3, 0.0, 3.0

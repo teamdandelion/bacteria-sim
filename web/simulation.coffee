@@ -169,7 +169,7 @@ class Vector2D
 class QuadTree
   """Maintain a QuadTree of objects on a 2D space.
   Each object is represented by a unique id and has an associated 2D point.
-  Maps from IDs to Vector2D points, and back. 
+  Maps from IDs to Vector2D points, and back.
   Points do not uniquely identify an Id,Point combo because
   multiple IDs may share the same location. IDs
   must be unique.
@@ -189,7 +189,7 @@ class QuadTree
     @tree.addPoint(id, point)
     ++@numPoints
 
-  removeObject: (id) -> 
+  removeObject: (id) ->
     unless id of @id2point
       throw Error("Tried to remove ID that isn't in map")
     p = @id2point[id]
@@ -202,16 +202,16 @@ class QuadTree
     @addObject(id, newPoint)
     # Placeholder
 
-  calculateDistance: (id1, id2) -> 
+  calculateDistance: (id1, id2) ->
     p1 = @id2point[id1]
     p2 = @id2point[id2]
     p1.eucl_distance(p2)
 
-  circleQuery: (centerPoint, radius) -> 
+  circleQuery: (centerPoint, radius) ->
     """Returns a list of all object IDs that fall within the circle"""
-    @tree.circleQuery centerPoint, radius, radius*radius    
+    @tree.circleQuery centerPoint, radius, radius*radius
 
-  approximateCircleQuery: (centerPoint, radius) -> 
+  approximateCircleQuery: (centerPoint, radius) ->
     """Returns a list of all object IDs that fall in nodes that intersect the circle"""
     @tree.approximateCircleQuery centerPoint, radius, radius*radius
 
@@ -239,7 +239,7 @@ class QTNode
     @corners = [MM, MP, PM, PP]
 
   addPoint: (id, p) ->
-    @nPoints++ # Edge case - can nPoints go wrong if colliding IDs are added to QT? 
+    @nPoints++ # Edge case - can nPoints go wrong if colliding IDs are added to QT?
     @points[id] = p
     if @leaf
       if @nPoints > @bucketSize
@@ -254,19 +254,19 @@ class QTNode
       idx = 2 * (p.x > @x) + (p.y > @y)
       @children[idx].addPoint(id, p)
 
-  createChildren: () -> 
+  createChildren: () ->
     if @children?
       throw new Error("Non-leaf node tried to make children")
     newXEdge = @xEdge / 2
     newYEdge = @yEdge / 2
     if @depth > 4000
-      console.log @points
+      self.postDebug @points
     MM = new QTNode(@x - newXEdge, @y - newYEdge, newXEdge, newYEdge, @bucketSize, @depth+1)
     MP = new QTNode(@x - newXEdge, @y + newYEdge, newXEdge, newYEdge, @bucketSize, @depth+1)
     PM = new QTNode(@x + newXEdge, @y - newYEdge, newXEdge, newYEdge, @bucketSize, @depth+1)
     PP = new QTNode(@x + newXEdge, @y + newYEdge, newXEdge, newYEdge, @bucketSize, @depth+1)
     @children = [MM, MP, PM, PP]
-      
+
 
   removePoint: (id, p) ->
     unless id of @points
@@ -277,7 +277,7 @@ class QTNode
       idx = 2 * (p.x > @x) + (p.y > @y)
       @children[idx].removePoint(id, p)
 
-  nearbyPoints: (centerPoint, maxDist) -> 
+  nearbyPoints: (centerPoint, maxDist) ->
     if @leaf
       distSq = maxDist * maxDist
       parent = @parent ? @
@@ -301,9 +301,9 @@ class QTNode
     minDist2Corner = Math.min (centerPoint.distSq c for c in @corners)...
     intersect ||= minDist2Corner <= radiusSq
     if intersect
-      if @leaf 
+      if @leaf
         (id for id, pt of @points when centerPoint.distSq(pt) <= radiusSq)
-      else 
+      else
         [].concat (c.circleQuery(centerPoint, radius, radiusSq) for c in @children)...
     else
       []
@@ -317,14 +317,14 @@ class QTNode
     minDist2Corner = Math.min (centerPoint.distSq c for c in @corners)...
     intersect ||= minDist2Corner <= radiusSq
     if intersect
-      if @leaf 
+      if @leaf
         (id for id, pt of @points)
-      else 
+      else
         [].concat (c.approximateCircleQuery(centerPoint, radius, radiusSq) for c in @children)...
     else
       []
 
-    
+
 ALWAYS_REPRODUCE = off
 
 class GeneCode
@@ -480,7 +480,7 @@ class Gene
       @val = Math.min @val, @max
     this
 class Blob
-  constructor: (@simulation, @id, @energy=0, @geneCode, @pos) -> 
+  constructor: (@simulation, @id, @energy=0, @geneCode, @pos) ->
     @age = 0
     @id += '' #coerce to string to avoid equality issues
     @geneCode ?= new GeneCode()
@@ -501,7 +501,7 @@ class Blob
 
     @currentHeading = null
     @maxMovement = @spd * self.C.MOVEMENT_SPEED_FACTOR
-    @stepsUntilNextAction = 0 
+    @stepsUntilNextAction = 0
     @stepsUntilNextQuery = 0
     @alive = on
     @neighborDists = {}
@@ -523,7 +523,7 @@ class Blob
 
   preStep: () ->
     """One full step of simulation for this blob.
-    Attackables: Everything which is adjacent and close enough to 
+    Attackables: Everything which is adjacent and close enough to
     auto-attack. These are passed by the simulation"""
     @attackedThisTurn = {}
     @attackEnergyThisTurn = 0
@@ -538,13 +538,13 @@ class Blob
     list of blobs. Querying only once every 10 steps, so force-recalc
     distance for each neighbor everytime."""
     if @stepsUntilNextQuery <= 0
-      @neighbors = @simulation.getNeighbors(@id) 
+      @neighbors = @simulation.getNeighbors(@id)
       @stepsUntilNextQuery = 10
     else
       @neighbors = (n for n in @neighbors when n.alive)
       @stepsUntilNextQuery--
     # Return list of blobs
-    
+
   getObservables: () ->
     for n in @neighbors
       if @neighborDists[n.id]?
@@ -557,7 +557,7 @@ class Blob
 
     ([n, @neighborDists[n.id][0]] for n in @neighbors)
 
-  chooseAction: () -> 
+  chooseAction: () ->
     if @maintainCurrentAction > 0
       if @action.type == "hunt" and not @simulation.isAlive(@huntTarget.id)
         #when a target dies, stop hunting it and do something else
@@ -577,19 +577,19 @@ class Blob
 
     # reproduction maintenance is handled in reproduction code
     # -1 signals to repr code to check viability and put timeline if viable
-    # this is so that if a cell 
+    # this is so that if a cell
 
   handleMovement: () ->
     if @action.type is "hunt"
       if @action.argument?
-        # Let's set heading as the vector pointing towards target 
-        [targetBlob, distance] = @action.argument 
+        # Let's set heading as the vector pointing towards target
+        [targetBlob, distance] = @action.argument
         heading = @simulation.getHeading(@id, targetBlob.id)
         moveAmt = distance - 3 #will be further constrained by avail. energy and speed
         @wandering = null
       else
         # If we don't have a current heading, set it randomly
-        # This way hunters move randomly but with determination when 
+        # This way hunters move randomly but with determination when
         # looking for prey
         # Conversely if they just lost sight of their prey they will
         # keep in the same direction
@@ -598,7 +598,7 @@ class Blob
         moveAmt = @maxMovement
 
     else if @action.type is "flee" and @action.argument?
-      [targetBlob, distance] = @action.argument 
+      [targetBlob, distance] = @action.argument
       heading = @simulation.getHeading(@id, targetBlob.id)
       heading = Vector2D.negateHeading(heading)
       moveAmt = @maxMovement
@@ -621,18 +621,18 @@ class Blob
           aBlob.numAttacks++
           # I attack them
           amt = Math.min(attackDelta, aBlob.energy)
-          # if @observed? or aBlob.observed? 
-            # console.log "#{@id} attacking #{aBlob.id} for #{amt}"
+          # if @observed? or aBlob.observed?
+            # self.postDebug "#{@id} attacking #{aBlob.id} for #{amt}"
 
           @energy += amt
           @attackEnergyThisTurn += amt
           aBlob.energy -= attackDelta + 5
           aBlob.attackEnergyThisTurn -= attackDelta + 5
     if isNaN(@attackEnergyThisTurn)
-      console.log @
-      console.log "NAN attack energy"
+      self.postDebug @
+      self.postDebug "NAN attack energy"
 
-  wrapUp: (@pos) -> 
+  wrapUp: (@pos) ->
     # hack: pass in position as an attribute so we can draw conveniently
     if @action.type is "repr"
       if @maintainCurrentAction == 0
@@ -656,7 +656,7 @@ class Blob
 
   reproduce: (childEnergy) ->
     if @energy <= self.C.REPR_ENERGY_COST
-      if self.C.HARSH_REPRODUCTION then @energy -= self.C.REPR_ENERGY_COST / 2 
+      if self.C.HARSH_REPRODUCTION then @energy -= self.C.REPR_ENERGY_COST / 2
       return
     if childEnergy > (@energy-self.C.REPR_ENERGY_COST)/2
       if self.C.HARSH_REPRODUCTION then @energy -= self.C.REPR_ENERGY_COST / 2
@@ -704,6 +704,7 @@ class Simulation
 
       when "updateConstants"
         self.C = msg.data
+        self.postDebug(self.C)
         unless @initialized
           @initialize()
         if self.C.X_BOUND != @qtree.xBound or self.C.Y_BOUND != @qtree.yBound
@@ -730,7 +731,7 @@ class Simulation
     postMessage(msg)
 
   observeBlob: (xCoord, yCoord) ->
-    console.log "Called observeBlob with " + xCoord + "," + yCoord
+    self.postDebug "Called observeBlob with " + xCoord + "," + yCoord
     clickLocation = new Vector2D(xCoord, yCoord)
     # find closest blob to the click
     if @observedBlob?
@@ -743,8 +744,8 @@ class Simulation
     if selected? and selected[1] < selected[0].rad + 10 and selected[0].id != prevId
       selected = selected[0]
       @observedBlob = selected
-      console.log "Observing blob:" + @observedBlob.id
-      # console.log @observedBlob
+      self.postDebug "Observing blob:" + @observedBlob.id
+      # self.postDebug @observedBlob
       @observedBlob.observed = on
 
   step: () ->
@@ -797,6 +798,7 @@ class Simulation
 
   addRandomBlob: () ->
     pos = Vector2D.randomBoundedVector(0, self.C.X_BOUND, 0, self.C.Y_BOUND)
+    self.postDebug(self.C.STARTING_ENERGY)
     @addBlob(pos, self.C.STARTING_ENERGY)
 
   addChildBlob: (parentID, childEnergy, childGenes) ->
@@ -839,7 +841,7 @@ class Simulation
     Math.sqrt @blobDistSq(blob1, blob2)
 
 self.postDebug = (msg) ->
-  postMessage {
+  self.postMessage {
     type: 'debug'
     msg: msg
   }
