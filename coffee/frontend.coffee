@@ -54,8 +54,15 @@ class Frontend
         max = valueDict.maxValue
         @C[varName] = min + Math.random() * (max - min)
       @updateConstants()
-
-
+    opt['Shift environment'] = =>
+      for varName, valueDict of @guiSettings
+        min = valueDict.minValue
+        max = valueDict.maxValue
+        movement = (max-min) * .05 * (Math.random() * 2 - 1)
+        @C[varName] += movement
+        if @C[varName] < min then @C[varName] = min
+        if @C[varName] > max then @C[varName] = max
+      @updateConstants()
     gui = new dat.GUI()
     console.log(@C)
     for varName, vals of @guiSettings
@@ -66,6 +73,7 @@ class Frontend
     gui.add(opt, 'Add 50 blobs')
     gui.add(opt, 'Kill most blobs')
     gui.add(opt, 'Randomize environment')
+    gui.add(opt, 'Shift environment')
 
     # if @C.INFO_WINDOW then @infoArea = new InfoArea(@p, @env)
 
