@@ -1,5 +1,5 @@
 class Blob
-  constructor: (@simulation, @id, @energy=0, @geneCode, @pos) -> 
+  constructor: (@simulation, @id, @energy=0, @geneCode, @pos) ->
     @age = 0
     @id += '' #coerce to string to avoid equality issues
     @geneCode ?= new GeneCode()
@@ -20,7 +20,7 @@ class Blob
 
     @currentHeading = null
     @maxMovement = @spd * self.C.MOVEMENT_SPEED_FACTOR
-    @stepsUntilNextAction = 0 
+    @stepsUntilNextAction = 0
     @stepsUntilNextQuery = 0
     @alive = on
     @neighborDists = {}
@@ -29,7 +29,7 @@ class Blob
   calculateEnergyAndRadius: () ->
     @efficiencyFactor = 1 - (@eff / 100) * .75
     @energyPerSecond  =  @pho * (@pho * self.C.PHO_SQ_EPS + self.C.PHO_EPS)
-    @energyPerSecond += (@atk * (@atk * self.C.ATK_SQ_EPS + self.C.ATK_EPS)) * @efficiencyFactor
+    @energyPerSecond -= (@atk * (@atk * self.C.ATK_SQ_EPS + self.C.ATK_EPS)) * @efficiencyFactor
     @energyPerSecond += @spd * self.C.SPD_EPS * @efficiencyFactor
     @energyPerSecond -= self.C.AGE_ENERGY_DECAY * @age * @age
     @attackPower = @atk*@atk
@@ -42,7 +42,7 @@ class Blob
 
   preStep: () ->
     """One full step of simulation for this blob.
-    Attackables: Everything which is adjacent and close enough to 
+    Attackables: Everything which is adjacent and close enough to
     auto-attack. These are passed by the simulation"""
     @attackedThisTurn = {}
     @attackEnergyThisTurn = 0
@@ -57,13 +57,13 @@ class Blob
     list of blobs. Querying only once every 10 steps, so force-recalc
     distance for each neighbor everytime."""
     if @stepsUntilNextQuery <= 0
-      @neighbors = @simulation.getNeighbors(@id) 
+      @neighbors = @simulation.getNeighbors(@id)
       @stepsUntilNextQuery = 10
     else
       @neighbors = (n for n in @neighbors when n.alive)
       @stepsUntilNextQuery--
     # Return list of blobs
-    
+
   getObservables: () ->
     for n in @neighbors
       if @neighborDists[n.id]?
@@ -76,7 +76,7 @@ class Blob
 
     ([n, @neighborDists[n.id][0]] for n in @neighbors)
 
-  chooseAction: () -> 
+  chooseAction: () ->
     if @maintainCurrentAction > 0
       if @action.type == "hunt" and not @simulation.isAlive(@huntTarget.id)
         #when a target dies, stop hunting it and do something else
@@ -96,19 +96,19 @@ class Blob
 
     # reproduction maintenance is handled in reproduction code
     # -1 signals to repr code to check viability and put timeline if viable
-    # this is so that if a cell 
+    # this is so that if a cell
 
   handleMovement: () ->
     if @action.type is "hunt"
       if @action.argument?
-        # Let's set heading as the vector pointing towards target 
-        [targetBlob, distance] = @action.argument 
+        # Let's set heading as the vector pointing towards target
+        [targetBlob, distance] = @action.argument
         heading = @simulation.getHeading(@id, targetBlob.id)
         moveAmt = distance - 3 #will be further constrained by avail. energy and speed
         @wandering = null
       else
         # If we don't have a current heading, set it randomly
-        # This way hunters move randomly but with determination when 
+        # This way hunters move randomly but with determination when
         # looking for prey
         # Conversely if they just lost sight of their prey they will
         # keep in the same direction
@@ -117,7 +117,7 @@ class Blob
         moveAmt = @maxMovement
 
     else if @action.type is "flee" and @action.argument?
-      [targetBlob, distance] = @action.argument 
+      [targetBlob, distance] = @action.argument
       heading = @simulation.getHeading(@id, targetBlob.id)
       heading = Vector2D.negateHeading(heading)
       moveAmt = @maxMovement
@@ -140,18 +140,18 @@ class Blob
           aBlob.numAttacks++
           # I attack them
           amt = Math.min(attackDelta, aBlob.energy)
-          # if @observed? or aBlob.observed? 
-            # console.log "#{@id} attacking #{aBlob.id} for #{amt}"
+          # if @observed? or aBlob.observed?
+            # self.postDebug "#{@id} attacking #{aBlob.id} for #{amt}"
 
           @energy += amt
           @attackEnergyThisTurn += amt
           aBlob.energy -= attackDelta + 5
           aBlob.attackEnergyThisTurn -= attackDelta + 5
     if isNaN(@attackEnergyThisTurn)
-      console.log @
-      console.log "NAN attack energy"
+      self.postDebug @
+      self.postDebug "NAN attack energy"
 
-  wrapUp: (@pos) -> 
+  wrapUp: (@pos) ->
     # hack: pass in position as an attribute so we can draw conveniently
     if @action.type is "repr"
       if @maintainCurrentAction == 0
@@ -175,7 +175,7 @@ class Blob
 
   reproduce: (childEnergy) ->
     if @energy <= self.C.REPR_ENERGY_COST
-      if self.C.HARSH_REPRODUCTION then @energy -= self.C.REPR_ENERGY_COST / 2 
+      if self.C.HARSH_REPRODUCTION then @energy -= self.C.REPR_ENERGY_COST / 2
       return
     if childEnergy > (@energy-self.C.REPR_ENERGY_COST)/2
       if self.C.HARSH_REPRODUCTION then @energy -= self.C.REPR_ENERGY_COST / 2

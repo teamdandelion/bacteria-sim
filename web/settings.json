@@ -1,0 +1,82 @@
+{
+  "AGE_ENERGY_DEACY": {
+    "DefaultValue": 0.3,
+    "DescriptiveName": "Old age decay",
+    "MaxValue": 3.0,
+    "MinValue": 0.0,
+    "ValueType": "Number",
+    "VariableName": "AGE_ENERGY_DEACY"
+  },
+  "ATK_EPS": {
+    "DefaultValue": -0.5,
+    "DescriptiveName": "Attack Energy/Sec",
+    "MaxValue": 1.0,
+    "MinValue": -1.0,
+    "ValueType": "Number",
+    "VariableName": "ATK_EPS"
+  },
+  "ATK_SQ_EPS": {
+    "DefaultValue": -0.1,
+    "DescriptiveName": "Attack^2 Energy/Sec",
+    "MaxValue": 1.0,
+    "MinValue": -1.0,
+    "ValueType": "Number",
+    "VariableName": "ATK_SQ_EPS"
+  },
+  "BLOB_SIZE": {
+    "DefaultValue": 1.0,
+    "DescriptiveName": "Cell Size",
+    "MaxValue": 5.0,
+    "MinValue": 0.05,
+    "ValueType": "Number",
+    "VariableName": "BLOB_SIZE"
+  },
+  "ENERGY_DECAY": {
+    "DefaultValue": 0.03,
+    "DescriptiveName": "Energy decay",
+    "MaxValue": 0.2,
+    "MinValue": 0.0,
+    "ValueType": "Number",
+    "VariableName": "ENERGY_DECAY"
+  },
+  "MUTATION_CONSTANT": {
+    "DefaultValue": 0.3,
+    "DescriptiveName": "Mutation size",
+    "MaxValue": 1.0,
+    "MinValue": 0.01,
+    "ValueType": "Number",
+    "VariableName": "MUTATION_CONSTANT"
+  },
+  "MUTATION_PROBABILITY": {
+    "DefaultValue": 0.05,
+    "DescriptiveName": "Mutation frequency",
+    "MaxValue": 1.0,
+    "MinValue": 0.0,
+    "ValueType": "Number",
+    "VariableName": "MUTATION_PROBABILITY"
+  },
+  "PHO_EPS": {
+    "DefaultValue": 0.1,
+    "DescriptiveName": "Photosynthesis Energy/Sec",
+    "MaxValue": 1.0,
+    "MinValue": -0.5,
+    "ValueType": "Number",
+    "VariableName": "PHO_EPS"
+  },
+  "PHO_SQ_EPS": {
+    "DefaultValue": 0.03,
+    "DescriptiveName": "Photosynthesis^2 Energy/Sec",
+    "MaxValue": 1.0,
+    "MinValue": 0.0,
+    "ValueType": "Number",
+    "VariableName": "PHO_SQ_EPS"
+  },
+  "REPR_ENERGY_COST": {
+    "DefaultValue": 1000.0,
+    "DescriptiveName": "Reproduction Cost",
+    "MaxValue": 10000.0,
+    "MinValue": 100.0,
+    "ValueType": "Number",
+    "VariableName": "REPR_ENERGY_COST"
+  }
+}

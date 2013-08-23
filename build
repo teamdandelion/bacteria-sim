@@ -1,7 +1,7 @@
 #!/usr/local/bin/fish
-set BACKEND_FILES util.coffee vector.coffee quadtree.coffee
-set SIMULATION_FILES $BACKEND_FILES gene.coffee blob.coffee simulation.coffee
-set FRONTEND_FILES constants.coffee renderer.coffee frontend.coffee
+set BACKEND_FILES coffee/util.coffee coffee/vector.coffee coffee/quadtree.coffee
+set SIMULATION_FILES $BACKEND_FILES coffee/gene.coffee coffee/blob.coffee coffee/simulation.coffee
+set FRONTEND_FILES coffee/renderer.coffee coffee/frontend.coffee
 
 if test (count $argv) -eq 0
 	set arg web
@@ -10,10 +10,13 @@ else
 end
 switch $arg
 	case web
-		cat $SIMULATION_FILES > web/simulation.coffee 
+		cat $SIMULATION_FILES > web/simulation.coffee
 		cat $FRONTEND_FILES   > web/frontend.coffee
 		coffee -c web/simulation.coffee
 		coffee -c web/frontend.coffee
+		cp lib/* web/lib
+		python settings/process_settings.py
+		cp settings/*.json web
 		echo rebuilt the web files
 
 	case quadtree_test
@@ -27,7 +30,7 @@ switch $arg
 	case clear
 		rm web/*.coffee
 		rm web/*.js
-		
+
 	case '*'
 	    echo Unrecognized command
 end

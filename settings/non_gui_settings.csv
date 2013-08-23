@@ -1,0 +1,23 @@
+X_BOUND, Number, 0
+Y_BOUND, Number, 0
+INFO_WINDOW, Boolean, false
+TWO_TRADEOFF, Boolean, false
+HARSH_REPRODUCTION, Boolean, false
+NEIGHBOR_DISTANCE, Number, 20
+CHILD_DISTANCE, Number, 20
+ATTACK_MARGIN, Number, 100
+STARTING_ENERGY, Number, 200
+STARTING_BLOBS, Number, 100
+MOVEMENT_PER_ENERGY, Number, 100
+MOVEMENT_SPEED_FACTOR, Number, 0.3
+SPD_EPS, Number, 0.0
+
+DISPLAY_BOUND, Number, 0
+
+RADIUS_FACTOR, Number, 0.3
+RADIUS_CONSTANT, Number, 4
+
+# Backend variables
+QTREE_BUCKET_SIZE, Number, 50
+FRAME_RATE, Number, 60
+MOVE_UPDATE_AMT, Number, 5

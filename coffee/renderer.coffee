@@ -4,7 +4,7 @@ class Renderer
   # Renders blobs
   constructor: (@frontend, @p) ->
     @frames = 0
-    @frameRate = C.FRAME_RATE
+    @frameRate = @frontend.C.FRAME_RATE
     @framesUntilUpdate = 1
     @colors = {} # map from ID -> [r,g,b]
     @futureColors = {}
@@ -38,10 +38,10 @@ class Renderer
     unless @thunks
       @drawAll()
 
-  drawBlob: (state, color) -> 
+  drawBlob: (state, color) ->
     [x,y,r] = state
     [red, grn, blu] = color
-    
+
     @p.noStroke()
     @p.fill(red,grn,blu)
     @p.ellipse(x, y, 2*r, 2*r)
@@ -62,17 +62,16 @@ class Renderer
     @frontend.requestUpdate()
 
   receiveUpdate: (@update) ->
-    # console.log "Got update"
     @timeElapsed = Date.now() - @requestTime
     @updateAvailable = yes
 
 
-  processUpdate: () -> 
+  processUpdate: () ->
     @updateAvailable = no
     @requestUpdate()
     @currentState = @futureState
     # The current state for this turn is the last turn's future state
-    # The reason for doing this instead of continuing to update the 
+    # The reason for doing this instead of continuing to update the
     # currentState instance we already have is that float addition
     # errors might grow over time so that the renderer would go out
     # of sync with the simulation
@@ -81,18 +80,14 @@ class Renderer
     addedBlobs    = @update.added   # {id -> color}
 
 
-
-
-
-
     for id, c of addedBlobs
       @colors[id] = c
-    for id in @removedLastStep 
+    for id in @removedLastStep
     # We don't remove the color on the turn in which they're removed, becuse
     # we need to render them getting smaller. After they've visually disappeared,
     # we delete from the dict to avoid a memory leak
       delete @colors[id]
-      
+
 
     @framesUntilUpdate = Math.ceil(WAIT_FACTOR * @timeElapsed / @frameRate)
     if @framesUntilUpdate < 4
@@ -115,9 +110,9 @@ class Renderer
 
         dr = -@currentState[id][2] / @framesUntilUpdate
         @delta[id] = [0,0,dr]
-      else 
+      else
         # This generally means that a blog was added and died within a single update
-        console.log "blob #{id} was listed as removed but not found in state" 
+        console.log "blob #{id} was listed as removed but not found in state"
     @removedLastStep = removedBlobs
 
 

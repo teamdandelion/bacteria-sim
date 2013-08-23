@@ -249,7 +249,7 @@
   })();
 
   QuadTree = (function() {
-    "Maintain a QuadTree of objects on a 2D space.\nEach object is represented by a unique id and has an associated 2D point.\nMaps from IDs to Vector2D points, and back. \nPoints do not uniquely identify an Id,Point combo because\nmultiple IDs may share the same location. IDs\nmust be unique.\nNOTE: QuadTree may break if >bucketSize points have exact same coordinate\nSuggest fixing by adding tiny random disturbance to avoid this situation";
+    "Maintain a QuadTree of objects on a 2D space.\nEach object is represented by a unique id and has an associated 2D point.\nMaps from IDs to Vector2D points, and back.\nPoints do not uniquely identify an Id,Point combo because\nmultiple IDs may share the same location. IDs\nmust be unique.\nNOTE: QuadTree may break if >bucketSize points have exact same coordinate\nSuggest fixing by adding tiny random disturbance to avoid this situation";
     function QuadTree(xBound, yBound, bucketSize) {
       this.xBound = xBound;
       this.yBound = yBound;
@@ -379,7 +379,7 @@
       newXEdge = this.xEdge / 2;
       newYEdge = this.yEdge / 2;
       if (this.depth > 4000) {
-        console.log(this.points);
+        self.postDebug(this.points);
       }
       MM = new QTNode(this.x - newXEdge, this.y - newYEdge, newXEdge, newYEdge, this.bucketSize, this.depth + 1);
       MP = new QTNode(this.x - newXEdge, this.y + newYEdge, newXEdge, newYEdge, this.bucketSize, this.depth + 1);
@@ -733,7 +733,7 @@
     Blob.prototype.calculateEnergyAndRadius = function() {
       this.efficiencyFactor = 1 - (this.eff / 100) * .75;
       this.energyPerSecond = this.pho * (this.pho * self.C.PHO_SQ_EPS + self.C.PHO_EPS);
-      this.energyPerSecond += (this.atk * (this.atk * self.C.ATK_SQ_EPS + self.C.ATK_EPS)) * this.efficiencyFactor;
+      this.energyPerSecond -= (this.atk * (this.atk * self.C.ATK_SQ_EPS + self.C.ATK_EPS)) * this.efficiencyFactor;
       this.energyPerSecond += this.spd * self.C.SPD_EPS * this.efficiencyFactor;
       this.energyPerSecond -= self.C.AGE_ENERGY_DECAY * this.age * this.age;
       this.attackPower = this.atk * this.atk;
@@ -746,7 +746,7 @@
     };
 
     Blob.prototype.preStep = function() {
-      "One full step of simulation for this blob.\nAttackables: Everything which is adjacent and close enough to \nauto-attack. These are passed by the simulation";
+      "One full step of simulation for this blob.\nAttackables: Everything which is adjacent and close enough to\nauto-attack. These are passed by the simulation";
       var n;
       this.attackedThisTurn = {};
       this.attackEnergyThisTurn = 0;
@@ -872,8 +872,8 @@
         }
       }
       if (isNaN(this.attackEnergyThisTurn)) {
-        console.log(this);
-        return console.log("NAN attack energy");
+        self.postDebug(this);
+        return self.postDebug("NAN attack energy");
       }
     };
 
@@ -967,6 +967,7 @@
           break;
         case "updateConstants":
           self.C = msg.data;
+          self.postDebug(self.C);
           if (!this.initialized) {
             this.initialize();
           }
@@ -1009,7 +1010,7 @@
 
     Simulation.prototype.observeBlob = function(xCoord, yCoord) {
       var b, clickLocation, nearbyBlobs, prevId, selected;
-      console.log("Called observeBlob with " + xCoord + "," + yCoord);
+      self.postDebug("Called observeBlob with " + xCoord + "," + yCoord);
       clickLocation = new Vector2D(xCoord, yCoord);
       if (this.observedBlob != null) {
         prevId = this.observedBlob.id;
@@ -1030,7 +1031,7 @@
       if ((selected != null) && selected[1] < selected[0].rad + 10 && selected[0].id !== prevId) {
         selected = selected[0];
         this.observedBlob = selected;
-        console.log("Observing blob:" + this.observedBlob.id);
+        self.postDebug("Observing blob:" + this.observedBlob.id);
         return this.observedBlob.observed = true;
       }
     };
@@ -1113,6 +1114,7 @@
     Simulation.prototype.addRandomBlob = function() {
       var pos;
       pos = Vector2D.randomBoundedVector(0, self.C.X_BOUND, 0, self.C.Y_BOUND);
+      self.postDebug(self.C.STARTING_ENERGY);
       return this.addBlob(pos, self.C.STARTING_ENERGY);
     };
 
@@ -1185,7 +1187,7 @@
   })();
 
   self.postDebug = function(msg) {
-    return postMessage({
+    return self.postMessage({
       type: 'debug',
       msg: msg
     });
