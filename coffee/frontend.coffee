@@ -53,6 +53,8 @@ class Frontend
         min = valueDict.minValue
         max = valueDict.maxValue
         @C[varName] = min + Math.random() * (max - min)
+        if valueDict.valueType == "Integer"
+          @C[varName] = Math.round(@C[varName])
       @updateConstants()
     opt['Shift environment'] = =>
       for varName, valueDict of @guiSettings
@@ -62,12 +64,16 @@ class Frontend
         @C[varName] += movement
         if @C[varName] < min then @C[varName] = min
         if @C[varName] > max then @C[varName] = max
+        if valueDict.valueType == "Integer"
+          @C[varName] = Math.round(@C[varName])
       @updateConstants()
     gui = new dat.GUI()
-    console.log(@C)
     for varName, vals of @guiSettings
       if vals.valueType == "Number"
         gui.add(@C, varName).min(vals.minValue).max(vals.maxValue).listen().onFinishChange( () => @updateConstants())
+      if vals.valueType == "Integer"
+        gui.add(@C, varName).min(vals.minValue).max(vals.maxValue).step(1)
+                            .listen().onFinishChange( () => @updateConstants())
 
     gui.add(opt, 'Kill all blobs')
     gui.add(opt, 'Add 50 blobs')

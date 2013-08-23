@@ -81,10 +81,10 @@
   },
   "REPR_TIME_REQUIREMENT": {
     "descriptiveName": "Reproduction Time Requirement",
-    "maxValue": 50.0,
-    "minValue": 1.0,
-    "value": 7.0,
-    "valueType": "Number",
+    "maxValue": 50,
+    "minValue": 1,
+    "value": 7,
+    "valueType": "Integer",
     "variableName": "REPR_TIME_REQUIREMENT"
   }
 }

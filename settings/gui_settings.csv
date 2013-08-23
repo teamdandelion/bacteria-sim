@@ -1,6 +1,6 @@
 #VariableName, DescriptiveName, ValueType, DefaultValue, MinValue, MaxValue
 REPR_ENERGY_COST, Reproduction Cost, Number, 1000, 100, 10000
-REPR_TIME_REQUIREMENT, Reproduction Time Requirement, Number, 7, 1, 50
+REPR_TIME_REQUIREMENT, Reproduction Time Requirement, Integer, 7, 1, 50
 PHO_EPS, Photosynthesis Energy/Sec, Number, 0.5, -0.5, 1.0
 PHO_SQ_EPS, Photosynthesis^2 Energy/Sec, Number, .1, 0.0, 1.0
 ATK_EPS, Attack Energy/Sec, Number, 0.5, 0, 1.0

@@ -210,6 +210,9 @@
           min = valueDict.minValue;
           max = valueDict.maxValue;
           _this.C[varName] = min + Math.random() * (max - min);
+          if (valueDict.valueType === "Integer") {
+            _this.C[varName] = Math.round(_this.C[varName]);
+          }
         }
         return _this.updateConstants();
       };
@@ -228,16 +231,23 @@
           if (_this.C[varName] > max) {
             _this.C[varName] = max;
           }
+          if (valueDict.valueType === "Integer") {
+            _this.C[varName] = Math.round(_this.C[varName]);
+          }
         }
         return _this.updateConstants();
       };
       gui = new dat.GUI();
-      console.log(this.C);
       _ref = this.guiSettings;
       for (varName in _ref) {
         vals = _ref[varName];
         if (vals.valueType === "Number") {
           gui.add(this.C, varName).min(vals.minValue).max(vals.maxValue).listen().onFinishChange(function() {
+            return _this.updateConstants();
+          });
+        }
+        if (vals.valueType === "Integer") {
+          gui.add(this.C, varName).min(vals.minValue).max(vals.maxValue).step(1).listen().onFinishChange(function() {
             return _this.updateConstants();
           });
         }

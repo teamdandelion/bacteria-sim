@@ -11,6 +11,10 @@ def parse_gui_settings():
         DefaultValue = float(DefaultValue)
         MinValue = float(MinValue)
         MaxValue = float(MaxValue)
+      elif ValueType == "Integer":
+        DefaultValue = int(DefaultValue)
+        MinValue = int(MinValue)
+        MaxValue = int(MaxValue)
       subDict = {"descriptiveName": DescriptiveName,  "variableName": VariableName,
                  "valueType": ValueType,  "value": DefaultValue,  "minValue": MinValue,  "maxValue": MaxValue}
       outDict[VariableName] = subDict
