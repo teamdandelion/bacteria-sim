@@ -23,6 +23,14 @@
     "valueType": "Number",
     "variableName": "ATK_SQ_EPS"
   },
+  "ATTACK_BURN": {
+    "descriptiveName": "Energy lost in attacking",
+    "maxValue": 20.0,
+    "minValue": 0.0,
+    "value": 3.0,
+    "valueType": "Number",
+    "variableName": "ATTACK_BURN"
+  },
   "BLOB_SIZE": {
     "descriptiveName": "Cell Size",
     "maxValue": 5.0,
@@ -58,7 +66,7 @@
   "PHO_EPS": {
     "descriptiveName": "Photosynthesis Energy/Sec",
     "maxValue": 1.0,
-    "minValue": -0.5,
+    "minValue": 0.0,
     "value": 0.5,
     "valueType": "Number",
     "variableName": "PHO_EPS"
@@ -67,7 +75,7 @@
     "descriptiveName": "Photosynthesis^2 Energy/Sec",
     "maxValue": 1.0,
     "minValue": 0.0,
-    "value": 0.1,
+    "value": 0.2,
     "valueType": "Number",
     "variableName": "PHO_SQ_EPS"
   },
@@ -83,7 +91,7 @@
     "descriptiveName": "Reproduction Time Requirement",
     "maxValue": 50,
     "minValue": 1,
-    "value": 7,
+    "value": 25,
     "valueType": "Integer",
     "variableName": "REPR_TIME_REQUIREMENT"
   }

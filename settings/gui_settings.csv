@@ -1,8 +1,8 @@
 #VariableName, DescriptiveName, ValueType, DefaultValue, MinValue, MaxValue
 REPR_ENERGY_COST, Reproduction Cost, Number, 1000, 100, 10000
-REPR_TIME_REQUIREMENT, Reproduction Time Requirement, Integer, 7, 1, 50
-PHO_EPS, Photosynthesis Energy/Sec, Number, 0.5, -0.5, 1.0
-PHO_SQ_EPS, Photosynthesis^2 Energy/Sec, Number, .1, 0.0, 1.0
+REPR_TIME_REQUIREMENT, Reproduction Time Requirement, Integer, 25, 1, 50
+PHO_EPS, Photosynthesis Energy/Sec, Number, 0.5, 0.0, 1.0
+PHO_SQ_EPS, Photosynthesis^2 Energy/Sec, Number, .2, 0.0, 1.0
 ATK_EPS, Attack Energy/Sec, Number, 0.5, 0, 1.0
 ATK_SQ_EPS, Attack^2 Energy/Sec, Number, 0.1, 0, 1.0
 BLOB_SIZE, Cell Size, Number, 1.0, 0.05, 5.0
@@ -10,3 +10,4 @@ MUTATION_CONSTANT, Mutation size, Number, 0.3, 0.01, 1.0
 MUTATION_PROBABILITY, Mutation frequency, Number, 0.05, 0.0, 1.0
 ENERGY_DECAY, Energy decay, Number, 0.03, 0, 0.2
 AGE_ENERGY_DECAY, Old age decay, Number, 0.3, 0.0, 3.0
+ATTACK_BURN, Energy lost in attacking, Number, 3.0, 0.0, 20.0

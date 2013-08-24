@@ -723,6 +723,7 @@
       this.blu = this.spd * 2.55;
       this.currentHeading = null;
       this.maxMovement = this.spd * self.C.MOVEMENT_SPEED_FACTOR;
+      this.reproSpeedFactor = (100 - this.spd) / 100;
       this.stepsUntilNextAction = 0;
       this.stepsUntilNextQuery = 0;
       this.alive = true;
@@ -819,7 +820,7 @@
         }
       }
       if (this.action.type === "repr") {
-        this.maintainCurrentAction = self.C.REPR_TIME_REQUIREMENT + Math.round(Math.random());
+        this.maintainCurrentAction = Math.round(self.C.REPR_TIME_REQUIREMENT * this.reproSpeedFactor + Math.random());
         return this.reproducing = true;
       }
     };
@@ -866,9 +867,10 @@
             amt = Math.min(attackDelta, aBlob.energy);
             this.energy += amt;
             this.attackEnergyThisTurn += amt;
-            aBlob.energy -= attackDelta + 5;
+            aBlob.energy -= attackDelta;
             aBlob.attackEnergyThisTurn -= attackDelta + 5;
           }
+          this.energy -= self.C.ATTACK_BURN;
         }
       }
       if (isNaN(this.attackEnergyThisTurn)) {

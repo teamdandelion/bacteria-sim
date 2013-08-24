@@ -501,6 +501,7 @@ class Blob
 
     @currentHeading = null
     @maxMovement = @spd * self.C.MOVEMENT_SPEED_FACTOR
+    @reproSpeedFactor = (100 - @spd) / 100
     @stepsUntilNextAction = 0
     @stepsUntilNextQuery = 0
     @alive = on
@@ -572,7 +573,8 @@ class Blob
         @huntTarget = @action.argument[0]
         @maintainCurrentAction = 20 # keep hunting same target for 20 turns
     if @action.type == "repr"
-      @maintainCurrentAction = self.C.REPR_TIME_REQUIREMENT + Math.round(Math.random())
+      # Blob will not do anything for a certain number of turns while it prepares to reproduce
+      @maintainCurrentAction = Math.round(self.C.REPR_TIME_REQUIREMENT * @reproSpeedFactor + Math.random())
       @reproducing = on
 
     # reproduction maintenance is handled in reproduction code
@@ -616,18 +618,17 @@ class Blob
       if dist < @rad + aBlob.rad + 1
         attackDelta = @attackPower - aBlob.attackPower
         if attackDelta >= 0
-          # @attackedThisTurn[aBlob.id] = on
           @numAttacks++
           aBlob.numAttacks++
           # I attack them
           amt = Math.min(attackDelta, aBlob.energy)
-          # if @observed? or aBlob.observed?
-            # self.postDebug "#{@id} attacking #{aBlob.id} for #{amt}"
 
           @energy += amt
           @attackEnergyThisTurn += amt
-          aBlob.energy -= attackDelta + 5
+          aBlob.energy -= attackDelta
           aBlob.attackEnergyThisTurn -= attackDelta + 5
+        # We both lose ATTACK_BURN energy - prevent clumps from lagging the machine
+        @energy -= self.C.ATTACK_BURN
     if isNaN(@attackEnergyThisTurn)
       self.postDebug @
       self.postDebug "NAN attack energy"
