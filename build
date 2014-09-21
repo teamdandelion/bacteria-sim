@@ -14,9 +14,7 @@ switch $arg
 		cat $FRONTEND_FILES   > web/frontend.coffee
 		coffee -c web/simulation.coffee
 		coffee -c web/frontend.coffee
-		cp lib/* web/lib
 		python settings/process_settings.py
-		cp settings/*.json web
 		echo rebuilt the web files
 
 	case quadtree_test

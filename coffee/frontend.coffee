@@ -6,7 +6,7 @@ class Frontend
     # displaying them at both edges of the field
     # at teh same time
     @running = on
-    @sim = new Worker 'simulation.js'
+    @sim = new Worker 'web/simulation.js'
     @sim.onmessage = (event) =>
       switch event.data.type
         when 'blobs'
@@ -146,5 +146,5 @@ $(document).ready ->
     if window.HACKHACK.guiSettings? and window.HACKHACK.nonGuiSettings?
       processing = new Processing(canvas, processingSetup)
       window.HACKHACK = null
-  $.getJSON("gui_settings.json",     (j) => window.HACKHACK.guiSettings    = j; window.HACKHACK.tryContinue())
-  $.getJSON("non_gui_settings.json", (j) => window.HACKHACK.nonGuiSettings = j; window.HACKHACK.tryContinue())
+  $.getJSON("settings/gui_settings.json",     (j) => window.HACKHACK.guiSettings    = j; window.HACKHACK.tryContinue())
+  $.getJSON("settings/non_gui_settings.json", (j) => window.HACKHACK.nonGuiSettings = j; window.HACKHACK.tryContinue())
