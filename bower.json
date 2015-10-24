@@ -1,0 +1,30 @@
+{
+  "name": "EvolutionSimulator",
+  "homepage": "https://github.com/danmane/EvolutionSimulator",
+  "authors": [
+    "Daniel Mané <danmane@gmail.com>"
+  ],
+  "description": "A web toy for simulating evolution and competition",
+  "main": "index.html",
+  "moduleType": [],
+  "keywords": [
+    "toy",
+    "simulator",
+    "evolution",
+    "bacteria",
+    "biology"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "Processing.js": "processing#~1.4.16",
+    "dat.gui": "*",
+    "jquery": "~2.1.4"
+  }
+}
