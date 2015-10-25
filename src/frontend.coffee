@@ -70,7 +70,11 @@ class Frontend
         if valueDict.valueType == "Integer"
           @C[varName] = Math.round(@C[varName])
       @updateConstants()
-    gui = new dat.GUI()
+    container = document.getElementById("gui-container")
+    if !container?
+      throw new Error("Please create #gui-container for the gui")
+    gui = new dat.GUI({autoplace: false})
+    container.appendChild(gui.domElement)
     for varName, vals of @guiSettings
       if vals.valueType == "Number"
         gui.add(@C, varName).min(vals.minValue).max(vals.maxValue).listen().onFinishChange( () => @updateConstants())

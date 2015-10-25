@@ -189,7 +189,7 @@
     };
 
     Frontend.prototype.setupGui = function() {
-      var gui, opt, ref, vals, varName;
+      var container, gui, opt, ref, vals, varName;
       opt = {};
       opt['Kill all blobs'] = (function(_this) {
         return function() {
@@ -252,7 +252,14 @@
           return _this.updateConstants();
         };
       })(this);
-      gui = new dat.GUI();
+      container = document.getElementById("gui-container");
+      if (container == null) {
+        throw new Error("Please create #gui-container for the gui");
+      }
+      gui = new dat.GUI({
+        autoplace: false
+      });
+      container.appendChild(gui.domElement);
       ref = this.guiSettings;
       for (varName in ref) {
         vals = ref[varName];
