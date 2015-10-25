@@ -319,6 +319,9 @@
   $(document).ready(function() {
     var canvas, go, guiSettings, nonGuiSettings, processingSetup;
     canvas = $("#processing")[0];
+    if (canvas == null) {
+      throw new Error("Couldn't find a #processing canvas to draw in.");
+    }
     guiSettings = null;
     nonGuiSettings = null;
     processingSetup = function(p) {

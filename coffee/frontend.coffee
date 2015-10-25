@@ -117,6 +117,8 @@ class Frontend
 # create a processing instance...
 $(document).ready ->
   canvas = $("#processing")[0]
+  if !canvas?
+    throw new Error("Couldn't find a #processing canvas to draw in.")
   guiSettings = null
   nonGuiSettings = null
   processingSetup = (p) ->
