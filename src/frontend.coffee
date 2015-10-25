@@ -74,12 +74,14 @@ class Frontend
     if !container?
       throw new Error("Please create #gui-container for the gui")
     gui = new dat.GUI({autoplace: false})
+    gui.close()
     container.appendChild(gui.domElement)
+    parameters = gui.addFolder("parameters")
     for varName, vals of @guiSettings
       if vals.valueType == "Number"
-        gui.add(@C, varName).min(vals.minValue).max(vals.maxValue).listen().onFinishChange( () => @updateConstants())
+        parameters.add(@C, varName).min(vals.minValue).max(vals.maxValue).listen().onFinishChange( () => @updateConstants())
       if vals.valueType == "Integer"
-        gui.add(@C, varName).min(vals.minValue).max(vals.maxValue).step(1)
+        parameters.add(@C, varName).min(vals.minValue).max(vals.maxValue).step(1)
                             .listen().onFinishChange( () => @updateConstants())
 
     gui.add(opt, 'Kill all blobs')

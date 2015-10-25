@@ -189,7 +189,7 @@
     };
 
     Frontend.prototype.setupGui = function() {
-      var container, gui, opt, ref, vals, varName;
+      var container, gui, opt, parameters, ref, vals, varName;
       opt = {};
       opt['Kill all blobs'] = (function(_this) {
         return function() {
@@ -259,19 +259,21 @@
       gui = new dat.GUI({
         autoplace: false
       });
+      gui.close();
       container.appendChild(gui.domElement);
+      parameters = gui.addFolder("parameters");
       ref = this.guiSettings;
       for (varName in ref) {
         vals = ref[varName];
         if (vals.valueType === "Number") {
-          gui.add(this.C, varName).min(vals.minValue).max(vals.maxValue).listen().onFinishChange((function(_this) {
+          parameters.add(this.C, varName).min(vals.minValue).max(vals.maxValue).listen().onFinishChange((function(_this) {
             return function() {
               return _this.updateConstants();
             };
           })(this));
         }
         if (vals.valueType === "Integer") {
-          gui.add(this.C, varName).min(vals.minValue).max(vals.maxValue).step(1).listen().onFinishChange((function(_this) {
+          parameters.add(this.C, varName).min(vals.minValue).max(vals.maxValue).step(1).listen().onFinishChange((function(_this) {
             return function() {
               return _this.updateConstants();
             };
