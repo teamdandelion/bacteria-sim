@@ -6,7 +6,10 @@ class Frontend
     # displaying them at both edges of the field
     # at teh same time
     @running = on
-    @sim = new Worker 'web/simulation.js'
+    if !window.simulationWorker
+      throw new Error("Please define a simulation worker path (eg dist/simulation.js)")
+
+    @sim = new Worker window.simulationWorker
     @sim.onmessage = (event) =>
       switch event.data.type
         when 'blobs'

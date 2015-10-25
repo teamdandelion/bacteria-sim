@@ -137,7 +137,10 @@
       this.guiSettings = guiSettings1;
       this.nonGuiSettings = nonGuiSettings1;
       this.running = true;
-      this.sim = new Worker('web/simulation.js');
+      if (!window.simulationWorker) {
+        throw new Error("Please define a simulation worker path (eg dist/simulation.js)");
+      }
+      this.sim = new Worker(window.simulationWorker);
       this.sim.onmessage = (function(_this) {
         return function(event) {
           switch (event.data.type) {
