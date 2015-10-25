@@ -82,7 +82,7 @@
     };
 
     Renderer.prototype.processUpdate = function() {
-      var addedBlobs, c, dr, dx, dy, i, id, l, len, len1, rc, ref, ref1, ref2, ref3, removedBlobs, rf, xc, xf, yc, yf;
+      var addedBlobs, c, dr, dx, dy, i, id, j, len, len1, rc, ref, ref1, ref2, ref3, removedBlobs, rf, xc, xf, yc, yf;
       this.updateAvailable = false;
       this.requestUpdate();
       this.currentState = this.futureState;
@@ -114,8 +114,8 @@
         dr = (rf - rc) / this.framesUntilUpdate;
         this.delta[id] = [dx, dy, dr];
       }
-      for (l = 0, len1 = removedBlobs.length; l < len1; l++) {
-        id = removedBlobs[l];
+      for (j = 0, len1 = removedBlobs.length; j < len1; j++) {
+        id = removedBlobs[j];
         if (id in this.currentState) {
           dr = -this.currentState[id][2] / this.framesUntilUpdate;
           this.delta[id] = [0, 0, dr];
@@ -316,14 +316,8 @@
 
   })();
 
-  $(document).ready(function() {
-    var canvas, go, guiSettings, nonGuiSettings, processingSetup;
-    canvas = $("#processing")[0];
-    if (canvas == null) {
-      throw new Error("Couldn't find a #processing canvas to draw in.");
-    }
-    guiSettings = null;
-    nonGuiSettings = null;
+  window.activateEvolutionSimulator = function(canvas, guiSettings, nonGuiSettings) {
+    var processing, processingSetup;
     processingSetup = function(p) {
       var frontend;
       frontend = new Frontend(p, guiSettings, nonGuiSettings);
@@ -343,24 +337,7 @@
         return frontend.keyCode(p.keyCode);
       };
     };
-    go = function() {
-      var processing;
-      if ((guiSettings != null) && (nonGuiSettings != null)) {
-        return processing = new Processing(canvas, processingSetup);
-      }
-    };
-    $.getJSON("settings/gui_settings.json", (function(_this) {
-      return function(j) {
-        guiSettings = j;
-        return go();
-      };
-    })(this));
-    return $.getJSON("settings/non_gui_settings.json", (function(_this) {
-      return function(j) {
-        nonGuiSettings = j;
-        return go();
-      };
-    })(this));
-  });
+    return processing = new Processing(canvas, processingSetup);
+  };
 
 }).call(this);

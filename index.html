@@ -25,7 +25,26 @@
   <script src="bower_components/jquery/dist/jquery.min.js"></script>
   <script src="bower_components/Processing.js/processing.min.js"></script>
   <script src="bower_components/dat.gui/dat.gui.min.js"></script>
-  <script src="web/frontend.js"></script>
-
+  <script src="dist/frontend.js"></script>
+  <script>
+  $(document).ready(function() {
+    var gui = null;
+    var nonGui = null;
+    function go() {
+      if (nonGui && gui) {
+        var canvas = $("#processing")[0];
+        activateEvolutionSimulator(canvas, gui, nonGui);
+      }
+    }
+    $.getJSON("settings/gui_settings.json", function(json) {
+      gui = json;
+      go();
+    });
+    $.getJSON("settings/non_gui_settings.json", function(json) {
+      nonGui = json;
+      go();
+    });
+  });
+  </script>
 </body>
 </html>

@@ -115,12 +115,8 @@ class Frontend
 
 # wait for the DOM to be ready,
 # create a processing instance...
-$(document).ready ->
-  canvas = $("#processing")[0]
-  if !canvas?
-    throw new Error("Couldn't find a #processing canvas to draw in.")
-  guiSettings = null
-  nonGuiSettings = null
+window.activateEvolutionSimulator = (canvas, guiSettings, nonGuiSettings) ->
+
   processingSetup = (p) ->
     frontend = new Frontend(p, guiSettings, nonGuiSettings)
     p.mouseClicked = () ->
@@ -137,8 +133,5 @@ $(document).ready ->
     p.keyPressed = () ->
       console.log p.keyCode
       frontend.keyCode(p.keyCode)
-  go = ->
-    if guiSettings? and nonGuiSettings?
-      processing = new Processing(canvas, processingSetup)
-  $.getJSON("settings/gui_settings.json",     (j) => guiSettings = j; go())
-  $.getJSON("settings/non_gui_settings.json", (j) => nonGuiSettings = j; go())
+
+  processing = new Processing(canvas, processingSetup)
