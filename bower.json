@@ -10,8 +10,8 @@
     "README.md",
     "dist/frontend.js",
     "dist/simulation.js",
-    "dist/gui_settings.json",
-    "dist/non_gui_settings.json"
+    "settings/gui_settings.json",
+    "settings/non_gui_settings.json"
   ],
   "moduleType": [],
   "keywords": [
