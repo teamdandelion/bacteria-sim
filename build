@@ -14,6 +14,7 @@ switch $arg
 		cat $FRONTEND_FILES   > dist/frontend.coffee
 		coffee -c dist/simulation.coffee
 		coffee -c dist/frontend.coffee
+		rm dist/*.coffee
 		python settings/process_settings.py
 		echo rebuilt the web files
 
