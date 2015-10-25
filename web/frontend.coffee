@@ -232,38 +232,30 @@ class Frontend
   #     if !@running
   #       @drawAll()
 
-
-
-
-
-
-
-processingSetup = (p) ->
-  frontend = new Frontend(p, window.HACKHACK.guiSettings, window.HACKHACK.nonGuiSettings)
-  p.mouseClicked = () ->
-    frontend.mouseClick(p.mouseX, p.mouseY)
-
-  p.setup = () ->
-    p.frameRate(frontend.C.FRAME_RATE)
-    p.size(frontend.C.X_BOUND, frontend.C.Y_BOUND)
-    p.background(0,20,90)
-
-  p.draw = () ->
-    frontend.step()
-
-  p.keyPressed = () ->
-    console.log p.keyCode
-    frontend.keyCode(p.keyCode)
-
-
 # wait for the DOM to be ready,
 # create a processing instance...
 $(document).ready ->
   canvas = $("#processing")[0]
-  window.HACKHACK = {}
-  window.HACKHACK.tryContinue = ->
-    if window.HACKHACK.guiSettings? and window.HACKHACK.nonGuiSettings?
+  guiSettings = null
+  nonGuiSettings = null
+  processingSetup = (p) ->
+    frontend = new Frontend(p, guiSettings, nonGuiSettings)
+    p.mouseClicked = () ->
+      frontend.mouseClick(p.mouseX, p.mouseY)
+
+    p.setup = () ->
+      p.frameRate(frontend.C.FRAME_RATE)
+      p.size(frontend.C.X_BOUND, frontend.C.Y_BOUND)
+      p.background(0,20,90)
+
+    p.draw = () ->
+      frontend.step()
+
+    p.keyPressed = () ->
+      console.log p.keyCode
+      frontend.keyCode(p.keyCode)
+  go = ->
+    if guiSettings? and nonGuiSettings?
       processing = new Processing(canvas, processingSetup)
-      window.HACKHACK = null
-  $.getJSON("settings/gui_settings.json",     (j) => window.HACKHACK.guiSettings    = j; window.HACKHACK.tryContinue())
-  $.getJSON("settings/non_gui_settings.json", (j) => window.HACKHACK.nonGuiSettings = j; window.HACKHACK.tryContinue())
+  $.getJSON("settings/gui_settings.json",     (j) => guiSettings = j; go())
+  $.getJSON("settings/non_gui_settings.json", (j) => nonGuiSettings = j; go())
