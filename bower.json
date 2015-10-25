@@ -5,7 +5,14 @@
     "Daniel Mané <danmane@gmail.com>"
   ],
   "description": "A web toy for simulating evolution and competition",
-  "main": "index.html",
+  "main": [
+    "index.html",
+    "README.md",
+    "dist/frontend.js",
+    "dist/simulation.js",
+    "dist/gui_settings.json",
+    "dist/non_gui_settings.json"
+  ],
   "moduleType": [],
   "keywords": [
     "toy",
