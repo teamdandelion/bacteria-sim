@@ -3,6 +3,9 @@
 This is a Coffeescript / Processing.js project to simulate evolution of bacteria-like organisms in the browser.
 [See it live and play with it!](http://danmane.github.io/EvolutionSimulator/)
 
+This is a rather old project but hopefully it still works :) The build script will,
+well, build the project, although it depends on the fish shell. :o
+
 ### Rules of the Game
 Each "blob" has an amount of energy, which is proportional to its size. If its energy goes below zero it dies. It can reproduce, which takes time and energy.
 Each "blob" has three attributes: photosynthesis, attack, and fecundity. These correspond to the three primary colors: green, red, and blue. For each blob, you can see which attributes it has based on its color.
