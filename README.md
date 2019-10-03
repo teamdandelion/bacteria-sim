@@ -1,7 +1,7 @@
 # EvolutionSimulator
 ![image](https://cloud.githubusercontent.com/assets/1400023/4349290/9244c4fa-41b0-11e4-8bbc-a3b4bcf0fa7f.png)
 This is a Coffeescript / Processing.js project to simulate evolution of bacteria-like organisms in the browser.
-[See it live and play with it!](http://danmane.github.io/EvolutionSimulator/)
+[See it live and play with it!](http://decentralion.github.io/bacteria-sim/)
 
 This is a rather old project but hopefully it still works :) The build script will,
 well, build the project, although it depends on the fish shell. :o
